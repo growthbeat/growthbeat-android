@@ -33,7 +33,7 @@ public class Growthbeat {
 		GrowthPush.getInstance().initialize(context, applicationId, credentialId, environment, senderId);
 	}
 
-	public void intializeGrowthReplay() {
+	public void initializeGrowthReplay() {
 		GrowthReplay.getInstance().initialize(context, applicationId, credentialId);
 	}
 
