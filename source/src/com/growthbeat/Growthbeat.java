@@ -2,23 +2,34 @@ package com.growthbeat;
 
 import android.content.Context;
 
-import com.growthbeat.model.Client;
-import com.growthbeat.observer.ClientObserver;
 import com.growthpush.GrowthPush;
+import com.growthpush.model.Environment;
 
 public class Growthbeat {
 
-	public static void initialize(final Context context, final String applicationId, final String credentialId) {
+	private static final Growthbeat instance = new Growthbeat();
 
-		GrowthbeatCore.getInstance().addClientObserver(new ClientObserver() {
-			@Override
-			public void update(Client client) {
-				// TODO migrate to new API
-				GrowthPush.getInstance().initialize(context, 0, credentialId);
-			}
-		});
+	private Context context;
+	private String applicationId;
+	private String credentialId;
+
+	private Growthbeat() {
+		super();
+	}
+
+	public static Growthbeat getInstance() {
+		return instance;
+	}
+
+	public void initialize(Context context, String applicationId, String credentialId) {
+		this.context = context;
+		this.applicationId = applicationId;
+		this.credentialId = credentialId;
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+	}
 
+	public void initializeGrowthPush(Environment environment, String senderId) {
+		GrowthPush.getInstance().initialize(context, applicationId, credentialId, environment, senderId);
 	}
 
 }
