@@ -4,3 +4,6 @@
 [submodule "submodules/growthpush-android"]
 	path = submodules/growthpush-android
 	url = https://github.com/SIROK/growthpush-android.git
+[submodule "submodules/growthreplay-android"]
+	path = submodules/growthreplay-android
+	url = https://github.com/SIROK/growthreplay-android.git
