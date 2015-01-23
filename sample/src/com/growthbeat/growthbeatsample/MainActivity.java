@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
 		Growthbeat.getInstance().initialize(getApplicationContext(), "OyVa3zboPjHVjsDC", "3EKydeJ0imxJ5WqS22FJfdVamFLgu7XA");
 		Growthbeat.getInstance().initializeGrowthPush(BuildConfig.DEBUG ? Environment.development : Environment.production, "955057365401");
 		Growthbeat.getInstance().initializeGrowthReplay();
+		GrowthAnalytics.getInstance().getHttpClient().setBaseUrl("http://api.stg.analytics.growthbeat.com/");
 	}
 
 	@Override

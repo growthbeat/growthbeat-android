@@ -3,9 +3,6 @@ package com.growthbeat;
 import android.content.Context;
 
 import com.growthbeat.analytics.GrowthAnalytics;
-import com.growthpush.GrowthPush;
-import com.growthpush.model.Environment;
-import com.growthreplay.GrowthReplay;
 
 public class Growthbeat {
 
@@ -28,14 +25,6 @@ public class Growthbeat {
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-	}
-
-	public void initializeGrowthPush(Environment environment, String senderId) {
-		GrowthPush.getInstance().initialize(context, applicationId, credentialId, environment, senderId);
-	}
-
-	public void initializeGrowthReplay() {
-		GrowthReplay.getInstance().initialize(context, applicationId, credentialId);
 	}
 
 	public void initializeGrowthAnalytics() {
