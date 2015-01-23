@@ -2,11 +2,10 @@ package com.growthbeat.growthbeatsample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 
 import com.growthbeat.Growthbeat;
-import com.growthpush.GrowthPush;
-import com.growthpush.model.Environment;
 
 public class MainActivity extends Activity {
 
@@ -17,8 +16,6 @@ public class MainActivity extends Activity {
 		Growthbeat.getInstance().initialize(this.getApplicationContext(), "dy6VlRMnN3juhW9L", "NuvkVhQtRDG2nrNeDzHXzZO5c6j0Xu5t");
 		Growthbeat.getInstance().initializeGrowthPush(BuildConfig.DEBUG ? Environment.development : Environment.production, "955057365401");
 		Growthbeat.getInstance().initializeGrowthReplay();
-		GrowthPush.getInstance().setDeviceTags();
-		GrowthPush.getInstance().trackEvent("Launch");
 	}
 
 	@Override
