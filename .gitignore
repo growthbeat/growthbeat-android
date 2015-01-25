@@ -1,3 +1,7 @@
+.project
+.settings
+.classpath
+
 # Built application files
 *.apk
 *.ap_
