@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Menu;
 
 import com.growthbeat.Growthbeat;
-import com.growthbeat.analytics.GrowthAnalytics;
 
 public class MainActivity extends Activity {
 
@@ -15,22 +14,19 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		Growthbeat.getInstance().initialize(this, "OyVa3zboPjHVjsDC", "3EKydeJ0imxJ5WqS22FJfdVamFLgu7XA");
 		Growthbeat.getInstance().initializeGrowthAnalytics();
+		Growthbeat.getInstance().initializeGrowthMessage();
 	}
 
 	@Override
 	public void onStart() {
-
 		super.onStart();
-
-		GrowthAnalytics.getInstance().open();
-		GrowthAnalytics.getInstance().setBasicTags();
-
+		Growthbeat.getInstance().start();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		GrowthAnalytics.getInstance().close();
+		Growthbeat.getInstance().stop();
 	}
 
 	@Override

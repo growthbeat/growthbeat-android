@@ -3,6 +3,7 @@ package com.growthbeat;
 import android.content.Context;
 
 import com.growthbeat.analytics.GrowthAnalytics;
+import com.growthbeat.message.GrowthMessage;
 
 public class Growthbeat {
 
@@ -29,6 +30,18 @@ public class Growthbeat {
 
 	public void initializeGrowthAnalytics() {
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+	}
+
+	public void initializeGrowthMessage() {
+		GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
+	}
+
+	public void start() {
+		GrowthAnalytics.getInstance().open();
+	}
+
+	public void stop() {
+		GrowthAnalytics.getInstance().close();
 	}
 
 }
