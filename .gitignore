@@ -1,6 +1,7 @@
 .project
 .settings
 .classpath
+*.fatjar
 
 # Built application files
 *.apk
