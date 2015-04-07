@@ -22,7 +22,7 @@ public class Growthbeat {
 	}
 
 	public void initialize(Context context, String applicationId, String credentialId) {
-		this.context = context;
+		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);

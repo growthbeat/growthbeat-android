@@ -24,8 +24,6 @@
         </activity>
         <activity
             android:name="com.growthbeat.message.view.AlertActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent" />
     </application>
 
