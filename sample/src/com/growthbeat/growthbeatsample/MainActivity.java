@@ -12,7 +12,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Growthbeat.getInstance().initialize(this, "OyVa3zboPjHVjsDC", "3EKydeJ0imxJ5WqS22FJfdVamFLgu7XA");
+		Growthbeat.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY");
 		Growthbeat.getInstance().initializeGrowthAnalytics();
 		Growthbeat.getInstance().initializeGrowthMessage();
 	}
