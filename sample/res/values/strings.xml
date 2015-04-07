@@ -3,6 +3,10 @@
 
     <string name="app_name">Growthbeat Sample</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title">Growthbeat</string>
+    <string name="random_tag_button_text">Set random tag</string>
+    <string name="level_tag_button_text">Set level tag</string>
+    <string name="development_tag_check_box_text">Development Tag</string>
+    <string name="purchase_event_button_text">Track purchase event</string>
 
 </resources>

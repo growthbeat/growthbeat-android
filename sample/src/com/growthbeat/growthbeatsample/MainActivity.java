@@ -2,7 +2,12 @@ package com.growthbeat.growthbeatsample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
@@ -13,24 +18,64 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Growthbeat.getInstance().initialize(this, "OyVa3zboPjHVjsDC", "3EKydeJ0imxJ5WqS22FJfdVamFLgu7XA");
+
+		Growthbeat.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY");
 		Growthbeat.getInstance().initializeGrowthAnalytics();
+		Growthbeat.getInstance().initializeGrowthMessage();
+
+		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				GrowthAnalytics.getInstance().setRandom();
+			}
+		});
+
+		findViewById(R.id.development_tag_check_box).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				CheckBox checkBox = (CheckBox) v;
+				GrowthAnalytics.getInstance().setDevelopment(checkBox.isChecked());
+			}
+		});
+
+		findViewById(R.id.level_tag_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					EditText editText = (EditText) findViewById(R.id.level_edit_text);
+					GrowthAnalytics.getInstance().setLevel(Integer.valueOf(editText.getText().toString()));
+				} catch (NumberFormatException e) {
+					Log.w("Grwothbeat Sample", "Input value error :" + e.getMessage());
+				}
+			}
+		});
+
+		findViewById(R.id.purchase_event_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					EditText priceEditText = (EditText) findViewById(R.id.price_edit_text);
+					EditText productEditText = (EditText) findViewById(R.id.product_edit_text);
+					GrowthAnalytics.getInstance().purchase(Integer.valueOf(priceEditText.getText().toString()), "item",
+							productEditText.getText().toString());
+				} catch (NumberFormatException e) {
+					Log.w("Grwothbeat Sample", "Input value error :" + e.getMessage());
+				}
+			}
+		});
+
 	}
 
 	@Override
 	public void onStart() {
-
 		super.onStart();
-
-		GrowthAnalytics.getInstance().open();
-		GrowthAnalytics.getInstance().setBasicTags();
-
+		Growthbeat.getInstance().start();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		GrowthAnalytics.getInstance().close();
+		Growthbeat.getInstance().stop();
 	}
 
 	@Override
