@@ -78,8 +78,8 @@ Growthbeat Core SDK is core functions for Growthbeat integrated services.
 
 [Growth Message](https://message.growthbeat.com/) is in-app message service for mobile apps.
 
-* [Growth Message SDK for Android](https://github.com/SIROK/growthanalytics-android)
-* 
+* [Growth Message SDK for Android](https://github.com/SIROK/growthmessage-android)
+
 ### Growth Push (Under development)
 
 [Growth Push](https://growthpush.com/) is push notification and analysis platform for mobile apps.
