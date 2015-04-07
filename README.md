@@ -19,6 +19,12 @@ Growthbeat SDK for Android
 	```java
 	Growthbeat.getInstance().initializeGrowthAnalytics();
 	```
+	
+1. Initialize Growth Message.
+
+	```java
+	Growthbeat.getInstance().initializeGrowthMessage();
+	```
 
 1. Initialize Growth Push. (Under development)
 
@@ -32,6 +38,26 @@ Growthbeat SDK for Android
 	Growthbeat.getInstance().initializeGrowthReplay();
 	```
 
+1. Call Growthbeat's start method on Application#onStart
+
+	```java
+	Growthbeat.getInstance().start();
+	```
+
+1. Call Growthbeat's stop method on Application#onStop
+
+	```java
+	Growthbeat.getInstance().stop();
+	```
+
+1. Add following code as a element of `<application/>` in AndroidManifest.xml
+
+	```xml
+	<activity
+		android:name="com.growthbeat.message.view.AlertActivity"
+	android:theme="@android:style/Theme.Translucent" />
+	```
+    
 ## Included SDKs
 
 Growthbeat is growth hack platform for mobile apps. This repository includes Growthbeat Core SDK, Growth Analytics, Growth Push SDK and Growth Replay SDK.
@@ -48,6 +74,12 @@ Growthbeat Core SDK is core functions for Growthbeat integrated services.
 
 * [Growth Analytics SDK for Android](https://github.com/SIROK/growthanalytics-android)
 
+### Growth Message
+
+[Growth Message](https://message.growthbeat.com/) is in-app message service for mobile apps.
+
+* [Growth Message SDK for Android](https://github.com/SIROK/growthanalytics-android)
+* 
 ### Growth Push (Under development)
 
 [Growth Push](https://growthpush.com/) is push notification and analysis platform for mobile apps.
