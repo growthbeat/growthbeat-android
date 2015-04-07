@@ -36,11 +36,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level:" />
+
             <EditText
                 android:id="@+id/level_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="100" />
 
             <Button
                 android:id="@+id/level_tag_button"
@@ -49,6 +55,42 @@
                 android:layout_weight="1"
                 android:text="@string/level_tag_button_text" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Item:" />
+
+            <EditText
+                android:id="@+id/product_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="energy" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Price:" />
+
+            <EditText
+                android:id="@+id/price_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="500" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/purchase_event_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/purchase_event_button_text" />
     </LinearLayout>
 
 </RelativeLayout>
