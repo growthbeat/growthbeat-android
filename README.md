@@ -10,41 +10,19 @@ Growthbeat SDK for Android
 
 	```java
 	Growthbeat.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID");
+	Growthbeat.getInstance().initializeGrowthAnalytics();
+	Growthbeat.getInstance().initializeGrowthMessage();
 	```
 
 	You can get the APPLICATION_ID and CREDENTIAL_ID on web site of Growthbeat. 
 
-1. Initialize Growth Analytics.
-
-	```java
-	Growthbeat.getInstance().initializeGrowthAnalytics();
-	```
-	
-1. Initialize Growth Message.
-
-	```java
-	Growthbeat.getInstance().initializeGrowthMessage();
-	```
-
-1. Initialize Growth Push. (Under development)
-
-	```java
-	Growthbeat.getInstance().initializeGrowthPush(BuildConfig.DEBUG ? Environment.development : Environment.production, "SENDER_ID");
-	```
-
-1. Initialize Growth Replay. (Under development)
-
-	```java
-	Growthbeat.getInstance().initializeGrowthReplay();
-	```
-
-1. Call Growthbeat's start method on Application#onStart
+1. Call Growthbeat's start method on MainActivity#onStart
 
 	```java
 	Growthbeat.getInstance().start();
 	```
 
-1. Call Growthbeat's stop method on Application#onStop
+1. Call Growthbeat's stop method on MainActivity#onStop
 
 	```java
 	Growthbeat.getInstance().stop();
@@ -55,9 +33,15 @@ Growthbeat SDK for Android
 	```xml
 	<activity
 		android:name="com.growthbeat.message.view.AlertActivity"
-	android:theme="@android:style/Theme.Translucent" />
+		android:theme="@android:style/Theme.Translucent" />
 	```
     
+1. Write following code in the place to track custom event with Growth Analytics or display a message with Growth Message.
+
+	```objc
+	GrowthAnalytics.getInstance().track("EVENT_ID");
+	```
+	
 ## Included SDKs
 
 Growthbeat is growth hack platform for mobile apps. This repository includes Growthbeat Core SDK, Growth Analytics, Growth Push SDK and Growth Replay SDK.
@@ -91,6 +75,12 @@ Growthbeat Core SDK is core functions for Growthbeat integrated services.
 [Growth Replay](https://growthreplay.com/) is usability testing tool for mobile apps.
 
 * [Growth Replay SDK for Android](https://github.com/SIROK/growthreplay-android)
+
+## Supported Environment
+
+* Growthbeat Core support Android 2.3 and later.
+* Growth Analytics support Android 2.3 and later.
+* Growth Message support Android 4.0 and later.
 
 ## License
 
