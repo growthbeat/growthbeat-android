@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.growthbeat.message.view.AlertActivity"
+            android:name="com.growthbeat.message.view.MessageActivity"
             android:theme="@android:style/Theme.Translucent" />
     </application>
 
