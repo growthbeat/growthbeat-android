@@ -1,6 +1,7 @@
 package com.growthbeat;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.message.GrowthMessage;
@@ -25,15 +26,21 @@ public class Growthbeat {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+		}
 	}
 
 	public void initializeGrowthAnalytics() {
-		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+		}
 	}
 
 	public void initializeGrowthMessage() {
-		GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
+		}
 	}
 
 	public void start() {
