@@ -5,6 +5,8 @@ import android.os.Build;
 
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.message.GrowthMessage;
+import com.growthpush.GrowthPush;
+import com.growthpush.model.Environment;
 
 public class Growthbeat {
 
@@ -31,6 +33,12 @@ public class Growthbeat {
 		}
 	}
 
+	public void initializeGrowthPush(Environment environment, String senderId) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			GrowthPush.getInstance().initialize(context, applicationId, credentialId, environment, senderId);
+		}
+	}
+
 	public void initializeGrowthAnalytics() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
@@ -38,7 +46,7 @@ public class Growthbeat {
 	}
 
 	public void initializeGrowthMessage() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 		}
 	}
