@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
+import com.growthpush.model.Environment;
 
 public class MainActivity extends Activity {
 
@@ -20,6 +21,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		Growthbeat.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY");
+		Growthbeat.getInstance().initializeGrowthPush(Environment.development, "955057365401");
 		Growthbeat.getInstance().initializeGrowthAnalytics();
 		Growthbeat.getInstance().initializeGrowthMessage();
 
