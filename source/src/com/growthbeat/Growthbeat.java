@@ -38,7 +38,7 @@ public class Growthbeat {
 	}
 
 	public void initializeGrowthMessage() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 		}
 	}
