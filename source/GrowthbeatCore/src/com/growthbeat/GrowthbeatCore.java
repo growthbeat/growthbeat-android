@@ -10,6 +10,7 @@ import com.growthbeat.intenthandler.IntentHandler;
 import com.growthbeat.intenthandler.NoopIntentHandler;
 import com.growthbeat.intenthandler.UrlIntentHandler;
 import com.growthbeat.model.Client;
+import com.growthbeat.model.GrowthPushClient;
 import com.growthbeat.model.Intent;
 
 public class GrowthbeatCore {
@@ -74,17 +75,41 @@ public class GrowthbeatCore {
 			@Override
 			public void run() {
 
-				logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
-				client = Client.create(applicationId, credentialId);
+				GrowthPushClient growthPushClient = GrowthPushClient.load();
+				if (growthPushClient != null) {
+					logger.info(String.format(
+							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
+							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
+					client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
+					if (client == null) {
+						logger.info("Failed to convert client.");
+						return;
+					}
 
-				if (client == null) {
-					logger.info("Failed to create client.");
-					return;
+					GrowthPushClient.removePreference();
+					Client.save(client);
+					logger.info(String.format("Client converted. (id:%s)", client.getId()));
+
+				} else {
+					client = Client.load();
+					if (client != null && client.getApplication().getId().equals(applicationId)) {
+						logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+						return;
+					}
+
+					preference.removeAll();
+
+					logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
+					client = Client.create(applicationId, credentialId);
+
+					if (client == null) {
+						logger.info("Failed to create client.");
+						return;
+					}
+
+					Client.save(client);
+					logger.info(String.format("Client created. (id:%s)", client.getId()));
 				}
-
-				Client.save(client);
-				logger.info(String.format("Client created. (id:%s)", client.getId()));
-
 			}
 
 		}).start();

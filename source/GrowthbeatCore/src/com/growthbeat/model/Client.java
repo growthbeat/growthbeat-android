@@ -58,6 +58,20 @@ public class Client extends Model {
 
 	}
 
+	public static Client findById(String id, String credentialId) {
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", id);
+		params.put("credentialId", credentialId);
+
+		JSONObject jsonObject = GrowthbeatCore.getInstance().getHttpClient().get("1/clients", params);
+		if (jsonObject == null)
+			return null;
+
+		return new Client(jsonObject);
+
+	}
+
 	public String getId() {
 		return id;
 	}

@@ -306,7 +306,7 @@ public class GrowthAnalytics {
 			public void run() {
 				try {
 					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(adInfo.isLimitAdTrackingEnabled()));
+					tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(!adInfo.isLimitAdTrackingEnabled()));
 				} catch (Exception e) {
 					logger.warning("Failed to get advertising info: " + e.getMessage());
 				}

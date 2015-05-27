@@ -60,7 +60,7 @@ public class Client extends Model {
 		GrowthPush.getInstance().getPreference().remove(Client.class.getName());
 	}
 
-	public static Client create(String clientId, String credentialId, String token, Environment environment) {
+	public static Client create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("clientId", clientId);

@@ -69,6 +69,11 @@ public class GrowthMessage {
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
+		if (GrowthbeatCore.getInstance().getClient() == null
+				|| (GrowthbeatCore.getInstance().getClient().getApplication() != null && !GrowthbeatCore.getInstance().getClient()
+						.getApplication().getId().equals(applicationId))) {
+			preference.removeAll();
+		}
 
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 		GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
@@ -84,7 +89,7 @@ public class GrowthMessage {
 
 	}
 
-	public void recevieMessage(final String eventId) {
+	private void recevieMessage(final String eventId) {
 
 		final Handler handler = new Handler();
 		new Thread(new Runnable() {
@@ -106,7 +111,7 @@ public class GrowthMessage {
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							handleMessage(message);
+							openMessage(message);
 						}
 					});
 
@@ -120,17 +125,20 @@ public class GrowthMessage {
 
 	}
 
-	private void handleMessage(Message message) {
+	private void openMessage(Message message) {
 
 		for (MessageHandler messageHandler : messageHandlers) {
 			if (!messageHandler.handle(message))
 				continue;
+
 			Map<String, String> properties = new HashMap<String, String>();
 			if (message != null && message.getTask() != null)
 				properties.put("taskId", message.getTask().getId());
 			if (message != null)
 				properties.put("messageId", message.getId());
-			GrowthAnalytics.getInstance().track("Event:" + applicationId + ":GrowthMessage:ShowMessage", properties);
+
+			GrowthAnalytics.getInstance().track("GrowthMessage", "ShowMessage", properties, null);
+
 			break;
 		}
 
@@ -147,7 +155,8 @@ public class GrowthMessage {
 			properties.put("messageId", message.getId());
 		if (button != null && button.getIntent() != null)
 			properties.put("intentId", button.getIntent().getId());
-		GrowthAnalytics.getInstance().track("Event:" + applicationId + ":GrowthMessage:SelectButton", properties);
+
+		GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
 
 	}
 
