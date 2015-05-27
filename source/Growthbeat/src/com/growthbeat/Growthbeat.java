@@ -12,10 +12,6 @@ public class Growthbeat {
 
 	private static final Growthbeat instance = new Growthbeat();
 
-	private Context context;
-	private String applicationId;
-	private String credentialId;
-
 	private Growthbeat() {
 		super();
 	}
@@ -24,29 +20,15 @@ public class Growthbeat {
 		return instance;
 	}
 
-	public void initialize(Context context, String applicationId, String credentialId) {
-		this.context = context.getApplicationContext();
-		this.applicationId = applicationId;
-		this.credentialId = credentialId;
+	public void initialize(Context context, String applicationId, String credentialId, String senderId, boolean debug) {
+		context = context.getApplicationContext();
+		setLoggerSilent(!debug);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-		}
-	}
-
-	public void initializeGrowthPush(Environment environment, String senderId) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-			GrowthPush.getInstance().initialize(context, applicationId, credentialId, environment, senderId);
-		}
-	}
-
-	public void initializeGrowthAnalytics() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+			if (senderId != null)
+				GrowthPush.getInstance().initialize(context, applicationId, credentialId,
+						debug ? Environment.development : Environment.production, senderId);
 			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
-		}
-	}
-
-	public void initializeGrowthMessage() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 		}
 	}
