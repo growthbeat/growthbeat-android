@@ -45,6 +45,7 @@ public class Growthbeat {
 		GrowthbeatCore.getInstance().getLogger().setSilent(silent);
 		GrowthAnalytics.getInstance().getLogger().setSilent(silent);
 		GrowthMessage.getInstance().getLogger().setSilent(silent);
+		GrowthPush.getInstance().getLogger().setSilent(silent);
 	}
 
 }

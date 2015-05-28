@@ -88,7 +88,7 @@ public class GrowthbeatCore {
 				GrowthPushClient growthPushClient = GrowthPushClient.load();
 				if (growthPushClient != null) {
 					logger.info(String.format(
-							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
+							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%s, GrowthbeatClientId:%s)",
 							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
 
 					growthPushClient = GrowthPushClient.findByGrowthPushClientId(growthPushClient.getId(), growthPushClient.getCode());
