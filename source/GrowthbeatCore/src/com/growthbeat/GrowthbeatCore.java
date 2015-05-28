@@ -61,10 +61,20 @@ public class GrowthbeatCore {
 
 		preference.setContext(GrowthbeatCore.this.context);
 
+		GrowthPushClient growthPushClient = GrowthPushClient.load();
 		client = Client.load();
-		if (client != null && client.getApplication().getId().equals(applicationId)) {
-			logger.info(String.format("Client already exists. (id:%s)", client.getId()));
-			return;
+
+		if (growthPushClient != null) {
+			if (client.getId().equals(growthPushClient.getGrowthbeatClientId()) && client.getApplication().getId()
+					.equals(growthPushClient.getGrowthbeatApplicationId()) && client.getApplication().getId().equals(applicationId) ) {
+				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+				return;
+			}
+		} else {
+			if (client != null && client.getApplication().getId().equals(applicationId)) {
+				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+				return;
+			}
 		}
 
 		preference.removeAll();
@@ -80,25 +90,21 @@ public class GrowthbeatCore {
 					logger.info(String.format(
 							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
 							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
+
+					growthPushClient = GrowthPushClient.findByGrowthPushClientId(growthPushClient.getId(), growthPushClient.getCode());
+
 					client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
 					if (client == null) {
 						logger.info("Failed to convert client.");
+						client = null;
+						GrowthPushClient.removePreference();
 						return;
 					}
 
-					GrowthPushClient.removePreference();
 					Client.save(client);
 					logger.info(String.format("Client converted. (id:%s)", client.getId()));
 
 				} else {
-					client = Client.load();
-					if (client != null && client.getApplication().getId().equals(applicationId)) {
-						logger.info(String.format("Client already exists. (id:%s)", client.getId()));
-						return;
-					}
-
-					preference.removeAll();
-
 					logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
 					client = Client.create(applicationId, credentialId);
 
