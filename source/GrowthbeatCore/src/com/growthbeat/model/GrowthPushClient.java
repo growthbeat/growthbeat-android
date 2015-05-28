@@ -2,23 +2,33 @@ package com.growthbeat.model;
 
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Preference;
+import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GrowthPushClient extends Model {
 
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
-	private static final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 	private static final String PREFERENCE_CLIENT_KEY = "Client";
+	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
+	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
+
+	private static final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+	private static final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
+			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
 
 	private long id;
 	private int applicationId;
 	private String code;
 	private String growthbeatClientId;
+	private String growthbeatApplicationId;
 	private String token;
 	private String environment;
 	private String status;
@@ -47,6 +57,19 @@ public class GrowthPushClient extends Model {
 		preference.removeAll();
 	}
 
+	public static GrowthPushClient findByGrowthPushClientId(long growthpushClientId, String code) {
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("code", code);
+
+		JSONObject jsonObject = httpClient.get("1/clients/" + growthpushClientId, params);
+		if (jsonObject == null)
+			return null;
+
+		return new GrowthPushClient(jsonObject);
+
+	}
+
 	@Override
 	public JSONObject getJsonObject() {
 
@@ -58,6 +81,8 @@ public class GrowthPushClient extends Model {
 				jsonObject.put("code", code);
 			if (growthbeatClientId != null)
 				jsonObject.put("growthbeatClientId", growthbeatClientId);
+			if (growthbeatApplicationId != null)
+				jsonObject.put("growthbeatApplicationId", growthbeatApplicationId);
 			if (token != null)
 				jsonObject.put("token", token);
 			if (environment != null)
@@ -89,6 +114,8 @@ public class GrowthPushClient extends Model {
 				setCode(jsonObject.getString("code"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "growthbeatClientId"))
 				setGrowthbeatClientId(jsonObject.getString("growthbeatClientId"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "growthbeatApplicationId"))
+				setGrowthbeatApplicationId(jsonObject.getString("growthbeatApplicationId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "token"))
 				setToken(jsonObject.getString("token"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "environment"))
@@ -111,14 +138,6 @@ public class GrowthPushClient extends Model {
 		this.id = id;
 	}
 
-	public String getGrowthbeatClientId() {
-		return this.growthbeatClientId;
-	}
-
-	public void setGrowthbeatClientId(String growthbeatClientId) {
-		this.growthbeatClientId = growthbeatClientId;
-	}
-
 	public int getApplicationId() {
 		return this.applicationId;
 	}
@@ -133,6 +152,22 @@ public class GrowthPushClient extends Model {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public String getGrowthbeatClientId() {
+		return this.growthbeatClientId;
+	}
+
+	public void setGrowthbeatClientId(String growthbeatClientId) {
+		this.growthbeatClientId = growthbeatClientId;
+	}
+
+	public String getGrowthbeatApplicationId() {
+		return this.growthbeatApplicationId;
+	}
+
+	public void setGrowthbeatApplicationId(String growthbeatApplicationId) {
+		this.growthbeatApplicationId = growthbeatApplicationId;
 	}
 
 	public String getToken() {
