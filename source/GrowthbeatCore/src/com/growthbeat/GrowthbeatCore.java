@@ -65,7 +65,7 @@ public class GrowthbeatCore {
 		client = Client.load();
 
 		if (growthPushClient != null) {
-			if (client.getId().equals(growthPushClient.getGrowthbeatClientId()) && client.getApplication().getId()
+			if (client != null && client.getId().equals(growthPushClient.getGrowthbeatClientId()) && client.getApplication().getId()
 					.equals(growthPushClient.getGrowthbeatApplicationId()) && client.getApplication().getId().equals(applicationId) ) {
 				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
 				return;
@@ -87,11 +87,10 @@ public class GrowthbeatCore {
 
 				GrowthPushClient growthPushClient = GrowthPushClient.load();
 				if (growthPushClient != null) {
-					logger.info(String.format(
-							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%s, GrowthbeatClientId:%s)",
-							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
-
 					growthPushClient = GrowthPushClient.findByGrowthPushClientId(growthPushClient.getId(), growthPushClient.getCode());
+					logger.info(String.format(
+							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
+							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
 
 					client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
 					if (client == null) {
