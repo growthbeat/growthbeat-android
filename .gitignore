@@ -2,6 +2,8 @@
 .settings
 .classpath
 *.fatjar
+.DS_Store
+
 
 # Built application files
 *.apk
