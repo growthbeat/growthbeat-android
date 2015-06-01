@@ -290,7 +290,7 @@ public class GrowthAnalytics {
 			public void run() {
 				try {
 					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					if (adInfo.getId() == null || !adInfo.isLimitAdTrackingEnabled())
+					if (adInfo.getId() == null || adInfo.isLimitAdTrackingEnabled())
 						return;
 					tag(DEFAULT_NAMESPACE, "AdvertisingID", adInfo.getId());
 				} catch (Exception e) {
