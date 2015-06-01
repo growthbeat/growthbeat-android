@@ -19,9 +19,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Growthbeat.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY");
-		Growthbeat.getInstance().initializeGrowthAnalytics();
-		Growthbeat.getInstance().initializeGrowthMessage();
+		Growthbeat.getInstance()
+				.initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY", "955057365401", BuildConfig.DEBUG);
 
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
 			@Override
