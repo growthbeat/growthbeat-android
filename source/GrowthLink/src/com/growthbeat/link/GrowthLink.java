@@ -105,27 +105,29 @@ public class GrowthLink {
 
 					logger.info(String.format("Deeplink success. (clickId: %s)", click.getId()));
 
-					Map<String, String> properties = new HashMap<String, String>();
-					properties.put("linkId", click.getPattern().getLink().getId());
-					properties.put("patternId", click.getPattern().getId());
-					if (click.getPattern().getIntent() != null)
-						properties.put("intentId", click.getPattern().getIntent().getId());
+					handler.post(new Runnable() {
+						@Override
+						public void run() {
 
-					if (isFirstSession)
-						GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
+							Map<String, String> properties = new HashMap<String, String>();
+							properties.put("linkId", click.getPattern().getLink().getId());
+							properties.put("patternId", click.getPattern().getId());
+							if (click.getPattern().getIntent() != null)
+								properties.put("intentId", click.getPattern().getIntent().getId());
 
-					GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
+							if (isFirstSession)
+								GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
 
-					isFirstSession = false;
+							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
-					if (click.getPattern().getIntent() != null) {
-						handler.post(new Runnable() {
-							@Override
-							public void run() {
+							isFirstSession = false;
+
+							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
 							}
-						});
-					}
+
+						}
+					});
 
 				} catch (GrowthbeatException e) {
 					logger.info(String.format("Synchronization is not found.", e.getMessage()));
