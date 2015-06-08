@@ -32,6 +32,7 @@ public class Synchronization extends Model {
 		Map<String, Object> params = new HashMap<String, Object>();
 		if (applicationId != null)
 			params.put("applicationId", applicationId);
+		params.put("os", "android");
 		if (version != null)
 			params.put("version", version);
 		if (credentialId != null)

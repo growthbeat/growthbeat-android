@@ -78,6 +78,9 @@ public class GrowthLink {
 
 	public void handleOpenUrl(Uri uri) {
 
+		if (uri == null)
+			return;
+
 		final String clickId = uri.getHost();
 		if (clickId == null) {
 			logger.error("Unabled to get clickId from url.");
@@ -176,7 +179,7 @@ public class GrowthLink {
 					}
 
 				} catch (GrowthbeatException e) {
-					logger.info(String.format("Synchronization is not found.", e.getMessage()));
+					logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
 				}
 
 			}

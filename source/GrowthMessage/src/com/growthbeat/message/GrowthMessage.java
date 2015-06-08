@@ -116,7 +116,7 @@ public class GrowthMessage {
 					});
 
 				} catch (GrowthbeatException e) {
-					logger.info(String.format("Message is not found.", e.getMessage()));
+					logger.info(String.format("Message is not found. %s", e.getMessage()));
 				}
 
 			}
