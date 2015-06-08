@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
+import com.growthbeat.link.GrowthLink;
 
 public class MainActivity extends Activity {
 
@@ -21,6 +22,8 @@ public class MainActivity extends Activity {
 
 		Growthbeat.getInstance()
 				.initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY", "955057365401", BuildConfig.DEBUG);
+
+		GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
 
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
 			@Override

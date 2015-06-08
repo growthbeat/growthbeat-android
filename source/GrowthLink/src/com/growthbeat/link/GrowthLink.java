@@ -1,5 +1,8 @@
 package com.growthbeat.link;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -11,6 +14,7 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
 
@@ -69,6 +73,64 @@ public class GrowthLink {
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 
 		synchronize();
+
+	}
+
+	public void handleOpenUrl(Uri uri) {
+
+		final String clickId = uri.getHost();
+		if (clickId == null) {
+			logger.error("Unabled to get clickId from url.");
+			return;
+		}
+
+		final Handler handler = new Handler();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				logger.info("Deeplinking...");
+
+				try {
+
+					final Click click = Click.deeplink(GrowthbeatCore.getInstance().getClient().getId(), clickId, isFirstSession,
+							credentialId);
+					if (click == null || click.getPattern() == null || click.getPattern().getLink() == null) {
+						logger.error("Failed to deeplink.");
+						return;
+					}
+
+					logger.info(String.format("Deeplink success. (clickId: %s)", click.getId()));
+
+					Map<String, String> properties = new HashMap<String, String>();
+					properties.put("linkId", click.getPattern().getLink().getId());
+					properties.put("patternId", click.getPattern().getId());
+					if (click.getPattern().getIntent() != null)
+						properties.put("intentId", click.getPattern().getIntent().getId());
+
+					if (isFirstSession)
+						GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
+
+					GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
+
+					isFirstSession = false;
+
+					if (click.getPattern().getIntent() != null) {
+						handler.post(new Runnable() {
+							@Override
+							public void run() {
+								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
+							}
+						});
+					}
+
+				} catch (GrowthbeatException e) {
+					logger.info(String.format("Synchronization is not found.", e.getMessage()));
+				}
+
+			}
+
+		}).start();
 
 	}
 
