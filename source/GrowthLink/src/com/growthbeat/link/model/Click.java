@@ -1,10 +1,13 @@
 package com.growthbeat.link.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
@@ -25,6 +28,25 @@ public class Click extends Model {
 
 	protected Click(JSONObject jsonObject) {
 		super(jsonObject);
+	}
+
+	public static Click deeplink(String clientId, String clickId, boolean install, String credentialId) {
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		if (clientId != null)
+			params.put("clientId", clientId);
+		if (clickId != null)
+			params.put("clickId", clickId);
+		params.put("install", install);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
+
+		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("/1/deeplink", params);
+		if (jsonObject == null)
+			return null;
+
+		return new Click(jsonObject);
+
 	}
 
 	public String getId() {

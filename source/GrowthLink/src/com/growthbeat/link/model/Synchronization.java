@@ -6,11 +6,14 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.JSONObjectUtils;
 
 public class Synchronization extends Model {
+
+	private static final String PREFERENCE_SYNCHRONIZATION_KEY = "synchronization";
 
 	private String scheme;
 	private boolean browser;
@@ -42,6 +45,19 @@ public class Synchronization extends Model {
 
 	}
 
+	public static void save(Synchronization synchronization) {
+		if (synchronization == null)
+			return;
+		GrowthAnalytics.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
+	}
+
+	public static Synchronization load() {
+		JSONObject jsonObject = GrowthAnalytics.getInstance().getPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
+		if (jsonObject == null)
+			return null;
+		return new Synchronization(jsonObject);
+	}
+
 	public String getScheme() {
 		return scheme;
 	}
@@ -50,7 +66,7 @@ public class Synchronization extends Model {
 		this.scheme = scheme;
 	}
 
-	public boolean isBrowser() {
+	public boolean getBrowser() {
 		return browser;
 	}
 

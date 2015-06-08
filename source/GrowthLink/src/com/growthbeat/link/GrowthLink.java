@@ -1,13 +1,18 @@
 package com.growthbeat.link;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.Handler;
 
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.model.Synchronization;
+import com.growthbeat.utils.AppUtils;
 
 public class GrowthLink {
 
@@ -28,6 +33,7 @@ public class GrowthLink {
 	private String credentialId = null;
 
 	private boolean initialized = false;
+	private boolean isFirstSession = false;
 
 	private GrowthLink() {
 		super();
@@ -61,6 +67,59 @@ public class GrowthLink {
 		}
 
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+
+		synchronize();
+
+	}
+
+	private void synchronize() {
+
+		logger.info("Check initialization...");
+		if (Synchronization.load() != null) {
+			logger.info("Already initialized.");
+			return;
+		}
+
+		isFirstSession = true;
+
+		final Handler handler = new Handler();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				logger.info("Synchronizing...");
+
+				try {
+
+					String version = AppUtils.getaAppVersion(context);
+					Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
+					if (synchronization == null) {
+						logger.error("Failed to Synchronize.");
+						return;
+					}
+
+					Synchronization.save(synchronization);
+					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
+
+					if (synchronization.getBrowser()) {
+						handler.post(new Runnable() {
+							@Override
+							public void run() {
+								Uri uri = Uri.parse("http://stg.link.growthbeat.com/l/synchronize");
+								android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+								androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+								context.startActivity(androidIntent);
+							}
+						});
+					}
+
+				} catch (GrowthbeatException e) {
+					logger.info(String.format("Synchronization is not found.", e.getMessage()));
+				}
+
+			}
+
+		}).start();
 
 	}
 
