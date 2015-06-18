@@ -126,51 +126,33 @@ public class SwipeMessageFragment extends Fragment {
 		if (buttons.size() != 1)
 			return;
 		
-		Button button = buttons.get(0);
+		final Button button = buttons.get(0);
 		
 		Rect buttonRect = new Rect(imageOuterRect.getLeft(), 
 				outerRect.getTop() + imageOuterRect.getTop(), imageOuterRect.getWidth(), buttonHeight);
-		
-		
+
+		View buttonView = null;
 		switch(button.getType()) {
 		case image:
-			final ImageButton imageButton = (ImageButton)button;
-			setImageButtonRect(buttonRect, imageButton);
-
-			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-			touchableImageView.setScaleType(ScaleType.FIT_CENTER);
-			touchableImageView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
-					if (!getActivity().isFinishing())
-						getActivity().finish();
-				}
-			});
-			touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
-	
-			innerLayout.addView(wrapViewWithAbsoluteLayout(touchableImageView, buttonRect));
+			setImageButtonRect(buttonRect, (ImageButton)button);
+			buttonView = MessageButtonViewFactory.getInstance(getActivity(), button, cachedImages);
 			break;
 		case plain:
-			final PlainButton plainButton = (PlainButton)button;
-			
-			android.widget.Button plainButtonView = new android.widget.Button(getActivity());
-			plainButtonView.setText(plainButton.getLabel());
-
-			plainButtonView.setOnClickListener(new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					GrowthMessage.getInstance().selectButton(plainButton, swipeMessage);
-					if (!getActivity().isFinishing())
-						getActivity().finish();
-				}
-			});
-			innerLayout.addView(wrapViewWithAbsoluteLayout(plainButtonView, buttonRect));
+			buttonView = MessageButtonViewFactory.getInstance(getActivity(), button);
 			break;
 		default:
 			break;
 		}
+		buttonView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				GrowthMessage.getInstance().selectButton(button, swipeMessage);
+				if (!getActivity().isFinishing())
+					getActivity().finish();
+			}
+		});
+
+		innerLayout.addView(wrapViewWithAbsoluteLayout(buttonView, buttonRect));
 	}
 
 	private void showPanel(FrameLayout innerLayout, Rect rect, int panelHeight) {
