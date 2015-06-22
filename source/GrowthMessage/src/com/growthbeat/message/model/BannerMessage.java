@@ -12,7 +12,7 @@ public class BannerMessage extends Message {
 	private String caption;
 	private String text;
 	private Position position;
-	private int duration;
+	private long duration;
 
 	public BannerMessage() {
 		super();
@@ -29,7 +29,7 @@ public class BannerMessage extends Message {
 	public void setPicture(Picture picture) {
 		this.picture = picture;
 	}
-	
+
 	public BannerType getBannerType() {
 		return bannerType;
 	}
@@ -37,7 +37,7 @@ public class BannerMessage extends Message {
 	public void setBannerType(BannerType bannerType) {
 		this.bannerType = bannerType;
 	}
-	
+
 	public String getCaption() {
 		return caption;
 	}
@@ -53,7 +53,7 @@ public class BannerMessage extends Message {
 	public void setText(String text) {
 		this.text = text;
 	}
-	
+
 	public Position getPosition() {
 		return position;
 	}
@@ -61,12 +61,12 @@ public class BannerMessage extends Message {
 	public void setPosition(Position position) {
 		this.position = position;
 	}
-	
-	public int getDuration() {
+
+	public long getDuration() {
 		return duration;
 	}
-	
-	public void setDuration(int duration) {
+
+	public void setDuration(long duration) {
 		this.duration = duration;
 	}
 
@@ -115,17 +115,17 @@ public class BannerMessage extends Message {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "position"))
 				setPosition(Position.valueOf(jsonObject.getString("position")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "duration"))
-				setDuration(jsonObject.getInt("duration"));
+				setDuration(jsonObject.getLong("duration"));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.", e);
 		}
 
 	}
-	
+
 	public static enum BannerType {
 		onlyImage, imageText
 	}
-	
+
 	public static enum Position {
 		top, bottom
 	}
