@@ -20,19 +20,45 @@ public class Event extends Model {
 
 	private String value;
 
-	public Event(JSONObject jsonObject) {
+	public Event() {
 		super();
+	}
+
+	public Event(JSONObject jsonObject) {
+		this();
 		setJsonObject(jsonObject);
 	}
 
 	public static Event create(String clientId, String credentialId, String name, String value) {
+
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("clientId", clientId);
-		params.put("credentialId", credentialId);
-		params.put("name", name);
+		if (clientId != null)
+			params.put("clientId", clientId);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
+		if (name != null)
+			params.put("name", name);
 		if (value != null)
 			params.put("value", value);
+
 		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/events", params);
+		if (jsonObject == null)
+			return null;
+
+		return new Event(jsonObject);
+
+	}
+
+	public static void save(Event event, String name) {
+		if (event == null)
+			return;
+		GrowthPush.getInstance().getPreference().save(name, event.getJsonObject());
+	}
+
+	public static Event load(String name) {
+		JSONObject jsonObject = GrowthPush.getInstance().getPreference().get(name);
+		if (jsonObject == null)
+			return null;
 		return new Event(jsonObject);
 	}
 
@@ -76,8 +102,10 @@ public class Event extends Model {
 			jsonObject.put("goalId", getGoalId());
 			jsonObject.put("clientId", getClientId());
 			jsonObject.put("timestamp", getTimestamp());
-			jsonObject.put("value", getValue());
+			if (value != null)
+				jsonObject.put("value", getValue());
 		} catch (JSONException e) {
+			return null;
 		}
 
 		return jsonObject;
@@ -85,6 +113,10 @@ public class Event extends Model {
 
 	@Override
 	public void setJsonObject(JSONObject jsonObject) {
+
+		if (jsonObject == null)
+			return;
+
 		try {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "goalId"))
 				setGoalId(jsonObject.getInt("goalId"));
@@ -95,6 +127,7 @@ public class Event extends Model {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "value"))
 				setValue(jsonObject.getString("value"));
 		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 	}
 
