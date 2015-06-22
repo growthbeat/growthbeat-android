@@ -48,20 +48,7 @@ public class Event extends Model {
 		return new Event(jsonObject);
 
 	}
-
-	public static void save(Event event, String name) {
-		if (event == null)
-			return;
-		GrowthPush.getInstance().getPreference().save(name, event.getJsonObject());
-	}
-
-	public static Event load(String name) {
-		JSONObject jsonObject = GrowthPush.getInstance().getPreference().get(name);
-		if (jsonObject == null)
-			return null;
-		return new Event(jsonObject);
-	}
-
+	
 	public int getGoalId() {
 		return goalId;
 	}

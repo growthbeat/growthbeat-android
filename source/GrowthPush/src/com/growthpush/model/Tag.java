@@ -12,14 +12,20 @@ import com.growthpush.GrowthPush;
 
 public class Tag extends Model {
 
+	private static final String TAG_KEY = "tags";
+
 	private int tagId;
 
 	private long clientId;
 
 	private String value;
 
-	public Tag(JSONObject jsonObject) {
+	public Tag() {
 		super();
+	}
+
+	public Tag(JSONObject jsonObject) {
+		this();
 		setJsonObject(jsonObject);
 	}
 
@@ -43,17 +49,47 @@ public class Tag extends Model {
 
 	}
 
+	private static JSONObject tags() {
+		JSONObject tags = GrowthPush.getInstance().getPreference().get(TAG_KEY);
+		if (tags == null)
+			return new JSONObject();
+
+		return tags;
+	}
+
 	public static void save(Tag tag, String name) {
+
 		if (tag == null)
 			return;
-		GrowthPush.getInstance().getPreference().save(name, tag.getJsonObject());
+
+		JSONObject tags = Tag.tags();
+		try {
+			tags.put(name, tag.getJsonObject());
+		} catch (JSONException e) {
+		}
+
+		GrowthPush.getInstance().getPreference().save(TAG_KEY, tags);
+
 	}
 
 	public static Tag load(String name) {
-		JSONObject jsonObject = GrowthPush.getInstance().getPreference().get(name);
-		if (jsonObject == null)
+
+		JSONObject tags = GrowthPush.getInstance().getPreference().get(TAG_KEY);
+		if (tags == null)
 			return null;
-		return new Tag(jsonObject);
+
+		if (!tags.has(name))
+			return null;
+
+
+		Tag tag = null;
+		try {
+			tag = new Tag(tags.getJSONObject(name));
+		} catch (JSONException e) {
+		}
+
+		return tag;
+
 	}
 
 	public int getTagId() {
