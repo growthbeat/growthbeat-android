@@ -24,13 +24,35 @@ public class Tag extends Model {
 	}
 
 	public static Tag create(String clientId, String credentialId, String name, String value) {
+
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("clientId", clientId);
-		params.put("credentialId", credentialId);
-		params.put("name", name);
+		if (clientId != null)
+			params.put("clientId", clientId);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
+		if (name != null)
+			params.put("name", name);
 		if (value != null)
 			params.put("value", value);
+
 		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/tags", params);
+		if (jsonObject == null)
+			return null;
+
+		return new Tag(jsonObject);
+
+	}
+
+	public static void save(Tag tag, String name) {
+		if (tag == null)
+			return;
+		GrowthPush.getInstance().getPreference().save(name, tag.getJsonObject());
+	}
+
+	public static Tag load(String name) {
+		JSONObject jsonObject = GrowthPush.getInstance().getPreference().get(name);
+		if (jsonObject == null)
+			return null;
 		return new Tag(jsonObject);
 	}
 
@@ -64,8 +86,10 @@ public class Tag extends Model {
 		try {
 			jsonObject.put("tagId", getTagId());
 			jsonObject.put("clientId", getClientId());
-			jsonObject.put("value", getValue());
+			if (value != null)
+				jsonObject.put("value", getValue());
 		} catch (JSONException e) {
+			return null;
 		}
 
 		return jsonObject;
@@ -82,6 +106,7 @@ public class Tag extends Model {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "value"))
 				setValue(jsonObject.getString("value"));
 		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 
 	}
