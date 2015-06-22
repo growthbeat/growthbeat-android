@@ -6,16 +6,21 @@ import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
 import com.growthpush.model.Environment;
+import com.growthpush.model.Event;
+import com.growthpush.model.Tag;
 
 public class GrowthPush {
 
@@ -131,7 +136,8 @@ public class GrowthPush {
 			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
 			logger.info(String
-					.format("See https://growthpush.com/applications/%d/clients to check the client registration.", client.getApplicationId()));
+					.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
+							client.getApplicationId()));
 			Client.save(client);
 			latch.countDown();
 
@@ -159,6 +165,103 @@ public class GrowthPush {
 			logger.error(String.format("Updating client fail. %s", e.getMessage()));
 		}
 
+	}
+
+	public void trackEvent(final String name) {
+		trackEvent(name, null);
+	}
+
+	public void trackEvent(final String name, final String value) {
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				if (name == null) {
+					logger.warning("Event name cannot be null.");
+					return;
+				}
+
+				waitClientRegistration();
+
+				logger.info(String.format("Sending event ... (name: %s)", name));
+				try {
+					Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), GrowthPush.getInstance().credentialId, name, value);
+					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
+				} catch (GrowthPushException e) {
+					logger.error(String.format("Sending event fail. %s", e.getMessage()));
+				}
+
+			}
+
+		}).start();
+
+	}
+
+	public void setTag(final String name) {
+		setTag(name, null);
+	}
+
+	public void setTag(final String name, final String value) {
+
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				if (name == null) {
+					logger.warning("Tag name cannot be null.");
+					return;
+				}
+
+				Tag tag = Tag.load(name);
+				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
+					return;
+
+				waitClientRegistration();
+
+				logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
+				try {
+					Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), credentialId, name, value);
+					logger.info(String.format("Sending tag success"));
+					Tag.save(createdTag, name);
+				} catch (GrowthPushException e) {
+					logger.error(String.format("Sending tag fail. %s", e.getMessage()));
+				}
+
+			}
+
+		}).start();
+
+	}
+
+	public void setDeviceTags() {
+
+		setTag("Device", DeviceUtils.getModel());
+		setTag("OS", "Android " + DeviceUtils.getOsVersion());
+		setTag("Language", DeviceUtils.getLanguage());
+		setTag("Time Zone", DeviceUtils.getTimeZone());
+
+		try {
+			PackageInfo packageInfo = GrowthbeatCore.getInstance().getContext().getPackageManager()
+					.getPackageInfo(GrowthbeatCore.getInstance().getContext().getPackageName(), PackageManager.GET_META_DATA);
+
+			setTag("Version", packageInfo.versionName);
+			setTag("Build", String.valueOf(packageInfo.versionCode));
+
+		} catch (PackageManager.NameNotFoundException e) {
+		}
+
+	}
+
+	private void waitClientRegistration() {
+		if (client == null) {
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 
 	public void setReceiveHandler(ReceiveHandler receiveHandler) {
