@@ -12,7 +12,7 @@ import com.growthpush.GrowthPush;
 
 public class Tag extends Model {
 
-	private static final String TAG_KEY = "tags";
+	private static final String TAG_KEY_FORMAT = "tags:%s";
 
 	private int tagId;
 
@@ -49,46 +49,21 @@ public class Tag extends Model {
 
 	}
 
-	private static JSONObject tags() {
-		JSONObject tags = GrowthPush.getInstance().getPreference().get(TAG_KEY);
-		if (tags == null)
-			return new JSONObject();
-
-		return tags;
-	}
-
 	public static void save(Tag tag, String name) {
 
-		if (tag == null)
+		if (tag == null || name == null || name.length() == 0)
 			return;
 
-		JSONObject tags = Tag.tags();
-		try {
-			tags.put(name, tag.getJsonObject());
-		} catch (JSONException e) {
-		}
-
-		GrowthPush.getInstance().getPreference().save(TAG_KEY, tags);
+		GrowthPush.getInstance().getPreference().save(String.format(TAG_KEY_FORMAT, name), tag.getJsonObject());
 
 	}
 
 	public static Tag load(String name) {
 
-		JSONObject tags = GrowthPush.getInstance().getPreference().get(TAG_KEY);
-		if (tags == null)
+		if (name == null || name.length() == 0)
 			return null;
 
-		if (!tags.has(name))
-			return null;
-
-
-		Tag tag = null;
-		try {
-			tag = new Tag(tags.getJSONObject(name));
-		} catch (JSONException e) {
-		}
-
-		return tag;
+		return new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT, name)));
 
 	}
 
