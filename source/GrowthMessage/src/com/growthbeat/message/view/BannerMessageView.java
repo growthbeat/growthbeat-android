@@ -33,7 +33,6 @@ import com.growthbeat.message.model.Message;
 public class BannerMessageView extends FrameLayout {
 
 	private BannerMessage bannerMessage = null;
-	// private Context context = null;
 	private ProgressBar progressBar = null;
 
 	private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
@@ -63,7 +62,7 @@ public class BannerMessageView extends FrameLayout {
 
 			@Override
 			public void failure() {
-				this.failure();
+
 			}
 		};
 
@@ -125,6 +124,19 @@ public class BannerMessageView extends FrameLayout {
 			return;
 
 		LinearLayout baseLayout = new LinearLayout(getContext());
+		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
+		baseLayout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Button button = bannerMessage.getButtons().get(0);
+				GrowthMessage.getInstance().selectButton(button, bannerMessage);
+				hide();
+			}
+		});
+
+		ImageView iconImage = new ImageView(getContext());
+		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
+
 		LinearLayout textLayout = new LinearLayout(getContext());
 		textLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -137,6 +149,7 @@ public class BannerMessageView extends FrameLayout {
 
 		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
+		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout, baseLayoutParams);
 
 		new Handler().postDelayed(new Runnable() {

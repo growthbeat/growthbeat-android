@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
+import com.growthbeat.message.GrowthMessage;
 
 public class MainActivity extends Activity {
 
@@ -19,6 +20,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		GrowthMessage.getInstance().getHttpClient().setBaseUrl("http://api.stg.message.growthbeat.com");
 		Growthbeat.getInstance()
 				.initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY", "955057365401", BuildConfig.DEBUG);
 
