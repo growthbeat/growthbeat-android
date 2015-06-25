@@ -23,7 +23,6 @@ public class BannerMessageHandler implements MessageHandler {
 		if (!(message instanceof BannerMessage))
 			return false;
 
-		// new BannerMessageView(context, (BannerMessage) message);
 		Intent intent = new Intent(context, MessageActivity.class);
 		intent.putExtra("message", (BannerMessage) message);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
