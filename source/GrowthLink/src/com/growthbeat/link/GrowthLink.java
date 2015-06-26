@@ -81,7 +81,7 @@ public class GrowthLink {
 		if (uri == null)
 			return;
 
-		final String clickId = uri.getHost();
+		final String clickId = uri.getQueryParameter("clickId");
 		if (clickId == null) {
 			logger.error("Unabled to get clickId from url.");
 			return;
@@ -96,7 +96,7 @@ public class GrowthLink {
 
 				try {
 
-					final Click click = Click.deeplink(GrowthbeatCore.getInstance().getClient().getId(), clickId, isFirstSession,
+					final Click click = Click.deeplink(GrowthbeatCore.getInstance().waitClient().getId(), clickId, isFirstSession,
 							credentialId);
 					if (click == null || click.getPattern() == null || click.getPattern().getLink() == null) {
 						logger.error("Failed to deeplink.");
@@ -172,7 +172,7 @@ public class GrowthLink {
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								Uri uri = Uri.parse("http://stg.link.growthbeat.com/l/synchronize");
+								Uri uri = Uri.parse("http://gbt.io/l/synchronize?applicationId=" + applicationId);
 								android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
 								androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
 								context.startActivity(androidIntent);
