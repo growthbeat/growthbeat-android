@@ -12,7 +12,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -71,9 +71,15 @@ public class BannerMessageView extends FrameLayout {
 				activity, bannerMessage, callback);
 		messageImageDonwloader.download();
 
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+
 		WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-		layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-		layoutParams.height = 100;
+		layoutParams.width = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+		if (bannerMessage.getBannerType() == BannerType.onlyImage) 
+			layoutParams.height = (int) ((float)layoutParams.width / (float)bannerMessage.getPicture().getWidth() * bannerMessage.getPicture().getHeight());
+		else
+			layoutParams.height = 100;
+		
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 		layoutParams.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -95,6 +101,8 @@ public class BannerMessageView extends FrameLayout {
 
 		ImageView imageView = new ImageView(getContext());
 		imageView.setScaleType(ScaleType.FIT_CENTER);
+		LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(innerLayout.getWidth(), innerLayout.getHeight());
+		imageView.setLayoutParams(parms);
 		imageView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -184,7 +192,9 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
-		innerLayout.addView(touchableImageView);
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(50, 50);
+		layoutParams.setMargins(innerLayout.getWidth()-75, innerLayout.getHeight()/2-25, 0, 0);
+		innerLayout.addView(touchableImageView, layoutParams);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
