@@ -16,6 +16,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -78,7 +79,7 @@ public class BannerMessageView extends FrameLayout {
 		if (bannerMessage.getBannerType() == BannerType.onlyImage) 
 			layoutParams.height = (int) ((float)layoutParams.width / (float)bannerMessage.getPicture().getWidth() * bannerMessage.getPicture().getHeight());
 		else
-			layoutParams.height = 100;
+			layoutParams.height = (int) (70 * displayMetrics.density);
 		
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
@@ -132,7 +133,11 @@ public class BannerMessageView extends FrameLayout {
 
 		LinearLayout baseLayout = new LinearLayout(getContext());
 		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
-		baseLayout.setBackgroundColor(Color.BLUE);
+		baseLayout.setBackgroundColor(Color.GRAY);
+		AlphaAnimation alpha = new AlphaAnimation(0.8f, 0.8f);
+		alpha.setDuration(0);
+		alpha.setFillAfter(true);
+		baseLayout.startAnimation(alpha);
 		baseLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -148,19 +153,15 @@ public class BannerMessageView extends FrameLayout {
 		LinearLayout textLayout = new LinearLayout(getContext());
 		textLayout.setOrientation(LinearLayout.VERTICAL);
 
-		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
+		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50,50);
 		TextView caption = new TextView(getContext());
-		caption.setText(bannerMessage.getCaption());
-		caption.setTextColor(Color.RED);
-		textLayout.addView(caption, textLayoutParams);
 		TextView text = new TextView(getContext());
+		caption.setText(bannerMessage.getCaption());
 		text.setText(bannerMessage.getText());
-		text.setTextColor(Color.RED);
+		textLayout.addView(caption, textLayoutParams);
 		textLayout.addView(text, textLayoutParams);
 
-		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
+		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(100,100);
 		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout, baseLayoutParams);
 		innerLayout.addView(baseLayout);
@@ -192,6 +193,7 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+		//TODO : other device displayMetrics.density use
 		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(50, 50);
 		layoutParams.setMargins(innerLayout.getWidth()-75, innerLayout.getHeight()/2-25, 0, 0);
 		innerLayout.addView(touchableImageView, layoutParams);
