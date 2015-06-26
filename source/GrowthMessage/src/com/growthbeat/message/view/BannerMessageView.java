@@ -8,13 +8,13 @@ import java.util.Map;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -28,6 +28,7 @@ import com.growthbeat.message.model.BannerMessage;
 import com.growthbeat.message.model.BannerMessage.BannerType;
 import com.growthbeat.message.model.BannerMessage.Position;
 import com.growthbeat.message.model.Button;
+import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.Message;
 
 public class BannerMessageView extends FrameLayout {
@@ -104,8 +105,6 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 
-		Log.e("", "" + bannerMessage.getPicture().getUrl());
-		Log.e("", "" + bannerMessage.getPicture().getWidth());
 		imageView.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
 		innerLayout.addView(imageView);
 
@@ -125,6 +124,7 @@ public class BannerMessageView extends FrameLayout {
 
 		LinearLayout baseLayout = new LinearLayout(getContext());
 		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
+		baseLayout.setBackgroundColor(Color.BLUE);
 		baseLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -143,14 +143,19 @@ public class BannerMessageView extends FrameLayout {
 		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		TextView caption = new TextView(getContext());
+		caption.setText(bannerMessage.getCaption());
+		caption.setTextColor(Color.RED);
 		textLayout.addView(caption, textLayoutParams);
 		TextView text = new TextView(getContext());
+		text.setText(bannerMessage.getText());
+		text.setTextColor(Color.RED);
 		textLayout.addView(text, textLayoutParams);
 
 		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout, baseLayoutParams);
+		innerLayout.addView(baseLayout);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
@@ -163,8 +168,23 @@ public class BannerMessageView extends FrameLayout {
 
 	private void showCloseButton(FrameLayout innerLayout) {
 
+		List<Button> buttons = extractButtons(Button.Type.close);
+		
 		if (bannerMessage.getButtons().size() < 2)
 			return;
+		
+		final CloseButton closeButton = (CloseButton) buttons.get(0);
+
+		TouchableImageView touchableImageView = new TouchableImageView(getContext());
+		touchableImageView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				GrowthMessage.getInstance().selectButton(closeButton, bannerMessage);
+				hide();
+			}
+		});
+		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+		innerLayout.addView(touchableImageView);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
@@ -190,21 +210,6 @@ public class BannerMessageView extends FrameLayout {
 		}
 
 		return buttons;
-
-	}
-
-	private View wrapViewWithAbsoluteLayout(View view, Rect rect) {
-
-		FrameLayout frameLayout = new FrameLayout(getContext());
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-		layoutParams.setMargins(rect.getLeft(), rect.getTop(), 0, 0);
-		layoutParams.gravity = android.view.Gravity.FILL;
-		frameLayout.setLayoutParams(layoutParams);
-
-		view.setLayoutParams(new ViewGroup.LayoutParams(rect.getWidth(), rect.getHeight()));
-		frameLayout.addView(view);
-
-		return frameLayout;
 
 	}
 
