@@ -144,8 +144,10 @@ public class Click extends Model {
 				setPattern(new Pattern(jsonObject.getJSONObject("pattern")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clientId"))
 				setClientId(jsonObject.getString("clientId"));
-			setOpen(jsonObject.getBoolean("open"));
-			setInstall(jsonObject.getBoolean("install"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "open"))
+				setOpen(jsonObject.getBoolean("open"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "install"))
+				setInstall(jsonObject.getBoolean("install"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
 				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "accessed"))
