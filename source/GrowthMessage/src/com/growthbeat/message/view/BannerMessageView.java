@@ -5,13 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -30,6 +36,7 @@ import com.growthbeat.message.model.BannerMessage.BannerType;
 import com.growthbeat.message.model.BannerMessage.Position;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
+import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.Message;
 
 public class BannerMessageView extends FrameLayout {
@@ -39,14 +46,15 @@ public class BannerMessageView extends FrameLayout {
 
 	private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
-	public BannerMessageView(Activity activity, Message message) {
+	private boolean showBanner = false;
 
-		super(activity.getApplicationContext());
+	public BannerMessageView(Context context, Message message) {
+
+		super(context);
 
 		if (message == null || !(message instanceof BannerMessage))
 			return;
 
-		Context context = activity.getApplicationContext();
 		this.bannerMessage = (BannerMessage) message;
 
 		progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleLarge);
@@ -68,19 +76,19 @@ public class BannerMessageView extends FrameLayout {
 			}
 		};
 
-		MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(((FragmentActivity) activity).getSupportLoaderManager(),
-				activity, bannerMessage, callback);
-		messageImageDonwloader.download();
+		BannerImageLoader bannerImageLoader = new BannerImageLoader(message, callback);
+		bannerImageLoader.download();
 
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 
 		WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
 		layoutParams.width = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
-		if (bannerMessage.getBannerType() == BannerType.onlyImage) 
-			layoutParams.height = (int) ((float)layoutParams.width / (float)bannerMessage.getPicture().getWidth() * bannerMessage.getPicture().getHeight());
+		if (bannerMessage.getBannerType() == BannerType.onlyImage)
+			layoutParams.height = (int) ((float) layoutParams.width / (float) bannerMessage.getPicture().getWidth() * bannerMessage
+					.getPicture().getHeight());
 		else
 			layoutParams.height = (int) (70 * displayMetrics.density);
-		
+
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 		layoutParams.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -108,14 +116,15 @@ public class BannerMessageView extends FrameLayout {
 
 			@Override
 			public void onClick(View v) {
+				hide();
 				Button button = bannerMessage.getButtons().get(0);
 				GrowthMessage.getInstance().selectButton(button, bannerMessage);
-				hide();
 			}
 		});
 
 		imageView.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
 		innerLayout.addView(imageView);
+		showBanner = true;
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
@@ -141,9 +150,9 @@ public class BannerMessageView extends FrameLayout {
 		baseLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				hide();
 				Button button = bannerMessage.getButtons().get(0);
 				GrowthMessage.getInstance().selectButton(button, bannerMessage);
-				hide();
 			}
 		});
 
@@ -153,7 +162,7 @@ public class BannerMessageView extends FrameLayout {
 		LinearLayout textLayout = new LinearLayout(getContext());
 		textLayout.setOrientation(LinearLayout.VERTICAL);
 
-		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50,50);
+		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50, 50);
 		TextView caption = new TextView(getContext());
 		TextView text = new TextView(getContext());
 		caption.setText(bannerMessage.getCaption());
@@ -161,7 +170,7 @@ public class BannerMessageView extends FrameLayout {
 		textLayout.addView(caption, textLayoutParams);
 		textLayout.addView(text, textLayoutParams);
 
-		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(100,100);
+		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(100, 100);
 		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout, baseLayoutParams);
 		innerLayout.addView(baseLayout);
@@ -178,24 +187,24 @@ public class BannerMessageView extends FrameLayout {
 	private void showCloseButton(FrameLayout innerLayout) {
 
 		List<Button> buttons = extractButtons(Button.Type.close);
-		
+
 		if (bannerMessage.getButtons().size() < 2)
 			return;
-		
+
 		final CloseButton closeButton = (CloseButton) buttons.get(0);
 
 		TouchableImageView touchableImageView = new TouchableImageView(getContext());
 		touchableImageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				GrowthMessage.getInstance().selectButton(closeButton, bannerMessage);
 				hide();
+				GrowthMessage.getInstance().selectButton(closeButton, bannerMessage);
 			}
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
-		//TODO : other device displayMetrics.density use
+		// TODO : other device displayMetrics.density use
 		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(50, 50);
-		layoutParams.setMargins(innerLayout.getWidth()-75, innerLayout.getHeight()/2-25, 0, 0);
+		layoutParams.setMargins(innerLayout.getWidth() - 75, innerLayout.getHeight() / 2 - 25, 0, 0);
 		innerLayout.addView(touchableImageView, layoutParams);
 
 		new Handler().postDelayed(new Runnable() {
@@ -208,7 +217,10 @@ public class BannerMessageView extends FrameLayout {
 	}
 
 	public void hide() {
-		getWindowsManager().removeView(this);
+		if (showBanner) {
+			showBanner = false;
+			getWindowsManager().removeView(this);
+		}
 	}
 
 	private List<Button> extractButtons(Button.Type type) {
@@ -223,6 +235,94 @@ public class BannerMessageView extends FrameLayout {
 
 		return buttons;
 
+	}
+
+	private static class BannerImageLoader {
+
+		private Message message = null;
+		private MessageImageDownloader.Callback callback = null;
+
+		public BannerImageLoader(Message message, MessageImageDownloader.Callback callback) {
+			this.message = message;
+			this.callback = callback;
+		}
+
+		public void download() {
+			switch (message.getType()) {
+			case banner:
+				download((BannerMessage) message);
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		private void download(BannerMessage bannerMessage) {
+
+			List<String> urlStrings = new ArrayList<String>();
+
+			if (bannerMessage.getPicture().getUrl() != null) {
+				urlStrings.add(bannerMessage.getPicture().getUrl());
+			}
+
+			for (Button button : bannerMessage.getButtons()) {
+				switch (button.getType()) {
+				case image:
+					urlStrings.add(((ImageButton) button).getPicture().getUrl());
+					break;
+				case close:
+					urlStrings.add(((CloseButton) button).getPicture().getUrl());
+					break;
+				default:
+					continue;
+				}
+			}
+
+			AsyncImageLoader loader = new AsyncImageLoader(callback);
+			loader.execute(urlStrings.toArray(new String[0]));
+
+		}
+
+		private static class AsyncImageLoader extends AsyncTask<String, Integer, Map<String, Bitmap>> {
+
+			private static final int IMAGE_DOWNLOAD_TIMEOUT = 10 * 1000;
+			private MessageImageDownloader.Callback callback = null;
+
+			public AsyncImageLoader(MessageImageDownloader.Callback callback) {
+				this.callback = callback;
+			}
+
+			@Override
+			protected Map<String, Bitmap> doInBackground(String... params) {
+
+				Map<String, Bitmap> images = new HashMap<String, Bitmap>();
+
+				for (String urlString : params) {
+
+					HttpClient httpClient = new DefaultHttpClient();
+					HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
+					HttpConnectionParams.setSoTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
+
+					try {
+						HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
+						if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
+							continue;
+						images.put(urlString, BitmapFactory.decodeStream(httpResponse.getEntity().getContent()));
+					} catch (Exception e) {
+					}
+				}
+
+				return images;
+
+			}
+
+			@Override
+			protected void onPostExecute(Map<String, Bitmap> images) {
+				callback.success(images);
+			}
+
+		}
 	}
 
 }

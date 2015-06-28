@@ -9,8 +9,6 @@ import com.growthbeat.message.model.Message;
 
 public class MessageActivity extends FragmentActivity {
 
-	private BannerMessageView bannerMessageView = null;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -36,7 +34,6 @@ public class MessageActivity extends FragmentActivity {
 			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, imageMessageFragment).commitAllowingStateLoss();
 			break;
 		case banner:
-			this.bannerMessageView = new BannerMessageView(this, message);
 			break;
 		default:
 			break;
@@ -47,8 +44,6 @@ public class MessageActivity extends FragmentActivity {
 	@Override
 	public void onStop() {
 		super.onStop();
-		if (bannerMessageView != null)
-			this.bannerMessageView.hide();
 	}
 
 	@Override
