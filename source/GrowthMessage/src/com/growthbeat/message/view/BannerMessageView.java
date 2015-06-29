@@ -80,7 +80,6 @@ public class BannerMessageView extends FrameLayout {
 		bannerImageLoader.download();
 
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-
 		WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
 		layoutParams.width = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
 		if (bannerMessage.getBannerType() == BannerType.onlyImage)
@@ -91,7 +90,7 @@ public class BannerMessageView extends FrameLayout {
 
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
-		layoutParams.flags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 				| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 		layoutParams.format = PixelFormat.TRANSLUCENT;
 
@@ -143,7 +142,7 @@ public class BannerMessageView extends FrameLayout {
 		LinearLayout baseLayout = new LinearLayout(getContext());
 		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
 		baseLayout.setBackgroundColor(Color.GRAY);
-		AlphaAnimation alpha = new AlphaAnimation(0.8f, 0.8f);
+		AlphaAnimation alpha = new AlphaAnimation(0.98f, 0.98f);
 		alpha.setDuration(0);
 		alpha.setFillAfter(true);
 		baseLayout.startAnimation(alpha);
@@ -156,23 +155,23 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 
-		ImageView iconImage = new ImageView(getContext());
-		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
-
 		LinearLayout textLayout = new LinearLayout(getContext());
 		textLayout.setOrientation(LinearLayout.VERTICAL);
 
-		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50, 50);
+//		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50, 50);
 		TextView caption = new TextView(getContext());
 		TextView text = new TextView(getContext());
 		caption.setText(bannerMessage.getCaption());
 		text.setText(bannerMessage.getText());
-		textLayout.addView(caption, textLayoutParams);
-		textLayout.addView(text, textLayoutParams);
+		textLayout.addView(caption);
+		textLayout.addView(text);
 
 		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(100, 100);
+		baseLayoutParams.setMargins(10, 10, 10, 10);
+		ImageView iconImage = new ImageView(getContext());
+		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
 		baseLayout.addView(iconImage, baseLayoutParams);
-		baseLayout.addView(textLayout, baseLayoutParams);
+		baseLayout.addView(textLayout);
 		innerLayout.addView(baseLayout);
 
 		new Handler().postDelayed(new Runnable() {
