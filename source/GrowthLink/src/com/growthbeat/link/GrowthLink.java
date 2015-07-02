@@ -24,6 +24,7 @@ public class GrowthLink {
 
 	public static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
+	private static final String DEFAULT_SYNC_URL = "http://gbt.io/l/synchronize";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -37,6 +38,7 @@ public class GrowthLink {
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
+
 
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
@@ -179,7 +181,7 @@ public class GrowthLink {
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								String urlString = "http://gbt.io/l/synchronize?applicationId=" + applicationId;
+								String urlString = DEFAULT_SYNC_URL + "?applicationId=" + applicationId;
 								try {
 									Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
 									String advertisingId = adInfo.getId();
