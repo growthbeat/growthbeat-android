@@ -29,11 +29,11 @@ public class Event extends Model {
 		setJsonObject(jsonObject);
 	}
 
-	public static Event create(String clientId, String credentialId, String name, String value) {
+	public static Event create(String growthbeatClientId, String credentialId, String name, String value) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
-		if (clientId != null)
-			params.put("clientId", clientId);
+		if (growthbeatClientId != null)
+			params.put("clientId", growthbeatClientId);
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
 		if (name != null)
