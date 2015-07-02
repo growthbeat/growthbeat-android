@@ -44,6 +44,8 @@ public class GrowthPush {
 	private String credentialId;
 	private Environment environment = null;
 
+	private boolean initialized = false;
+
 	private GrowthPush() {
 		super();
 	}
@@ -52,15 +54,22 @@ public class GrowthPush {
 		return instance;
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment,
-			final String senderId) {
+	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
 
-		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+		if (initialized)
+			return;
+		initialized = true;
+
+		if (context == null) {
+			logger.warning("The context parameter cannot be null.");
+			return;
+		}
 
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		this.environment = environment;
 
+		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
 		new Thread(new Runnable() {
@@ -75,15 +84,32 @@ public class GrowthPush {
 						&& !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
 					GrowthPush.this.clearClient();
 
-				GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
+			}
+
+		}).start();
+
+	}
+
+	public void requestRegistrationId(final String senderId) {
+
+		if (!initialized) {
+			logger.warning("Growth Push must be initilaize.");
+			return;
+		}
+
+		if (client != null)
+			return;
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(GrowthbeatCore.getInstance().getContext());
 				try {
 					String registrationId = gcm.register(senderId);
 					registerClient(registrationId);
 				} catch (IOException e) {
 				}
-
 			}
-
 		}).start();
 
 	}
@@ -101,7 +127,6 @@ public class GrowthPush {
 
 					com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
 					client = Client.load();
-					// TODO Check applicationId
 					if (client == null) {
 						createClient(growthbeatClient.getId(), registrationId);
 						return;
@@ -134,9 +159,8 @@ public class GrowthPush {
 			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
 
-			logger.info(String
-					.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
-							client.getApplicationId()));
+			logger.info(String.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
+					client.getApplicationId()));
 			Client.save(client);
 			latch.countDown();
 
@@ -186,7 +210,8 @@ public class GrowthPush {
 
 				logger.info(String.format("Sending event ... (name: %s)", name));
 				try {
-					Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), GrowthPush.getInstance().credentialId, name, value);
+					Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(),
+							GrowthPush.getInstance().credentialId, name, value);
 					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 				} catch (GrowthPushException e) {
 					logger.error(String.format("Sending event fail. %s", e.getMessage()));
