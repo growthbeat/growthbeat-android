@@ -22,6 +22,7 @@ import com.growthbeat.analytics.model.ClientTag;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
+import com.growthbeat.utils.DeviceUtils.AdvertisingCallback;
 
 public class GrowthAnalytics {
 
@@ -289,19 +290,16 @@ public class GrowthAnalytics {
 	}
 
 	public void setAdvertisingId() {
-		new Thread(new Runnable() {
+		DeviceUtils.getAdvertisingId(new AdvertisingCallback() {
+			
 			@Override
-			public void run() {
-				try {
-					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					if (adInfo.getId() == null || !adInfo.isLimitAdTrackingEnabled())
-						return;
-					tag(DEFAULT_NAMESPACE, "AdvertisingID", adInfo.getId());
-				} catch (Exception e) {
-					logger.warning("Failed to get advertising info: " + e.getMessage());
+			public void onAdvertisingIdGet(String advertisingId) {
+				if(advertisingId != "") {
+					tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
 				}
 			}
-		}).start();
+		}, new Handler());
+		
 	}
 
 	public void setTrackingEnabled() {

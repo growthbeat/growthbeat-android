@@ -26,7 +26,7 @@ public class GrowthLink {
 
 	public static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
-	private static final String DEFAULT_SYNC_URL = "http://gbt.io/l/synchronize";
+	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -40,6 +40,7 @@ public class GrowthLink {
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
+	private String syncronizationUrl = null;
 
 
 	private boolean initialized = false;
@@ -67,6 +68,7 @@ public class GrowthLink {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
+		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -80,6 +82,14 @@ public class GrowthLink {
 
 		synchronize();
 
+	}
+
+	public String getSyncronizationUrl() {
+		return syncronizationUrl;
+	}
+
+	public void setSyncronizationUrl(String syncronizationUrl) {
+		this.syncronizationUrl = syncronizationUrl;
 	}
 
 	public void handleOpenUrl(Uri uri) {
@@ -183,11 +193,11 @@ public class GrowthLink {
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertiseCallback() {
+								DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertisingCallback() {
 									
 									@Override
 									public void onAdvertisingIdGet(String advertisingId) {
-										String urlString = DEFAULT_SYNC_URL + "?applicationId=" + applicationId;
+										String urlString = syncronizationUrl + "?applicationId=" + applicationId;
 										if (advertisingId != null){
 											urlString += "&advertisingId=" + advertisingId;
 										}
@@ -196,7 +206,7 @@ public class GrowthLink {
 										androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
 										context.startActivity(androidIntent);
 									}
-								});
+								},new Handler());
 							}
 						});
 					}

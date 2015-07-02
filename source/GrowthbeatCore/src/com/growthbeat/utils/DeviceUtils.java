@@ -14,32 +14,45 @@ import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
 import android.os.Build;
+import android.os.Handler;
 import android.view.Display;
 import android.view.WindowManager;
 
 public final class DeviceUtils {
 	
-	public interface AdvertiseCallback{
+	public interface AdvertisingCallback{
 		
 		void onAdvertisingIdGet(String advertisingId);
 		
 	}
 	
-	public static void getAdvertisingId(final AdvertiseCallback callback) {
+	public static void getAdvertisingId(final AdvertisingCallback callback, final Handler handler) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				String advertisingId = null;
+				final StringBuffer advertisingIdBuffer = new StringBuffer();
 				try {
 					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					if (adInfo.getId() != null && adInfo.isLimitAdTrackingEnabled()){
-						advertisingId = adInfo.getId();
+					if (adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()){
+						advertisingIdBuffer.append(adInfo.getId());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				if (handler != null){
+					handler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							callback.onAdvertisingIdGet(advertisingIdBuffer.toString());
+						}
+						
+					});
+				} else {
+					callback.onAdvertisingIdGet(advertisingIdBuffer.toString());
+				}
 				
-				callback.onAdvertisingIdGet(advertisingId);
+				
 			}
 		}).start();
 	}
