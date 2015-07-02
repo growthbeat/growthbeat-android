@@ -38,7 +38,7 @@ public final class DeviceUtils {
 				}
 
 				final String advertisingId;
-				if (adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()) {
+				if (adInfo != null && adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()) {
 					advertisingId = adInfo.getId();
 				} else {
 					advertisingId = null;
