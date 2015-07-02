@@ -3,6 +3,11 @@ package com.growthbeat.utils;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.growthbeat.GrowthbeatCore;
+
+
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Point;
@@ -13,6 +18,31 @@ import android.view.Display;
 import android.view.WindowManager;
 
 public final class DeviceUtils {
+	
+	public interface AdvertiseCallback{
+		
+		void onAdvertisingIdGet(String advertisingId);
+		
+	}
+	
+	public static void getAdvertisingId(final AdvertiseCallback callback) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String advertisingId = null;
+				try {
+					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					if (adInfo.getId() != null && adInfo.isLimitAdTrackingEnabled()){
+						advertisingId = adInfo.getId();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				callback.onAdvertisingIdGet(advertisingId);
+			}
+		}).start();
+	}
 
 	public static String getModel() {
 		return Build.MODEL;

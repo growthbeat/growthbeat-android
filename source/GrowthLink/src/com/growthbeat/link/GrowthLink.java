@@ -3,6 +3,7 @@ package com.growthbeat.link;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.bluetooth.le.AdvertiseCallback;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -19,6 +20,7 @@ import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
+import com.growthbeat.utils.DeviceUtils;
 
 public class GrowthLink {
 
@@ -181,20 +183,20 @@ public class GrowthLink {
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								String urlString = DEFAULT_SYNC_URL + "?applicationId=" + applicationId;
-								try {
-									Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-									String advertisingId = adInfo.getId();
-									if (advertisingId != null){
-										urlString += "&advertisingId=" + advertisingId;
+								DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertiseCallback() {
+									
+									@Override
+									public void onAdvertisingIdGet(String advertisingId) {
+										String urlString = DEFAULT_SYNC_URL + "?applicationId=" + applicationId;
+										if (advertisingId != null){
+											urlString += "&advertisingId=" + advertisingId;
+										}
+										Uri uri = Uri.parse(urlString);
+										android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+										androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+										context.startActivity(androidIntent);
 									}
-								} catch (Exception e) {
-									logger.warning("Failed to get advertising info: " + e.getMessage());
-								}
-								Uri uri = Uri.parse(urlString);
-								android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-								androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-								context.startActivity(androidIntent);
+								});
 							}
 						});
 					}
