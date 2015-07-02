@@ -3,11 +3,6 @@ package com.growthbeat.utils;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
-import com.growthbeat.GrowthbeatCore;
-
-
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Point;
@@ -18,41 +13,49 @@ import android.os.Handler;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.growthbeat.GrowthbeatCore;
+
 public final class DeviceUtils {
-	
-	public interface AdvertisingCallback{
-		
+
+	public interface AdvertisingCallback {
+
 		void onAdvertisingIdGet(String advertisingId);
-		
+
 	}
-	
+
 	public static void getAdvertisingId(final AdvertisingCallback callback, final Handler handler) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				final StringBuffer advertisingIdBuffer = new StringBuffer();
+
+				Info adInfo = null;
 				try {
-					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					if (adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()){
-						advertisingIdBuffer.append(adInfo.getId());
-					}
+					adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (handler != null){
-					handler.post(new Runnable() {
-						
-						@Override
-						public void run() {
-							callback.onAdvertisingIdGet(advertisingIdBuffer.toString());
-						}
-						
-					});
+
+				final String advertisingId;
+				if (adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()) {
+					advertisingId = adInfo.getId();
 				} else {
-					callback.onAdvertisingIdGet(advertisingIdBuffer.toString());
+					advertisingId = null;
 				}
-				
-				
+
+				if (handler == null) {
+					callback.onAdvertisingIdGet(advertisingId);
+					return;
+				}
+
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						callback.onAdvertisingIdGet(advertisingId);
+					}
+				});
+
 			}
 		}).start();
 	}

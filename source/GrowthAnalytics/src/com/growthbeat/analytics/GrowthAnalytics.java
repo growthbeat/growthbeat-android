@@ -284,22 +284,21 @@ public class GrowthAnalytics {
 	public void setRandom() {
 		tag(DEFAULT_NAMESPACE, "Random", String.valueOf(new Random().nextDouble()));
 	}
-	
+
 	public void setUUID(String uuid) {
 		tag(DEFAULT_NAMESPACE, "UUID", uuid);
 	}
 
 	public void setAdvertisingId() {
 		DeviceUtils.getAdvertisingId(new AdvertisingCallback() {
-			
 			@Override
 			public void onAdvertisingIdGet(String advertisingId) {
-				if(advertisingId != "") {
+				if (advertisingId != null) {
 					tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
 				}
 			}
 		}, new Handler());
-		
+
 	}
 
 	public void setTrackingEnabled() {
