@@ -89,9 +89,9 @@ public class GrowthLink {
 			return;
 		}
 		
-		final String uuId = uri.getQueryParameter("uuId");
+		final String uuId = uri.getQueryParameter("uuid");
 		if (uuId != null){
-			GrowthAnalytics.getInstance().tag("uuId",uuId);
+			GrowthAnalytics.getInstance().tag("UUID",uuId);
 		}
 
 		final Handler handler = new Handler();
@@ -164,8 +164,6 @@ public class GrowthLink {
 				logger.info("Synchronizing...");
 
 				try {
-					
-					
 
 					String version = AppUtils.getaAppVersion(context);
 					Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
