@@ -6,14 +6,13 @@ import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
@@ -237,22 +236,12 @@ public class GrowthPush {
 	}
 
 	public void setDeviceTags() {
-
 		setTag("Device", DeviceUtils.getModel());
 		setTag("OS", "Android " + DeviceUtils.getOsVersion());
 		setTag("Language", DeviceUtils.getLanguage());
 		setTag("Time Zone", DeviceUtils.getTimeZone());
-
-		try {
-			PackageInfo packageInfo = GrowthbeatCore.getInstance().getContext().getPackageManager()
-					.getPackageInfo(GrowthbeatCore.getInstance().getContext().getPackageName(), PackageManager.GET_META_DATA);
-
-			setTag("Version", packageInfo.versionName);
-			setTag("Build", String.valueOf(packageInfo.versionCode));
-
-		} catch (PackageManager.NameNotFoundException e) {
-		}
-
+		setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
+		setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
 	}
 
 	private void waitClientRegistration() {
