@@ -95,7 +95,7 @@ public class GrowthLink {
 
 		final String clickId = uri.getQueryParameter("clickId");
 		if (clickId == null) {
-			logger.error("Unabled to get clickId from url.");
+			logger.info("Unabled to get clickId from url.");
 			return;
 		}
 
