@@ -3,13 +3,10 @@ package com.growthbeat.link;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.bluetooth.le.AdvertiseCallback;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
@@ -41,7 +38,6 @@ public class GrowthLink {
 	private String applicationId = null;
 	private String credentialId = null;
 	private String syncronizationUrl = null;
-
 
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
@@ -102,9 +98,9 @@ public class GrowthLink {
 			logger.error("Unabled to get clickId from url.");
 			return;
 		}
-		
+
 		final String uuid = uri.getQueryParameter("uuid");
-		if (uuid != null){
+		if (uuid != null) {
 			GrowthAnalytics.getInstance().setUUID(uuid);
 		}
 
@@ -194,19 +190,20 @@ public class GrowthLink {
 							@Override
 							public void run() {
 								DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertisingCallback() {
-									
+
 									@Override
 									public void onAdvertisingIdGet(String advertisingId) {
 										String urlString = syncronizationUrl + "?applicationId=" + applicationId;
-										if (advertisingId != null){
+										if (advertisingId != null) {
 											urlString += "&advertisingId=" + advertisingId;
 										}
 										Uri uri = Uri.parse(urlString);
-										android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+										android.content.Intent androidIntent = new android.content.Intent(
+												android.content.Intent.ACTION_VIEW, uri);
 										androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
 										context.startActivity(androidIntent);
 									}
-								},new Handler());
+								}, new Handler());
 							}
 						});
 					}
