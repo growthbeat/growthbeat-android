@@ -7,6 +7,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
@@ -86,6 +88,11 @@ public class GrowthLink {
 			logger.error("Unabled to get clickId from url.");
 			return;
 		}
+		
+		final String uuId = uri.getQueryParameter("uuId");
+		if (uuId != null){
+			GrowthAnalytics.getInstance().tag("uuId",uuId);
+		}
 
 		final Handler handler = new Handler();
 		new Thread(new Runnable() {
@@ -157,6 +164,8 @@ public class GrowthLink {
 				logger.info("Synchronizing...");
 
 				try {
+					
+					
 
 					String version = AppUtils.getaAppVersion(context);
 					Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
@@ -172,7 +181,17 @@ public class GrowthLink {
 						handler.post(new Runnable() {
 							@Override
 							public void run() {
-								Uri uri = Uri.parse("http://gbt.io/l/synchronize?applicationId=" + applicationId);
+								String urlString = "http://gbt.io/l/synchronize?applicationId=" + applicationId;
+								try {
+									Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+									String advertisingId = adInfo.getId();
+									if (advertisingId != null){
+										urlString += "&advertisingId=" + advertisingId;
+									}
+								} catch (Exception e) {
+									logger.warning("Failed to get advertising info: " + e.getMessage());
+								}
+								Uri uri = Uri.parse(urlString);
 								android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
 								androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
 								context.startActivity(androidIntent);
