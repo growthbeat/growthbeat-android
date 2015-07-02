@@ -33,6 +33,12 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setTheme(android.R.style.Theme_Translucent);
 
+		String message = getIntent().getExtras().getString("message");
+		if (message == null || message.length() > 0 || message.equals("")) {
+			finish();
+			return;
+		}
+
 		boolean showDialog = getIntent().getExtras().getBoolean("showDialog");
 		if (showDialog) {
 			showDialog();

@@ -36,6 +36,10 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		String message = intent.getExtras().getString("message");
+		if (message == null || message.length() > 0 || message.equals(""))
+			return;
+
 		Intent alertIntent = new Intent(context, AlertActivity.class);
 		alertIntent.putExtras(intent.getExtras());
 		alertIntent.putExtra("showDialog", true);
