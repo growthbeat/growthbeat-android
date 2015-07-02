@@ -95,7 +95,7 @@ public class GrowthLink {
 		
 		final String uuid = uri.getQueryParameter("uuid");
 		if (uuid != null){
-			GrowthAnalytics.getInstance().tag("UUID",uuid);
+			GrowthAnalytics.getInstance().setUUID(uuid);
 		}
 
 		final Handler handler = new Handler();

@@ -283,6 +283,10 @@ public class GrowthAnalytics {
 	public void setRandom() {
 		tag(DEFAULT_NAMESPACE, "Random", String.valueOf(new Random().nextDouble()));
 	}
+	
+	public void setUUID(String uuid) {
+		tag(DEFAULT_NAMESPACE, "UUID", uuid);
+	}
 
 	public void setAdvertisingId() {
 		new Thread(new Runnable() {
