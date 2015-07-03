@@ -20,17 +20,20 @@ public class Growthbeat {
 		return instance;
 	}
 
-	public void initialize(Context context, String applicationId, String credentialId, String senderId, boolean debug) {
+	public void initialize(Context context, String applicationId, String credentialId, boolean debug) {
 		context = context.getApplicationContext();
 		setLoggerSilent(!debug);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-			if (senderId != null)
-				GrowthPush.getInstance().initialize(context, applicationId, credentialId,
-						debug ? Environment.development : Environment.production, senderId);
+			GrowthPush.getInstance().initialize(context, applicationId, credentialId,
+					debug ? Environment.development : Environment.production);
 			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 		}
+	}
+
+	public void requestRegistrationId(String senderId) {
+		GrowthPush.getInstance().requestRegistrationId(senderId);
 	}
 
 	public void start() {

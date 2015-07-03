@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.growthbeat.utils.PermissionUtils;
 import com.growthpush.view.AlertActivity;
+import com.growthpush.view.DialogType;
 
 public class BaseReceiveHandler implements ReceiveHandler {
 
@@ -36,9 +37,14 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		if (intent.getExtras().containsKey("message")) {
+			String message = intent.getExtras().getString("message");
+			if (message == null || message.length() <= 0 || message.equals(""))
+				return;
+		}
+
 		Intent alertIntent = new Intent(context, AlertActivity.class);
 		alertIntent.putExtras(intent.getExtras());
-		alertIntent.putExtra("showDialog", true);
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		context.startActivity(alertIntent);
@@ -74,7 +80,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 		Intent intent = new Intent(context, AlertActivity.class);
 		intent.putExtras(extras);
-		intent.putExtra("showDialog", false);
+		intent.putExtra("dialogType", DialogType.none.toString());
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
