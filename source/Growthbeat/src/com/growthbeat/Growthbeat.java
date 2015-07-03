@@ -32,10 +32,6 @@ public class Growthbeat {
 		}
 	}
 
-	public void requestRegistrationId(String senderId) {
-		GrowthPush.getInstance().requestRegistrationId(senderId);
-	}
-
 	public void start() {
 		GrowthAnalytics.getInstance().open();
 	}

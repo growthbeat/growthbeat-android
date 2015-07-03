@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
+import com.growthpush.GrowthPush;
 import com.growthbeat.analytics.GrowthAnalytics;
 
 public class MainActivity extends Activity {
@@ -20,7 +21,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		Growthbeat.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY", BuildConfig.DEBUG);
-		Growthbeat.getInstance().requestRegistrationId("955057365401");
+		GrowthPush.getInstance().requestRegistrationId("955057365401");
 
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
 			@Override
