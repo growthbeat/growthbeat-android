@@ -33,7 +33,7 @@ public final class DeviceUtils {
 				Info adInfo = null;
 				try {
 					adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					e.printStackTrace();
 				}
 
