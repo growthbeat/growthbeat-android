@@ -9,6 +9,7 @@ import java.util.Random;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
@@ -103,7 +104,7 @@ public class GrowthAnalytics {
 
 		final String eventId = generateEventId(namespace, name);
 
-		final Handler handler = new Handler();
+		final Handler handler = new Handler(Looper.getMainLooper());
 		new Thread(new Runnable() {
 			@Override
 			public void run() {

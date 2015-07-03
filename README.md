@@ -9,9 +9,7 @@ Growthbeat SDK for Android
 1. Write initialization code
 
 	```java
-	Growthbeat.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID");
-	Growthbeat.getInstance().initializeGrowthAnalytics();
-	Growthbeat.getInstance().initializeGrowthMessage();
+	Growthbeat.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID", BuildConfig.DEBUG);
 	```
 
 	You can get the APPLICATION_ID and CREDENTIAL_ID on web site of Growthbeat. 
@@ -38,9 +36,55 @@ Growthbeat SDK for Android
     
 1. Write following code in the place to track custom event with Growth Analytics or display a message with Growth Message.
 
-	```objc
+	```java
 	GrowthAnalytics.getInstance().track("EVENT_ID");
 	```
+
+1. Use push notification
+
+	*Setting xml activity, receiver and permission.*
+
+	```xml
+	<application>
+	 ...summary
+
+	 <activity
+            android:name="com.growthpush.view.AlertActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent" />
+
+        <receiver
+            android:name="com.growthpush.BroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="YOUR_PACKAGE_NAME" />
+            </intent-filter>
+        </receiver>
+
+       ...
+     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <permission
+        android:name="YOUR_PACKAGE_NAME.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="YOUR_PACKAGE_NAME.permission.C2D_MESSAGE" />
+	```
+
+	```java
+	Growthbeat.getInstance().requestRegistrationId("YOUR_SENDER_ID");
+	```
+
 	
 ## Included SDKs
 
@@ -64,23 +108,18 @@ Growthbeat Core SDK is core functions for Growthbeat integrated services.
 
 * [Growth Message SDK for Android](https://github.com/SIROK/growthmessage-android)
 
-### Growth Push (Under development)
+### Growth Push
 
 [Growth Push](https://growthpush.com/) is push notification and analysis platform for mobile apps.
 
 * [Growth Push SDK for Android](https://github.com/SIROK/growthpush-android)
 
-### Growth Replay (Under development)
-
-[Growth Replay](https://growthreplay.com/) is usability testing tool for mobile apps.
-
-* [Growth Replay SDK for Android](https://github.com/SIROK/growthreplay-android)
-
 ## Supported Environment
 
 * Growthbeat Core support Android 2.3 and later.
 * Growth Analytics support Android 2.3 and later.
-* Growth Message support Android 4.0 and later.
+* Growth Message support Android 2.3 and later.
+* Growth Push support Android 2.3 and later.
 
 ## License
 
