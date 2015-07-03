@@ -79,10 +79,6 @@ Growthbeat SDK for Android
     <uses-permission android:name="YOUR_PACKAGE_NAME.permission.C2D_MESSAGE" />
 	```
 
-	```java
-	Growthbeat.getInstance().requestRegistrationId("YOUR_SENDER_ID");
-	```
-
 
 ### Growth Analytics
 
