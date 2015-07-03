@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Build;
 
 import com.growthbeat.analytics.GrowthAnalytics;
-import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.GrowthMessage;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Environment;
@@ -31,7 +30,6 @@ public class Growthbeat {
 						debug ? Environment.development : Environment.production, senderId);
 			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
-			GrowthLink.getInstance().initialize(context, applicationId, credentialId);
 		}
 	}
 
@@ -48,7 +46,6 @@ public class Growthbeat {
 		GrowthAnalytics.getInstance().getLogger().setSilent(silent);
 		GrowthMessage.getInstance().getLogger().setSilent(silent);
 		GrowthPush.getInstance().getLogger().setSilent(silent);
-		GrowthLink.getInstance().getLogger().setSilent(silent);
 	}
 
 }
