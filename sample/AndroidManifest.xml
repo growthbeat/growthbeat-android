@@ -16,6 +16,12 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+		    android:name="GROWTHLINK_PREPROCESS_RECEIVER"
+		    android:value="com.example.InstallReceiver,com.example.InstallReceiver2" />
+        <meta-data
+		    android:name="GROWTHLINK_POSTPROCESS_RECEIVER"
+		    android:value="com.example.postInstallReceiver,com.example.postInstallReceiver2" />
 
         <activity
             android:name="com.growthbeat.growthbeatsample.MainActivity"
@@ -53,6 +59,14 @@
                 <category android:name="com.growthbeat.growthbeatsample" />
             </intent-filter>
         </receiver>
+        <receiver
+		    android:name="com.growthbeat.link.InstallReceiver"
+		    android:exported="true">
+		    <intent-filter>
+		        <action android:name="com.android.vending.INSTALL_REFERRER" />
+		    </intent-filter>
+		</receiver>
+        
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
