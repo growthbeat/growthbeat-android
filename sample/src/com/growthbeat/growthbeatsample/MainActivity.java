@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				//前処理
-				super.onReceive(context, intent);
+				defaultProcess();
 				//後処理
 			}
 		});
