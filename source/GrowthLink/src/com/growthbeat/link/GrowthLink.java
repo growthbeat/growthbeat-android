@@ -6,6 +6,7 @@ import java.util.Map;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
@@ -51,19 +52,31 @@ public class GrowthLink {
 		public void onComplete(Synchronization synchronization) {
 			if (!synchronization.getBrowser())
 				return;
-			DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertisingCallback() {
-				public void onAdvertisingIdGet(String advertisingId) {
+
+			new Thread(new Runnable() {
+				public void run() {
+
 					String urlString = syncronizationUrl + "?applicationId=" + applicationId;
-					if (advertisingId != null) {
-						urlString += "&advertisingId=" + advertisingId;
+					try {
+						String advertisingId = DeviceUtils.getAdvertisingId().get();
+						if (advertisingId != null) {
+							urlString += "&advertisingId=" + advertisingId;
+						}
+					} catch (Exception e) {
 					}
 
 					Uri uri = Uri.parse(urlString);
-					android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+					final android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
 					androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-					context.startActivity(androidIntent);
+
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
+						public void run() {
+							context.startActivity(androidIntent);
+						}
+					});
+
 				}
-			}, null);
+			});
 		}
 	};
 
