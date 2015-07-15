@@ -1,6 +1,8 @@
 package com.growthbeat.growthbeatsample;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,8 +13,12 @@ import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
 import com.growthpush.GrowthPush;
+import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
+import com.growthbeat.link.InstallReceiver;
+import com.growthbeat.link.handler.DefaultInstallReceiveHandler;
+import com.growthbeat.link.handler.InstallReceiveHandler;
 
 public class MainActivity extends Activity {
 
@@ -25,6 +31,16 @@ public class MainActivity extends Activity {
 		GrowthPush.getInstance().requestRegistrationId("955057365401");
 		GrowthLink.getInstance().initialize(this, "P5C3vzoLOEijnlVj", "btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY");
 		GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
+		GrowthLink.getInstance().setInstallReceiveHandler(new DefaultInstallReceiveHandler(){
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				//前処理
+				super.onReceive(context, intent);
+				//後処理
+			}
+		});
+		
+
 	
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
 			@Override
