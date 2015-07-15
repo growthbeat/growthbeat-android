@@ -14,6 +14,8 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.handler.DefaultInstallReceiveHandler;
+import com.growthbeat.link.handler.InstallReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
@@ -47,6 +49,8 @@ public class GrowthLink {
 	private boolean isFirstSession = false;
 	
 	private SynchronizationCallback callback = null;
+	
+	private InstallReceiveHandler receiveHandler = new DefaultInstallReceiveHandler();
 
 	private GrowthLink() {
 		super();
@@ -274,5 +278,14 @@ public class GrowthLink {
 		}
 
 	}
+	
+	public void setInstallReceiveHandler(InstallReceiveHandler receiveHandler) {
+		this.receiveHandler = receiveHandler;
+	}
+
+	public InstallReceiveHandler getInstallReceiveHandler() {
+		return receiveHandler;
+	}
+
 
 }
