@@ -6,7 +6,6 @@ import java.util.Map;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
@@ -15,16 +14,13 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.callback.DefaultSynchronizationCallback;
+import com.growthbeat.link.callback.SynchronizationCallback;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
-import com.growthbeat.utils.DeviceUtils;
 
 public class GrowthLink {
-
-	public interface SynchronizationCallback {
-		void onComplete(Synchronization synchronization);
-	}
 
 	public static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
@@ -47,38 +43,7 @@ public class GrowthLink {
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
 
-	private SynchronizationCallback callback = new SynchronizationCallback() {
-		@Override
-		public void onComplete(Synchronization synchronization) {
-			if (!synchronization.getBrowser())
-				return;
-
-			new Thread(new Runnable() {
-				public void run() {
-
-					String urlString = syncronizationUrl + "?applicationId=" + applicationId;
-					try {
-						String advertisingId = DeviceUtils.getAdvertisingId().get();
-						if (advertisingId != null) {
-							urlString += "&advertisingId=" + advertisingId;
-						}
-					} catch (Exception e) {
-					}
-
-					Uri uri = Uri.parse(urlString);
-					final android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-					androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-
-					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						public void run() {
-							context.startActivity(androidIntent);
-						}
-					});
-
-				}
-			});
-		}
-	};
+	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 
 	private GrowthLink() {
 		super();
@@ -102,7 +67,7 @@ public class GrowthLink {
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-		this.callback = callback;
+		this.synchronizationCallback = callback;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -228,8 +193,8 @@ public class GrowthLink {
 
 					handler.post(new Runnable() {
 						public void run() {
-							if (GrowthLink.this.callback != null) {
-								GrowthLink.this.callback.onComplete(synchronization);
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
 							}
 						}
 					});
