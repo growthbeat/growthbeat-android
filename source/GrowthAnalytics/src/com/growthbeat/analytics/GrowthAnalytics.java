@@ -295,7 +295,7 @@ public class GrowthAnalytics {
 					if (advertisingId != null)
 						tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
 				} catch (Exception e) {
-					e.printStackTrace();
+					GrowthAnalytics.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
 				}
 			}
 		}).start();
@@ -309,7 +309,7 @@ public class GrowthAnalytics {
 					if (trackingEnabled != null)
 						tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(trackingEnabled));
 				} catch (Exception e) {
-					e.printStackTrace();
+					GrowthAnalytics.getInstance().getLogger().warning("Failed to get trackingEnabled: " + e.getMessage());
 				}
 			}
 		}).start();

@@ -28,6 +28,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 						urlString += "&advertisingId=" + advertisingId;
 					}
 				} catch (Exception e) {
+					GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
 				}
 
 				Uri uri = Uri.parse(urlString);
