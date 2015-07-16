@@ -8,7 +8,7 @@ Growthbeat SDK for Android
 
 1. Add growthbeat.jar into libs directory in your project.
 
-1. Add google-play-services.jar into libs directory in your project. 
+1. Add google-play-services.jar and android-support-v4.jar into libs directory in your project. 
 
 1. Write initialization code
 
@@ -30,6 +30,22 @@ Growthbeat SDK for Android
 	Growthbeat.getInstance().stop();
 	```
 
+### Growth Analytics
+
+1. Write following code in the place to track custom event with Growth Analytics .
+
+	```java
+	GrowthAnalytics.getInstance().track("EVENT_ID");
+	```
+	
+### Growth Message
+
+1. Write following code in the place to display a message with Growth Message. (The same code with Growth Analytics)
+	
+	```java
+	GrowthAnalytics.getInstance().track("EVENT_ID");
+	```
+	
 1. Add following code as a element of `<application/>` in AndroidManifest.xml
 
 	```xml
@@ -38,9 +54,15 @@ Growthbeat SDK for Android
 		android:theme="@android:style/Theme.Translucent" />
 	```
 
-1. Use push notification
+### Growth Push
 
-	*Setting xml activity, receiver and permission.*
+1. Write following code to get device token and send it to server.
+
+	```java
+	GrowthPush.getInstance().requestRegistrationId("SENDER_ID");
+	```
+
+1. Setting xml activity, receiver and permission.
 
 	```xml
 	<application>
@@ -79,31 +101,6 @@ Growthbeat SDK for Android
     <uses-permission android:name="YOUR_PACKAGE_NAME.permission.C2D_MESSAGE" />
 	```
 
-
-### Growth Analytics
-
-1. Write following code in the place to track custom event with Growth Analytics .
-
-	```java
-	GrowthAnalytics.getInstance().track("EVENT_ID");
-	```
-	
-### Growth Message
-
-1. Write following code in the place to display a message with Growth Message. (The same code with Growth Analytics)
-	
-	```java
-	GrowthAnalytics.getInstance().track("EVENT_ID");
-	```
-	
-### Growth Push
-
-1. Write following code to get device token and send it to server.
-
-	```java
-	GrowthPush.getInstance().requestRegistrationId("SENDER_ID");
-	```
-
 ### Growth Link
 
 1. Add growthlink.jar into libs directory in your project. 
@@ -111,7 +108,7 @@ Growthbeat SDK for Android
 1. Write initialization code
 
 	```java
-	GrowthLink.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID", BuildConfig.DEBUG);
+	GrowthLink.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID");
 	```
 
 	You can get the APPLICATION_ID and CREDENTIAL_ID on web site of Growthbeat.
