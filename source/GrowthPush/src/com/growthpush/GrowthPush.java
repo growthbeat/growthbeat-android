@@ -28,6 +28,7 @@ public class GrowthPush {
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
+	public static final String APPLICATION_ICON_META_KEY = "com.growthpush.application_icon";
 
 	private static final GrowthPush instance = new GrowthPush();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);

@@ -45,17 +45,17 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		}
 
 		DialogType dialogType = DialogType.none;
-		if(intent.getExtras().containsKey("dialogType")) {
+		if (intent.getExtras().containsKey("dialogType")) {
 			try {
 				dialogType = DialogType.valueOf(intent.getExtras().getString("dialogType"));
 			} catch (IllegalArgumentException e) {
 			} catch (NullPointerException e) {
 			}
 		}
-		
-		if(dialogType == DialogType.none)
+
+		if (dialogType == DialogType.none)
 			return;
-		
+
 		Intent alertIntent = new Intent(context, AlertActivity.class);
 		alertIntent.putExtras(intent.getExtras());
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -81,7 +81,10 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		String title = "";
 		try {
 			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-			icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
+			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.APPLICATION_ICON_META_KEY))
+				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.APPLICATION_ICON_META_KEY));
+			else
+				icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
 			title = packageManager.getApplicationLabel(applicationInfo).toString();
 		} catch (NameNotFoundException e) {
 		}
