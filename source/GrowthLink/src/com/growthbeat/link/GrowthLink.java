@@ -67,7 +67,8 @@ public class GrowthLink {
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-		this.synchronizationCallback = callback;
+		if (callback != null)
+			this.synchronizationCallback = callback;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
