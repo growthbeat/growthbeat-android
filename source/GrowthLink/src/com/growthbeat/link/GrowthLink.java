@@ -38,7 +38,7 @@ public class GrowthLink {
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
-	private String syncronizationUrl = null;
+	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
@@ -53,7 +53,7 @@ public class GrowthLink {
 		return instance;
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId, SynchronizationCallback callback) {
+	public void initialize(final Context context, final String applicationId, final String credentialId) {
 		if (initialized)
 			return;
 		initialized = true;
@@ -66,9 +66,6 @@ public class GrowthLink {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-		if (callback != null)
-			this.synchronizationCallback = callback;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -81,10 +78,6 @@ public class GrowthLink {
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 
 		synchronize();
-	}
-
-	public void initialize(final Context context, final String applicationId, final String credentialId) {
-		this.initialize(context, applicationId, credentialId, null);
 	}
 
 	public String getSyncronizationUrl() {
