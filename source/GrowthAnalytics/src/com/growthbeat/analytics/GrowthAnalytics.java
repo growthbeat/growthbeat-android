@@ -11,8 +11,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
@@ -23,7 +21,6 @@ import com.growthbeat.analytics.model.ClientTag;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
-import com.growthbeat.utils.DeviceUtils.AdvertisingCallback;
 
 public class GrowthAnalytics {
 
@@ -291,26 +288,28 @@ public class GrowthAnalytics {
 	}
 
 	public void setAdvertisingId() {
-		DeviceUtils.getAdvertisingId(new AdvertisingCallback() {
-			@Override
-			public void onAdvertisingIdGet(String advertisingId) {
-				if (advertisingId != null) {
-					tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					String advertisingId = DeviceUtils.getAdvertisingId().get();
+					if (advertisingId != null)
+						tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
+				} catch (Exception e) {
+					logger.warning("Failed to get advertisingId: " + e.getMessage());
 				}
 			}
-		}, new Handler());
-
+		}).start();
 	}
 
 	public void setTrackingEnabled() {
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
-					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(!adInfo.isLimitAdTrackingEnabled()));
+					Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
+					if (trackingEnabled != null)
+						tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(trackingEnabled));
 				} catch (Exception e) {
-					logger.warning("Failed to get advertising info: " + e.getMessage());
+					logger.warning("Failed to get trackingEnabled: " + e.getMessage());
 				}
 			}
 		}).start();

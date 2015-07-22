@@ -2,6 +2,9 @@ package com.growthbeat.utils;
 
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -9,7 +12,6 @@ import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
 import android.os.Build;
-import android.os.Handler;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -19,45 +21,34 @@ import com.growthbeat.GrowthbeatCore;
 
 public final class DeviceUtils {
 
-	public interface AdvertisingCallback {
-
-		void onAdvertisingIdGet(String advertisingId);
-
+	public static Future<Boolean> getTrackingEnabled() {
+		FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
+			public Boolean call() throws Exception {
+				try {
+					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					return !adInfo.isLimitAdTrackingEnabled();
+				} catch (Throwable e) {
+					return null;
+				}
+			}
+		});
+		new Thread(future).start();
+		return future;
 	}
 
-	public static void getAdvertisingId(final AdvertisingCallback callback, final Handler handler) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-
-				Info adInfo = null;
+	public static Future<String> getAdvertisingId() {
+		FutureTask<String> future = new FutureTask<String>(new Callable<String>() {
+			public String call() throws Exception {
 				try {
-					adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					return adInfo.getId();
 				} catch (Throwable e) {
-					e.printStackTrace();
+					return null;
 				}
-
-				final String advertisingId;
-				if (adInfo != null && adInfo.getId() != null && !adInfo.isLimitAdTrackingEnabled()) {
-					advertisingId = adInfo.getId();
-				} else {
-					advertisingId = null;
-				}
-
-				if (handler == null) {
-					callback.onAdvertisingIdGet(advertisingId);
-					return;
-				}
-
-				handler.post(new Runnable() {
-					@Override
-					public void run() {
-						callback.onAdvertisingIdGet(advertisingId);
-					}
-				});
-
 			}
-		}).start();
+		});
+		new Thread(future).start();
+		return future;
 	}
 
 	public static String getModel() {
