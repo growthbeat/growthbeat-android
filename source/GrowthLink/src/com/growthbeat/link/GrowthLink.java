@@ -1,5 +1,6 @@
 package com.growthbeat.link;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ public class GrowthLink {
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
+	private static final long REFERRER_TIMEOUT = 1000;
+
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final GrowthLink instance = new GrowthLink();
@@ -36,7 +39,7 @@ public class GrowthLink {
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
 			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
 	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
-
+	
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
@@ -115,6 +118,10 @@ public class GrowthLink {
 	public void setInstallReferrer(String installReferrer){
 		this.installReferrer = installReferrer;
 	}
+	
+	public boolean isntallReferrerExists(){
+		return installReferrer != null;
+	}
 
 	public void handleOpenUrl(Uri uri) {
 
@@ -183,6 +190,7 @@ public class GrowthLink {
 		}).start();
 
 	}
+	
 
 	private void synchronize() {
 
@@ -210,13 +218,37 @@ public class GrowthLink {
 						return;
 					}
 
+					long startTime = new Date().getTime();
+					
+					//wait for isntallReferrer
+					while (true) {
+						if (installReferrer != null){
+							break;
+						}
+						long time = new Date().getTime();
+						if(time - startTime > REFERRER_TIMEOUT){
+							break;
+						}
+						
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						
+					}
+
 					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
 					handler.post(new Runnable() {
 						public void run() {
 							if (GrowthLink.this.synchronizationCallback != null) {
 								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+							} 
+							if (installReferrer != null) {
+								handleOpenUrl(Uri.parse(installReferrer));
 							}
+							
 						}
 					});
 
