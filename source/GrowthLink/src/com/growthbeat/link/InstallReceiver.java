@@ -8,6 +8,8 @@ public class InstallReceiver extends BroadcastReceiver  {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		String referrer = intent.getStringExtra("referrer");
+		GrowthLink.getInstance().setInstallReferrer(referrer);
 		GrowthLink.getInstance().getInstallReceiveHandler().onReceive(context, intent);
 	}
 }

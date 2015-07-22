@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -14,7 +15,6 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.link.handler.DefaultInstallReceiveHandler;
 import com.growthbeat.link.handler.InstallReceiveHandler;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
@@ -41,13 +41,20 @@ public class GrowthLink {
 	private String applicationId = null;
 	private String credentialId = null;
 	private String syncronizationUrl = null;
+	private String installReferrer = null;
 
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
 	
 	private SynchronizationCallback callback = null;
 	
-	private InstallReceiveHandler receiveHandler = new DefaultInstallReceiveHandler();
+	private InstallReceiveHandler receiveHandler = new InstallReceiveHandler() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			
+		}
+	};
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 
@@ -99,6 +106,14 @@ public class GrowthLink {
 
 	public void setSyncronizationUrl(String syncronizationUrl) {
 		this.syncronizationUrl = syncronizationUrl;
+	}
+	
+	public String getInstallReferrer(){
+		return installReferrer;
+	}
+	
+	public void setInstallReferrer(String installReferrer){
+		this.installReferrer = installReferrer;
 	}
 
 	public void handleOpenUrl(Uri uri) {
@@ -197,7 +212,6 @@ public class GrowthLink {
 
 					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
-
 					handler.post(new Runnable() {
 						public void run() {
 							if (GrowthLink.this.synchronizationCallback != null) {
