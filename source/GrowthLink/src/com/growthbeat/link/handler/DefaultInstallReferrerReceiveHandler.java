@@ -23,10 +23,6 @@ public class DefaultInstallReferrerReceiveHandler implements InstallReferrerRece
 				e.printStackTrace();
 			}
 			if (decoded.length() > 0) {
-				SharedPreferences prefs = context.getApplicationContext().getSharedPreferences(GrowthLink.PREFERENCES, 0);
-				SharedPreferences.Editor editor = prefs.edit();
-				editor.putString(GrowthLink.INSTALL_REFERRER_KEY, decoded);
-				editor.commit();
 				GrowthLink.getInstance().setInstallReferrer(decoded);
 				synchronized (GrowthLink.getInstance().referrerSyncObject) {
 					GrowthLink.getInstance().referrerSyncObject.notifyAll();

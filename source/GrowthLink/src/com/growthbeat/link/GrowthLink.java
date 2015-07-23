@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -33,7 +32,6 @@ public class GrowthLink {
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final long REFERRER_TIMEOUT = 10000;
-	public static final String PREFERENCES = "GrowthlinkPrefrences";
 	public static final String INSTALL_REFERRER_KEY = "installReferrer";
 	public static final String FIRST_SESSION_KEY = "firstSession";
 
@@ -50,12 +48,9 @@ public class GrowthLink {
 	private String credentialId = null;
 
 	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-	private SharedPreferences sharedPreferences = null;
-	private SharedPreferences.Editor sharedPreferencesEditor = null;
-	private String installReferrer = null;
 
 	private boolean initialized = false;
-	private boolean isFirstSession = false;
+	private boolean firstSession = false;
 
 	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
 
@@ -84,10 +79,9 @@ public class GrowthLink {
 		this.credentialId = credentialId;
 
 		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-		this.sharedPreferences = context.getApplicationContext().getSharedPreferences(GrowthLink.PREFERENCES, 0);
-		this.sharedPreferencesEditor = sharedPreferences.edit();
 
-		this.isFirstSession = this.sharedPreferences.getBoolean(FIRST_SESSION_KEY, true);
+		Boolean firstSession = this.preference.getBoolean(FIRST_SESSION_KEY);
+		this.firstSession = (firstSession != null) ? firstSession : true;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -110,15 +104,11 @@ public class GrowthLink {
 	}
 
 	public String getInstallReferrer() {
-		return installReferrer;
+		return this.preference.getString(INSTALL_REFERRER_KEY);
 	}
 
 	public void setInstallReferrer(String installReferrer) {
-		this.installReferrer = installReferrer;
-	}
-
-	public boolean installReferrerExists() {
-		return this.installReferrer != null;
+		this.preference.save(INSTALL_REFERRER_KEY, installReferrer);
 	}
 
 	public void handleOpenUrl(Uri uri) {
@@ -146,7 +136,7 @@ public class GrowthLink {
 
 				try {
 
-					final Click click = Click.deeplink(GrowthbeatCore.getInstance().waitClient().getId(), clickId, isFirstSession,
+					final Click click = Click.deeplink(GrowthbeatCore.getInstance().waitClient().getId(), clickId, firstSession,
 							credentialId);
 					if (click == null || click.getPattern() == null || click.getPattern().getLink() == null) {
 						logger.error("Failed to deeplink.");
@@ -165,14 +155,13 @@ public class GrowthLink {
 							if (click.getPattern().getIntent() != null)
 								properties.put("intentId", click.getPattern().getIntent().getId());
 
-							if (isFirstSession)
+							if (firstSession)
 								GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
 
 							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
-							isFirstSession = false;
-							sharedPreferencesEditor.putBoolean(FIRST_SESSION_KEY, isFirstSession);
-							sharedPreferencesEditor.commit();
+							firstSession = false;
+							GrowthLink.this.preference.save(FIRST_SESSION_KEY, firstSession);
 
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
@@ -192,13 +181,13 @@ public class GrowthLink {
 	}
 
 	private void processReferrer() {
-		if (!isFirstSession)
+		if (!firstSession)
 			return;
 		final Synchronization synchronization = Synchronization.load();
 		if (synchronization == null)
 			return;
 
-		installReferrer = sharedPreferences.getString(INSTALL_REFERRER_KEY, null);
+		final String installReferrer = this.preference.getString(INSTALL_REFERRER_KEY);
 		if (installReferrer != null) {
 			handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
 			callSyncronizationCallback(synchronization);
@@ -253,7 +242,7 @@ public class GrowthLink {
 			return;
 		}
 
-		isFirstSession = true;
+		firstSession = true;
 
 		final Handler handler = new Handler();
 		new Thread(new Runnable() {
