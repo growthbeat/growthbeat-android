@@ -14,7 +14,7 @@ public class DefaultInstallReferrerReceiveHandler implements InstallReferrerRece
 	public void onReceive(Context context, Intent intent) {
 
 		String encodedInstallReferrer = intent.getStringExtra("referrer");
-		String installReferrer = null;
+		String installReferrer = "";
 
 		if (encodedInstallReferrer != null) {
 			try {
@@ -24,6 +24,7 @@ public class DefaultInstallReferrerReceiveHandler implements InstallReferrerRece
 			}
 		}
 
+		GrowthLink.getInstance().getPreference().setContext(context.getApplicationContext());
 		GrowthLink.getInstance().setInstallReferrer(installReferrer);
 
 	}
