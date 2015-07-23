@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.growthbeat.utils.PermissionUtils;
-import com.growthpush.GrowthPush;
 import com.growthpush.view.AlertActivity;
 import com.growthpush.view.DialogType;
 
@@ -45,17 +44,17 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		}
 
 		DialogType dialogType = DialogType.none;
-		if(intent.getExtras().containsKey("dialogType")) {
+		if (intent.getExtras().containsKey("dialogType")) {
 			try {
 				dialogType = DialogType.valueOf(intent.getExtras().getString("dialogType"));
 			} catch (IllegalArgumentException e) {
 			} catch (NullPointerException e) {
 			}
 		}
-		
-		if(dialogType == DialogType.none)
+
+		if (dialogType == DialogType.none)
 			return;
-		
+
 		Intent alertIntent = new Intent(context, AlertActivity.class);
 		alertIntent.putExtras(intent.getExtras());
 		alertIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -1,11 +1,9 @@
 package com.growthbeat.link;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
@@ -19,6 +17,7 @@ import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
+import com.growthbeat.link.handler.DefaultInstallReferrerReceiveHandler;
 import com.growthbeat.link.handler.InstallReferrerReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
@@ -59,14 +58,7 @@ public class GrowthLink {
 	private boolean isFirstSession = false;
 
 	private SynchronizationCallback callback = null;
-
-	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new InstallReferrerReceiveHandler() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-
-		}
-	};
+	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 
@@ -219,7 +211,6 @@ public class GrowthLink {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				long startTime = new Date().getTime();
 
 				// wait for isntallReferrer
 				if (installReferrer == null) {
