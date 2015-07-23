@@ -19,7 +19,7 @@ import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
-import com.growthbeat.link.handler.InstallReceiveHandler;
+import com.growthbeat.link.handler.InstallReferrerReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
@@ -60,7 +60,7 @@ public class GrowthLink {
 
 	private SynchronizationCallback callback = null;
 
-	private InstallReceiveHandler receiveHandler = new InstallReceiveHandler() {
+	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new InstallReferrerReceiveHandler() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -128,7 +128,7 @@ public class GrowthLink {
 		this.installReferrer = installReferrer;
 	}
 
-	public boolean isntallReferrerExists() {
+	public boolean installReferrerExists() {
 		return this.installReferrer != null;
 	}
 
@@ -342,12 +342,12 @@ public class GrowthLink {
 
 	}
 
-	public void setInstallReceiveHandler(InstallReceiveHandler receiveHandler) {
-		this.receiveHandler = receiveHandler;
+	public void setInstallReferrerReceiveHandler(InstallReferrerReceiveHandler installReferrerReceiveHandler) {
+		this.installReferrerReceiveHandler = installReferrerReceiveHandler;
 	}
 
-	public InstallReceiveHandler getInstallReceiveHandler() {
-		return receiveHandler;
+	public InstallReferrerReceiveHandler getInstallReferrerReceiveHandler() {
+		return installReferrerReceiveHandler;
 	}
 
 	public String convertReferrerForUri(String referrer) {

@@ -54,7 +54,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.growthbeat.link.InstallReceiver"
+            android:name="com.growthbeat.link.InstallReferrerReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

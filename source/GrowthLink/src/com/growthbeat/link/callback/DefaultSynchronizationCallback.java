@@ -13,7 +13,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 	@Override
 	public void onComplete(Synchronization synchronization) {
 
-		if (GrowthLink.getInstance().isntallReferrerExists() || !synchronization.getBrowser())
+		if (GrowthLink.getInstance().installReferrerExists() || !synchronization.getBrowser())
 			return;
 
 		new Thread(new Runnable() {
