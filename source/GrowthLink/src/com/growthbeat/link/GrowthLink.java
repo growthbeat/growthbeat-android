@@ -25,18 +25,18 @@ import com.growthbeat.utils.AppUtils;
 
 public class GrowthLink {
 
-	public static final String LOGGER_DEFAULT_TAG = "GrowthLink";
-	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
+	private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
+	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
-	private static final long REFERRER_TIMEOUT = 10000;
+	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
+	private static final long REFERRER_TIMEOUT = 10000;
 	public static final String PREFERENCES = "GrowthlinkPrefrences";
 	public static final String INSTALL_REFERRER_KEY = "installReferrer";
 	public static final String FIRST_SESSION_KEY = "firstSession";
 
-	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 	public Object referrerSyncObject = new Object();
 
 	private static final GrowthLink instance = new GrowthLink();
@@ -57,7 +57,6 @@ public class GrowthLink {
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
 
-	private SynchronizationCallback callback = null;
 	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
@@ -87,8 +86,6 @@ public class GrowthLink {
 		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 		this.sharedPreferences = context.getApplicationContext().getSharedPreferences(GrowthLink.PREFERENCES, 0);
 		this.sharedPreferencesEditor = sharedPreferences.edit();
-		if (callback != null)
-			this.synchronizationCallback = callback;
 
 		this.isFirstSession = this.sharedPreferences.getBoolean(FIRST_SESSION_KEY, true);
 
