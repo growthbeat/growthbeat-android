@@ -38,6 +38,7 @@ public class GrowthLink {
 	public static final String FIRSTSESSION_KEY = "isFirstSession";
 
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
+	public Object referrerSyncObject = new Object();
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -188,6 +189,7 @@ public class GrowthLink {
 							isFirstSession = false;
 							sharedPreferencesEditor.putBoolean(FIRSTSESSION_KEY, isFirstSession);
 							sharedPreferencesEditor.commit();
+							
 
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
@@ -224,31 +226,30 @@ public class GrowthLink {
 				long startTime = new Date().getTime();
 				
 				//wait for isntallReferrer
-				while (true) {
-					if (installReferrer != null){//called when app get isntall referrer
-						handler.post(new Runnable() {
-							
-							@Override
-							public void run() {
-								handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
-								callSyncronizationCallback(synchronization);
-							}
-						});
-						
-					}
-					long time = new Date().getTime();
-					if(time - startTime > REFERRER_TIMEOUT){
-						callSyncronizationCallback(synchronization);
-						break;
-					}
-					
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
+				if (installReferrer == null) {
+					synchronized (GrowthLink.this.referrerSyncObject) {
+						try {
+							GrowthLink.this.referrerSyncObject.wait(REFERRER_TIMEOUT);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+				    }
 				}
+				
+				if (installReferrer != null){
+					handler.post(new Runnable() {
+						
+						@Override
+						public void run() {
+							handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
+							callSyncronizationCallback(synchronization);
+						}
+					});
+					
+				} else {//Timeout or exception
+					callSyncronizationCallback(synchronization);
+				}
+				
 			}
 		}).start();
 		

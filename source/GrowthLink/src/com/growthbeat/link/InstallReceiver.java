@@ -25,6 +25,10 @@ public class InstallReceiver extends BroadcastReceiver  {
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putString(GrowthLink.REFERRER_KEY, decoded);
 				editor.commit();
+				GrowthLink.getInstance().setInstallReferrer(decoded);
+				synchronized (GrowthLink.getInstance().referrerSyncObject) {
+					GrowthLink.getInstance().referrerSyncObject.notifyAll();
+				}
 				GrowthLink.getInstance().getInstallReceiveHandler().onReceive(context, intent);
 			}
 		}
