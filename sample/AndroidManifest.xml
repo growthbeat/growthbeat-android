@@ -53,6 +53,14 @@
                 <category android:name="com.growthbeat.growthbeatsample" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="com.growthbeat.link.InstallReferrerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
