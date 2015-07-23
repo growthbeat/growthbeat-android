@@ -13,18 +13,18 @@ public class DefaultInstallReferrerReceiveHandler implements InstallReferrerRece
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		String referrer = intent.getStringExtra("referrer");
-		if (referrer != null) {
-			String decoded = "";
+		String encodedInstallReferrer = intent.getStringExtra("referrer");
+		String installReferrer = null;
+
+		if (encodedInstallReferrer != null) {
 			try {
-				decoded = URLDecoder.decode(referrer, "utf-8");
+				installReferrer = URLDecoder.decode(encodedInstallReferrer, "utf-8");
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-			if (decoded.length() > 0) {
-				GrowthLink.getInstance().setInstallReferrer(decoded);
+				GrowthLink.getInstance().getLogger().error("Failed to decode install referrer: " + e.getMessage());
 			}
 		}
+
+		GrowthLink.getInstance().setInstallReferrer(installReferrer);
 
 	}
 
