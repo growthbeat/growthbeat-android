@@ -2,10 +2,13 @@ package com.growthbeat.link;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
@@ -31,11 +34,9 @@ public class GrowthLink {
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
-	private static final long REFERRER_TIMEOUT = 10000;
+	private static final long REFERRER_TIMEOUT = 10 * 1000;
 	public static final String INSTALL_REFERRER_KEY = "installReferrer";
 	public static final String FIRST_SESSION_KEY = "firstSession";
-
-	public Object referrerSyncObject = new Object();
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -51,10 +52,10 @@ public class GrowthLink {
 
 	private boolean initialized = false;
 	private boolean firstSession = false;
-
-	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
+	private CountDownLatch installReferrerLatch = new CountDownLatch(1);
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
+	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
 
 	private GrowthLink() {
 		super();
@@ -109,6 +110,7 @@ public class GrowthLink {
 
 	public void setInstallReferrer(String installReferrer) {
 		this.preference.save(INSTALL_REFERRER_KEY, installReferrer);
+		this.installReferrerLatch.countDown();
 	}
 
 	public void handleOpenUrl(Uri uri) {
@@ -181,8 +183,10 @@ public class GrowthLink {
 	}
 
 	private void processReferrer() {
+
 		if (!firstSession)
 			return;
+
 		final Synchronization synchronization = Synchronization.load();
 		if (synchronization == null)
 			return;
@@ -190,32 +194,25 @@ public class GrowthLink {
 		final String installReferrer = this.preference.getString(INSTALL_REFERRER_KEY);
 		if (installReferrer != null) {
 			handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
-			callSyncronizationCallback(synchronization);
 			return;
 		}
-		final Handler handler = new Handler();
+
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 
-				// wait for isntallReferrer
-				if (installReferrer == null) {
-					synchronized (GrowthLink.this.referrerSyncObject) {
-						try {
-							GrowthLink.this.referrerSyncObject.wait(REFERRER_TIMEOUT);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
+				try {
+					installReferrerLatch.await(REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 
-				if (installReferrer != null) {
-					handler.post(new Runnable() {
-
+				String newInstallReferrer = GrowthLink.this.preference.getString(INSTALL_REFERRER_KEY);
+				if (newInstallReferrer != null) {
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						@Override
 						public void run() {
 							handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
-							callSyncronizationCallback(synchronization);
 						}
 					});
 

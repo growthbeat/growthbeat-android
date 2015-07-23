@@ -5,7 +5,6 @@ import java.net.URLDecoder;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import com.growthbeat.link.GrowthLink;
 
@@ -24,9 +23,6 @@ public class DefaultInstallReferrerReceiveHandler implements InstallReferrerRece
 			}
 			if (decoded.length() > 0) {
 				GrowthLink.getInstance().setInstallReferrer(decoded);
-				synchronized (GrowthLink.getInstance().referrerSyncObject) {
-					GrowthLink.getInstance().referrerSyncObject.notifyAll();
-				}
 			}
 		}
 
