@@ -108,7 +108,7 @@ Growthbeat SDK for Android
 1. Add following code as a element of `<application/>` in AndroidManifest.xml
 
 	```xml
-	<receiver
+        <receiver
             android:name="com.growthbeat.link.InstallReferrerReceiver"
             android:enabled="true"
             android:exported="true">
