@@ -198,7 +198,7 @@ public class GrowthLink {
 						@Override
 						public void run() {
 							String newInstallReferrer = getInstallReferrer();
-							if (newInstallReferrer != null && !newInstallReferrer.isEmpty()) {
+							if (newInstallReferrer != null && newInstallReferrer.length() != 0) {
 								String uriString = "?"
 										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 								handleOpenUrl(Uri.parse(uriString));
