@@ -34,7 +34,6 @@ public class GrowthLink {
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
-	private static final String FIRST_SESSION_KEY = "firstSession";
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
 	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
 
@@ -78,9 +77,6 @@ public class GrowthLink {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-
-		Boolean firstSession = this.preference.getBoolean(FIRST_SESSION_KEY);
-		this.firstSession = (firstSession != null) ? firstSession : true;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -144,7 +140,6 @@ public class GrowthLink {
 							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
 							firstSession = false;
-							GrowthLink.this.preference.save(FIRST_SESSION_KEY, firstSession);
 
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
@@ -154,7 +149,7 @@ public class GrowthLink {
 					});
 
 				} catch (GrowthbeatException e) {
-					logger.info(String.format("Synchronization is not found.", e.getMessage()));
+					logger.info(String.format("Deeplink is not found.", e.getMessage()));
 				}
 
 			}
