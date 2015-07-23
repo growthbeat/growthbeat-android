@@ -34,9 +34,9 @@ public class GrowthLink {
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
-	private static final long REFERRER_TIMEOUT = 10 * 1000;
-	public static final String INSTALL_REFERRER_KEY = "installReferrer";
-	public static final String FIRST_SESSION_KEY = "firstSession";
+	private static final String FIRST_SESSION_KEY = "firstSession";
+	private static final String INSTALL_REFERRER_KEY = "installReferrer";
+	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -79,8 +79,6 @@ public class GrowthLink {
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 
-		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-
 		Boolean firstSession = this.preference.getBoolean(FIRST_SESSION_KEY);
 		this.firstSession = (firstSession != null) ? firstSession : true;
 
@@ -94,23 +92,6 @@ public class GrowthLink {
 
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 		synchronize();
-	}
-
-	public String getSyncronizationUrl() {
-		return syncronizationUrl;
-	}
-
-	public void setSyncronizationUrl(String syncronizationUrl) {
-		this.syncronizationUrl = syncronizationUrl;
-	}
-
-	public String getInstallReferrer() {
-		return this.preference.getString(INSTALL_REFERRER_KEY);
-	}
-
-	public void setInstallReferrer(String installReferrer) {
-		this.preference.save(INSTALL_REFERRER_KEY, installReferrer);
-		this.installReferrerLatch.countDown();
 	}
 
 	public void handleOpenUrl(Uri uri) {
@@ -182,55 +163,6 @@ public class GrowthLink {
 
 	}
 
-	private void processReferrer() {
-
-		if (!firstSession)
-			return;
-
-		final Synchronization synchronization = Synchronization.load();
-		if (synchronization == null)
-			return;
-
-		final String installReferrer = this.preference.getString(INSTALL_REFERRER_KEY);
-		if (installReferrer != null) {
-			handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
-			return;
-		}
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-
-				try {
-					installReferrerLatch.await(REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				String newInstallReferrer = GrowthLink.this.preference.getString(INSTALL_REFERRER_KEY);
-				if (newInstallReferrer != null) {
-					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						@Override
-						public void run() {
-							handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
-						}
-					});
-
-				} else {// Timeout or exception
-					callSyncronizationCallback(synchronization);
-				}
-
-			}
-		}).start();
-
-	}
-
-	private void callSyncronizationCallback(Synchronization synchronization) {
-		if (GrowthLink.this.synchronizationCallback != null) {
-			GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-		}
-	}
-
 	private void synchronize() {
 
 		logger.info("Check initialization...");
@@ -275,6 +207,50 @@ public class GrowthLink {
 
 	}
 
+	private void processReferrer() {
+
+		if (!firstSession)
+			return;
+
+		final Synchronization synchronization = Synchronization.load();
+		if (synchronization == null)
+			return;
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				try {
+					installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					@Override
+					public void run() {
+						final String newInstallReferrer = getInstallReferrer();
+						if (newInstallReferrer != null) {
+							String uriString = "?"
+									+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+							handleOpenUrl(Uri.parse(uriString));
+						} else {
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+							}
+						}
+					}
+				});
+
+			}
+		}).start();
+
+		if (getInstallReferrer() != null) {
+			installReferrerLatch.countDown();
+		}
+
+	}
+
 	public Context getContext() {
 		return context;
 	}
@@ -299,6 +275,39 @@ public class GrowthLink {
 		return preference;
 	}
 
+	public String getSyncronizationUrl() {
+		return syncronizationUrl;
+	}
+
+	public void setSyncronizationUrl(String syncronizationUrl) {
+		this.syncronizationUrl = syncronizationUrl;
+	}
+
+	public String getInstallReferrer() {
+		return this.preference.getString(INSTALL_REFERRER_KEY);
+	}
+
+	public void setInstallReferrer(String installReferrer) {
+		this.preference.save(INSTALL_REFERRER_KEY, installReferrer);
+		this.installReferrerLatch.countDown();
+	}
+
+	public SynchronizationCallback getSynchronizationCallback() {
+		return synchronizationCallback;
+	}
+
+	public void setSynchronizationCallback(SynchronizationCallback synchronizationCallback) {
+		this.synchronizationCallback = synchronizationCallback;
+	}
+
+	public InstallReferrerReceiveHandler getInstallReferrerReceiveHandler() {
+		return installReferrerReceiveHandler;
+	}
+
+	public void setInstallReferrerReceiveHandler(InstallReferrerReceiveHandler installReferrerReceiveHandler) {
+		this.installReferrerReceiveHandler = installReferrerReceiveHandler;
+	}
+
 	private static class Thread extends CatchableThread {
 
 		public Thread(Runnable runnable) {
@@ -314,18 +323,6 @@ public class GrowthLink {
 			e.printStackTrace();
 		}
 
-	}
-
-	public void setInstallReferrerReceiveHandler(InstallReferrerReceiveHandler installReferrerReceiveHandler) {
-		this.installReferrerReceiveHandler = installReferrerReceiveHandler;
-	}
-
-	public InstallReferrerReceiveHandler getInstallReferrerReceiveHandler() {
-		return installReferrerReceiveHandler;
-	}
-
-	public String convertReferrerForUri(String referrer) {
-		return "?" + referrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 	}
 
 }
