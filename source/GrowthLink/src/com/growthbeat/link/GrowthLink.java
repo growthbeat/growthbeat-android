@@ -14,10 +14,11 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.callback.DefaultSynchronizationCallback;
+import com.growthbeat.link.callback.SynchronizationCallback;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
-import com.growthbeat.utils.DeviceUtils;
 
 public class GrowthLink {
 
@@ -37,10 +38,12 @@ public class GrowthLink {
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
-	private String syncronizationUrl = null;
+	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
+
+	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 
 	private GrowthLink() {
 		super();
@@ -51,7 +54,6 @@ public class GrowthLink {
 	}
 
 	public void initialize(final Context context, final String applicationId, final String credentialId) {
-
 		if (initialized)
 			return;
 		initialized = true;
@@ -64,7 +66,6 @@ public class GrowthLink {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -77,7 +78,6 @@ public class GrowthLink {
 		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 
 		synchronize();
-
 	}
 
 	public String getSyncronizationUrl() {
@@ -176,7 +176,7 @@ public class GrowthLink {
 				try {
 
 					String version = AppUtils.getaAppVersion(context);
-					Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
+					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
 					if (synchronization == null) {
 						logger.error("Failed to Synchronize.");
 						return;
@@ -185,28 +185,13 @@ public class GrowthLink {
 					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
 
-					if (synchronization.getBrowser()) {
-						handler.post(new Runnable() {
-							@Override
-							public void run() {
-								DeviceUtils.getAdvertisingId(new DeviceUtils.AdvertisingCallback() {
-
-									@Override
-									public void onAdvertisingIdGet(String advertisingId) {
-										String urlString = syncronizationUrl + "?applicationId=" + applicationId;
-										if (advertisingId != null) {
-											urlString += "&advertisingId=" + advertisingId;
-										}
-										Uri uri = Uri.parse(urlString);
-										android.content.Intent androidIntent = new android.content.Intent(
-												android.content.Intent.ACTION_VIEW, uri);
-										androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-										context.startActivity(androidIntent);
-									}
-								}, new Handler());
+					handler.post(new Runnable() {
+						public void run() {
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
 							}
-						});
-					}
+						}
+					});
 
 				} catch (GrowthbeatException e) {
 					logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
