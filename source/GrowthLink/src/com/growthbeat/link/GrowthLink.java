@@ -33,8 +33,8 @@ public class GrowthLink {
 	private static final long REFERRER_TIMEOUT = 10000;
 
 	public static final String PREFERENCES = "GrowthlinkPrefrences";
-	public static final String REFERRER_KEY = "installReferrer";
-	public static final String FIRSTSESSION_KEY = "isFirstSession";
+	public static final String INSTALL_REFERRER_KEY = "installReferrer";
+	public static final String FIRST_SESSION_KEY = "firstSession";
 
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 	public Object referrerSyncObject = new Object();
@@ -90,7 +90,7 @@ public class GrowthLink {
 		if (callback != null)
 			this.synchronizationCallback = callback;
 
-		this.isFirstSession = this.sharedPreferences.getBoolean(FIRSTSESSION_KEY, true);
+		this.isFirstSession = this.sharedPreferences.getBoolean(FIRST_SESSION_KEY, true);
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -174,7 +174,7 @@ public class GrowthLink {
 							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
 							isFirstSession = false;
-							sharedPreferencesEditor.putBoolean(FIRSTSESSION_KEY, isFirstSession);
+							sharedPreferencesEditor.putBoolean(FIRST_SESSION_KEY, isFirstSession);
 							sharedPreferencesEditor.commit();
 
 							if (click.getPattern().getIntent() != null) {
@@ -201,7 +201,7 @@ public class GrowthLink {
 		if (synchronization == null)
 			return;
 
-		installReferrer = sharedPreferences.getString(REFERRER_KEY, null);
+		installReferrer = sharedPreferences.getString(INSTALL_REFERRER_KEY, null);
 		if (installReferrer != null) {
 			handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
 			callSyncronizationCallback(synchronization);
