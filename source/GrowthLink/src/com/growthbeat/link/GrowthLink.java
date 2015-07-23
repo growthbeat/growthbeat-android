@@ -173,7 +173,6 @@ public class GrowthLink {
 
 		firstSession = true;
 
-		final Handler handler = new Handler();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -191,9 +190,28 @@ public class GrowthLink {
 
 					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
-					handler.post(new Runnable() {
+
+					if (getInstallReferrer() == null) {
+						try {
+							installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
+						} catch (InterruptedException e) {
+							logger.warning(String.format("Failed to fetch install referrer in %d ms", INSTALL_REFERRER_TIMEOUT));
+						}
+					}
+
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
+						@Override
 						public void run() {
-							processReferrer();
+							final String newInstallReferrer = getInstallReferrer();
+							if (newInstallReferrer != null) {
+								String uriString = "?"
+										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+								handleOpenUrl(Uri.parse(uriString));
+							} else {
+								if (GrowthLink.this.synchronizationCallback != null) {
+									GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+								}
+							}
 						}
 					});
 
@@ -204,50 +222,6 @@ public class GrowthLink {
 			}
 
 		}).start();
-
-	}
-
-	private void processReferrer() {
-
-		if (!firstSession)
-			return;
-
-		final Synchronization synchronization = Synchronization.load();
-		if (synchronization == null)
-			return;
-
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-
-				try {
-					installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				new Handler(Looper.getMainLooper()).post(new Runnable() {
-					@Override
-					public void run() {
-						final String newInstallReferrer = getInstallReferrer();
-						if (newInstallReferrer != null) {
-							String uriString = "?"
-									+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-							handleOpenUrl(Uri.parse(uriString));
-						} else {
-							if (GrowthLink.this.synchronizationCallback != null) {
-								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-							}
-						}
-					}
-				});
-
-			}
-		}).start();
-
-		if (getInstallReferrer() != null) {
-			installReferrerLatch.countDown();
-		}
 
 	}
 
