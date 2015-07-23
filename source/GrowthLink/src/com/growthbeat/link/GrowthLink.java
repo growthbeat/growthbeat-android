@@ -17,9 +17,9 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.link.handler.InstallReceiveHandler;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
+import com.growthbeat.link.handler.InstallReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
@@ -32,7 +32,7 @@ public class GrowthLink {
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final long REFERRER_TIMEOUT = 10000;
-	
+
 	public static final String PREFERENCES = "GrowthlinkPrefrences";
 	public static final String REFERRER_KEY = "installReferrer";
 	public static final String FIRSTSESSION_KEY = "isFirstSession";
@@ -45,11 +45,12 @@ public class GrowthLink {
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
 			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
 	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
-	
+
 	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
-	private String syncronizationUrl = null;
+
+	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 	private SharedPreferences sharedPreferences = null;
 	private SharedPreferences.Editor sharedPreferencesEditor = null;
 	private String installReferrer = null;
@@ -57,14 +58,13 @@ public class GrowthLink {
 	private boolean initialized = false;
 	private boolean isFirstSession = false;
 
-	
 	private SynchronizationCallback callback = null;
-	
+
 	private InstallReceiveHandler receiveHandler = new InstallReceiveHandler() {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			
+
 		}
 	};
 
@@ -78,7 +78,7 @@ public class GrowthLink {
 		return instance;
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId, SynchronizationCallback callback) {
+	public void initialize(final Context context, final String applicationId, final String credentialId) {
 		if (initialized)
 			return;
 		initialized = true;
@@ -91,15 +91,14 @@ public class GrowthLink {
 		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
+
 		this.syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 		this.sharedPreferences = context.getApplicationContext().getSharedPreferences(GrowthLink.PREFERENCES, 0);
 		this.sharedPreferencesEditor = sharedPreferences.edit();
 		if (callback != null)
 			this.synchronizationCallback = callback;
-		
-		
+
 		this.isFirstSession = this.sharedPreferences.getBoolean(FIRSTSESSION_KEY, true);
-		
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -113,10 +112,6 @@ public class GrowthLink {
 		synchronize();
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId) {
-		this.initialize(context, applicationId, credentialId, null);
-	}
-
 	public String getSyncronizationUrl() {
 		return syncronizationUrl;
 	}
@@ -124,19 +119,19 @@ public class GrowthLink {
 	public void setSyncronizationUrl(String syncronizationUrl) {
 		this.syncronizationUrl = syncronizationUrl;
 	}
-	
-	public String getInstallReferrer(){
+
+	public String getInstallReferrer() {
 		return installReferrer;
 	}
-	
-	public void setInstallReferrer(String installReferrer){
+
+	public void setInstallReferrer(String installReferrer) {
 		this.installReferrer = installReferrer;
 	}
-	
-	public boolean isntallReferrerExists(){
+
+	public boolean isntallReferrerExists() {
 		return this.installReferrer != null;
 	}
-	
+
 	public void handleOpenUrl(Uri uri) {
 
 		if (uri == null)
@@ -189,7 +184,6 @@ public class GrowthLink {
 							isFirstSession = false;
 							sharedPreferencesEditor.putBoolean(FIRSTSESSION_KEY, isFirstSession);
 							sharedPreferencesEditor.commit();
-							
 
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
@@ -207,14 +201,16 @@ public class GrowthLink {
 		}).start();
 
 	}
-	
-	private void processReferrer(){
-		if (!isFirstSession) return;
+
+	private void processReferrer() {
+		if (!isFirstSession)
+			return;
 		final Synchronization synchronization = Synchronization.load();
-		if (synchronization == null) return;
-		
+		if (synchronization == null)
+			return;
+
 		installReferrer = sharedPreferences.getString(REFERRER_KEY, null);
-		if (installReferrer != null){
+		if (installReferrer != null) {
 			handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
 			callSyncronizationCallback(synchronization);
 			return;
@@ -224,8 +220,8 @@ public class GrowthLink {
 			@Override
 			public void run() {
 				long startTime = new Date().getTime();
-				
-				//wait for isntallReferrer
+
+				// wait for isntallReferrer
 				if (installReferrer == null) {
 					synchronized (GrowthLink.this.referrerSyncObject) {
 						try {
@@ -233,39 +229,38 @@ public class GrowthLink {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-				    }
+					}
 				}
-				
-				if (installReferrer != null){
+
+				if (installReferrer != null) {
 					handler.post(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							handleOpenUrl(Uri.parse(convertReferrerForUri(installReferrer)));
 							callSyncronizationCallback(synchronization);
 						}
 					});
-					
-				} else {//Timeout or exception
+
+				} else {// Timeout or exception
 					callSyncronizationCallback(synchronization);
 				}
-				
+
 			}
 		}).start();
-		
+
 	}
-	
-	private void callSyncronizationCallback(Synchronization synchronization){
+
+	private void callSyncronizationCallback(Synchronization synchronization) {
 		if (GrowthLink.this.synchronizationCallback != null) {
 			GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-		} 
+		}
 	}
-	
 
 	private void synchronize() {
 
 		logger.info("Check initialization...");
-		if (Synchronization.load() != null ) {
+		if (Synchronization.load() != null) {
 			logger.info("Already initialized.");
 			return;
 		}
@@ -346,7 +341,7 @@ public class GrowthLink {
 		}
 
 	}
-	
+
 	public void setInstallReceiveHandler(InstallReceiveHandler receiveHandler) {
 		this.receiveHandler = receiveHandler;
 	}
@@ -354,10 +349,9 @@ public class GrowthLink {
 	public InstallReceiveHandler getInstallReceiveHandler() {
 		return receiveHandler;
 	}
-	
-	public String convertReferrerForUri(String referrer){
+
+	public String convertReferrerForUri(String referrer) {
 		return "?" + referrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 	}
-
 
 }
