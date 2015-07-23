@@ -240,8 +240,10 @@ public class GrowthPush {
 				}
 
 				Tag tag = Tag.load(name);
-				if (tag != null && value.equalsIgnoreCase(tag.getValue()))
+				if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
+					logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
 					return;
+				}
 
 				waitClientRegistration();
 
