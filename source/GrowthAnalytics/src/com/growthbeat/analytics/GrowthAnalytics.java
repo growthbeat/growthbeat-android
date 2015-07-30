@@ -9,9 +9,8 @@ import java.util.Random;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
@@ -102,7 +101,7 @@ public class GrowthAnalytics {
 
 		final String eventId = generateEventId(namespace, name);
 
-		final Handler handler = new Handler();
+		final Handler handler = new Handler(Looper.getMainLooper());
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -284,17 +283,19 @@ public class GrowthAnalytics {
 		tag(DEFAULT_NAMESPACE, "Random", String.valueOf(new Random().nextDouble()));
 	}
 
+	public void setUUID(String uuid) {
+		tag(DEFAULT_NAMESPACE, "UUID", uuid);
+	}
+
 	public void setAdvertisingId() {
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
-					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					if (adInfo.getId() == null || adInfo.isLimitAdTrackingEnabled())
-						return;
-					tag(DEFAULT_NAMESPACE, "AdvertisingID", adInfo.getId());
+					String advertisingId = DeviceUtils.getAdvertisingId().get();
+					if (advertisingId != null)
+						tag(DEFAULT_NAMESPACE, "AdvertisingID", advertisingId);
 				} catch (Exception e) {
-					logger.warning("Failed to get advertising info: " + e.getMessage());
+					logger.warning("Failed to get advertisingId: " + e.getMessage());
 				}
 			}
 		}).start();
@@ -302,13 +303,13 @@ public class GrowthAnalytics {
 
 	public void setTrackingEnabled() {
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
-					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
-					tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(!adInfo.isLimitAdTrackingEnabled()));
+					Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
+					if (trackingEnabled != null)
+						tag(DEFAULT_NAMESPACE, "TrackingEnabled", String.valueOf(trackingEnabled));
 				} catch (Exception e) {
-					logger.warning("Failed to get advertising info: " + e.getMessage());
+					logger.warning("Failed to get trackingEnabled: " + e.getMessage());
 				}
 			}
 		}).start();

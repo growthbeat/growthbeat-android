@@ -52,11 +52,41 @@ public class Preference {
 
 	}
 
-	public void save(String key, JSONObject jsonObject) {
+	public Boolean getBoolean(String key) {
+
+		try {
+			return getPreferences().getBoolean(key);
+		} catch (JSONException e) {
+			return null;
+		}
+
+	}
+
+	public String getString(String key) {
+
+		try {
+			return getPreferences().getString(key);
+		} catch (JSONException e) {
+			return null;
+		}
+
+	}
+
+	public Long getLong(String key) {
+
+		try {
+			return getPreferences().getLong(key);
+		} catch (JSONException e) {
+			return null;
+		}
+
+	}
+
+	public void save(String key, Object value) {
 
 		JSONObject preferences = getPreferences();
 		try {
-			preferences.put(key, jsonObject);
+			preferences.put(key, value);
 		} catch (JSONException e) {
 			return;
 		}
