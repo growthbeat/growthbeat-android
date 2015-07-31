@@ -20,8 +20,11 @@ import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.handler.ImageMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;
 import com.growthbeat.message.handler.PlainMessageHandler;
+import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.SwipeMessage;
+import com.growthbeat.message.view.MessageActivity;
 
 public class GrowthMessage {
 
@@ -83,7 +86,7 @@ public class GrowthMessage {
 			}
 		});
 
-		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context)));
+		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new SwipeMessageHandler(context)));
 
 	}
 

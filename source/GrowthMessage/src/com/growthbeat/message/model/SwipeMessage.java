@@ -47,8 +47,13 @@ public class SwipeMessage extends Message {
 		try {
 			if (swipeType != null)
 				jsonObject.put("swipeType", swipeType.toString());
-			if (pictures != null)
-				jsonObject.put("pictures", pictures);
+			if (pictures != null) {
+				JSONArray picturesJsonArray = new JSONArray();
+				for (Picture picture : pictures) {
+					picturesJsonArray.put(picture.getJsonObject());
+				}
+				jsonObject.put("pictures", picturesJsonArray);
+			}
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to get JSON.");
 		}
