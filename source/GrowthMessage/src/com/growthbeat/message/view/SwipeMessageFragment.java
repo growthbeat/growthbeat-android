@@ -48,38 +48,6 @@ public class SwipeMessageFragment extends Fragment {
 
 		this.swipeMessage = (SwipeMessage) message;
 
-		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-
-		double baseWidth = displayMetrics.widthPixels * 0.85;
-		double baseHeight = displayMetrics.heightPixels * 0.85;
-		final double buttonHeight = displayMetrics.heightPixels * 0.12;
-		final double panelHeight = displayMetrics.heightPixels * 0.7;
-		final double marginLeft = (displayMetrics.widthPixels - baseWidth) / 2;
-		double maxPictureHeight = baseHeight;
-
-		final List<Rect> imageRects = new ArrayList<Rect>(swipeMessage.getPictures().size());
-		for (Picture picture : swipeMessage.getPictures()) {
-			double availableWidth = Math.min(picture.getWidth(), baseWidth);
-			double availableHeight = Math.min(picture.getHeight(), baseHeight - buttonHeight);
-			double ratio = Math.min(availableWidth / picture.getWidth(), availableHeight / picture.getHeight());
-			int width = (int) (picture.getWidth() * ratio);
-			int height = (int) (picture.getHeight() * ratio);
-			int left = (int) ((displayMetrics.widthPixels - width) / 2);
-			imageRects.add(new Rect(left, 0, width, height));
-			maxPictureHeight = Math.max(maxPictureHeight, height);
-		}
-		for (Rect rect : imageRects)
-			if (rect.getHeight() < maxPictureHeight)
-				rect.setTop((int) ((maxPictureHeight - rect.getHeight()) / 2));
-
-		int outerRectHeight = (int) (maxPictureHeight + buttonHeight + panelHeight);
-		int outerRectTop = (int) ((displayMetrics.heightPixels - outerRectHeight) / 2);
-		int imageOuterRectHeight = swipeMessage.getSwipeType().equals(SwipeType.buttons)
-				? (int) (maxPictureHeight + buttonHeight) : (int) maxPictureHeight;
-
-		final Rect imageOuterRect = new Rect((int) marginLeft, outerRectTop, (int) baseWidth, imageOuterRectHeight);
-		final Rect outerRect = new Rect((int) marginLeft, outerRectTop, (int) baseWidth, outerRectHeight);
-
 		baseLayout = new FrameLayout(getActivity());
 		baseLayout.setBackgroundColor(Color.argb(128, 0, 0, 0));
 
@@ -94,11 +62,12 @@ public class SwipeMessageFragment extends Fragment {
 				cachedImages = images;
 				progressBar.setVisibility(View.GONE);
 
-				showImages(baseLayout, imageOuterRect, imageRects, (int) buttonHeight);
-				if (swipeMessage.getType().equals(SwipeType.oneButton))
-					showOneButton(baseLayout, outerRect, imageOuterRect, (int) buttonHeight);
-				showPanel(baseLayout, outerRect, (int) panelHeight);
-				showCloseButton(baseLayout, outerRect);
+				showImages(baseLayout);
+				// if (swipeMessage.getType().equals(SwipeType.oneButton))
+				// showOneButton(baseLayout, outerRect, imageOuterRect, (int)
+				// buttonHeight);
+				// showPanel(baseLayout, outerRect, (int) panelHeight);
+				// showCloseButton(baseLayout, outerRect);
 			}
 
 			@Override
@@ -116,11 +85,17 @@ public class SwipeMessageFragment extends Fragment {
 
 	}
 
-	private void showImages(FrameLayout innerLayout, Rect outerRect, List<Rect> imageRects, int buttonHeight) {
+	private void showImages(FrameLayout innerLayout) {
+
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		int width = (int) (displayMetrics.widthPixels * 0.85);
+		int height = (int) (displayMetrics.heightPixels * 0.85);
+		int marginLeft = (int) (displayMetrics.widthPixels * (1 - 0.85) * 0.5);
+		int marginTop = (int) (displayMetrics.heightPixels * (1 - 0.85) * 0.5);
+
 		SwipePagerAdapter adapter = new SwipePagerAdapter(getActivity());
 		List<Picture> pictures = swipeMessage.getPictures();
 
-		int i = 0;
 		for (Picture picture : pictures) {
 			FrameLayout frameLayout = new FrameLayout(getActivity());
 			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -129,17 +104,15 @@ public class SwipeMessageFragment extends Fragment {
 			frameLayout.setLayoutParams(layoutParams);
 
 			ImageView imageView = new ImageView(getActivity());
-			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(imageRects.get(i).getWidth(),
-					imageRects.get(i).getHeight());
-			imageLayoutParams.topMargin = imageRects.get(i).getTop();
-			imageLayoutParams.leftMargin = imageRects.get(i).getLeft();
+			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(width, height);
+			imageLayoutParams.leftMargin = marginLeft;
+			imageLayoutParams.topMargin = marginTop;
 			imageView.setLayoutParams(imageLayoutParams);
-			imageView.setScaleType(ScaleType.FIT_CENTER);
+			imageView.setScaleType(ScaleType.CENTER_INSIDE);
 			imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
 
 			frameLayout.addView(imageView);
 			adapter.add(frameLayout);
-			i++;
 		}
 
 		ViewPager viewPager = new ViewPager(getActivity());
