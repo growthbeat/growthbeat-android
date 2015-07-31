@@ -66,7 +66,6 @@ public class SwipeMessageFragment extends Fragment {
 				// if (swipeMessage.getType().equals(SwipeType.oneButton))
 				// showOneButton(baseLayout, outerRect, imageOuterRect, (int)
 				// buttonHeight);
-				// showPanel(baseLayout, outerRect, (int) panelHeight);
 				// showCloseButton(baseLayout, outerRect);
 			}
 
@@ -175,10 +174,6 @@ public class SwipeMessageFragment extends Fragment {
 		default:
 			break;
 		}
-	}
-
-	private void showPanel(FrameLayout innerLayout, Rect rect, int panelHeight) {
-		// TODO�@�{�^���ʒu�̕\���@�@swipe��Fragment�Ƒ��Ŏ������ׂ��H
 	}
 
 	private void showCloseButton(FrameLayout innerLayout, Rect rect) {
