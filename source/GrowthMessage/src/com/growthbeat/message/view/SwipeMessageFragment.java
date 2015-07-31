@@ -10,12 +10,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
@@ -53,17 +55,16 @@ public class SwipeMessageFragment extends Fragment {
 		final double buttonHeight = displayMetrics.heightPixels * 0.12;
 		final double panelHeight = displayMetrics.heightPixels * 0.7;
 		final double marginLeft = (displayMetrics.widthPixels - baseWidth) / 2;
-
 		double maxPictureHeight = baseHeight;
 
 		final List<Rect> imageRects = new ArrayList<Rect>(swipeMessage.getPictures().size());
 		for(Picture picture : swipeMessage.getPictures()) {
 			double availableWidth = Math.min(picture.getWidth(), baseWidth);
-			double availableHeight = Math.min(picture.getHeight(), baseHeight - buttonHeight - panelHeight);
+			double availableHeight = Math.min(picture.getHeight(), baseHeight - buttonHeight);
 			double ratio = Math.min(availableWidth / picture.getWidth(), availableHeight / picture.getHeight());
 			int width = (int)(picture.getWidth() * ratio);
 			int height = (int)(picture.getHeight() * ratio);
-			int left = (int)((baseWidth - width) / 2);
+			int left = (int)((displayMetrics.widthPixels - width) / 2);
 			imageRects.add(new Rect(left, 0, width, height));
 			maxPictureHeight = Math.max(maxPictureHeight, height);
 		}
@@ -116,8 +117,39 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showImages(FrameLayout innerLayout, Rect outerRect, List<Rect> imageRects, int buttonHeight) {
-		// TODO swipe‚Ì‹““®B SwipeType.buttons ‚Ìê‡‚ÍAƒ{ƒ^ƒ“‚à•\¦
+		SwipePagerAdapter adapter = new SwipePagerAdapter(getActivity());
+		List<Picture> pictures = swipeMessage.getPictures();
 
+		int i = 0;
+		for (Picture picture : pictures) {
+			FrameLayout frameLayout = new FrameLayout(getActivity());
+			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+					FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+			layoutParams.gravity = android.view.Gravity.FILL;
+			frameLayout.setLayoutParams(layoutParams);
+
+			ImageView imageView = new ImageView(getActivity());
+			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(
+					imageRects.get(i).getWidth(), imageRects.get(i).getHeight());
+			imageLayoutParams.topMargin = imageRects.get(i).getTop();
+			imageLayoutParams.leftMargin = imageRects.get(i).getLeft();
+			imageView.setLayoutParams(imageLayoutParams);
+			imageView.setScaleType(ScaleType.FIT_CENTER);
+			imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
+
+			frameLayout.addView(imageView);
+			adapter.add(frameLayout);
+			i++;
+		}
+
+		ViewPager viewPager = new ViewPager(getActivity());
+		ViewPager.LayoutParams layoutParams = new ViewPager.LayoutParams();
+		layoutParams.width = ViewPager.LayoutParams.MATCH_PARENT;
+		layoutParams.height = ViewPager.LayoutParams.MATCH_PARENT;
+		viewPager.setLayoutParams(layoutParams);
+		viewPager.setAdapter(adapter);
+
+		innerLayout.addView(viewPager);
 	}
 	
 	private void showOneButton(FrameLayout innerLayout, Rect outerRect, Rect imageOuterRect, int buttonHeight) {
@@ -174,7 +206,7 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showPanel(FrameLayout innerLayout, Rect rect, int panelHeight) {
-		// TODO@ƒ{ƒ^ƒ“ˆÊ’u‚Ì•\¦@@swipe‚ÌFragment‚Æ‘¤‚ÅÀ‘•‚·‚×‚«H
+		// TODOï¿½@ï¿½{ï¿½^ï¿½ï¿½ï¿½Ê’uï¿½Ì•\ï¿½ï¿½ï¿½@ï¿½@swipeï¿½ï¿½Fragmentï¿½Æ‘ï¿½ï¿½Åï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×‚ï¿½ï¿½H
 	}
 	
 	private void showCloseButton(FrameLayout innerLayout, Rect rect) {
