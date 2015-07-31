@@ -86,12 +86,12 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showImages(FrameLayout innerLayout) {
-
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		double imageHeightRate = swipeMessage.getSwipeType().equals(SwipeType.imageOnly) ? 0.90 : 0.80;
 		int width = (int) (displayMetrics.widthPixels * 0.85);
-		int height = (int) (displayMetrics.heightPixels * 0.85);
-		int marginLeft = (int) (displayMetrics.widthPixels * (1 - 0.85) * 0.5);
-		int marginTop = (int) (displayMetrics.heightPixels * (1 - 0.85) * 0.5);
+		int height = (int) (displayMetrics.heightPixels * 0.85 * imageHeightRate);
+		int leftMargin = (int) (displayMetrics.widthPixels * (1 - 0.85) * 0.5);
+		int topMargin = (int) (displayMetrics.heightPixels * (1 - 0.85) * 0.5);
 
 		SwipePagerAdapter adapter = new SwipePagerAdapter(getActivity());
 		List<Picture> pictures = swipeMessage.getPictures();
@@ -105,8 +105,8 @@ public class SwipeMessageFragment extends Fragment {
 
 			ImageView imageView = new ImageView(getActivity());
 			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(width, height);
-			imageLayoutParams.leftMargin = marginLeft;
-			imageLayoutParams.topMargin = marginTop;
+			imageLayoutParams.leftMargin = leftMargin;
+			imageLayoutParams.topMargin = topMargin;
 			imageView.setLayoutParams(imageLayoutParams);
 			imageView.setScaleType(ScaleType.CENTER_INSIDE);
 			imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
