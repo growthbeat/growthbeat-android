@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -94,7 +93,9 @@ public class SwipeMessageFragment extends Fragment {
 
 		SwipePagerAdapter adapter = new SwipePagerAdapter(getActivity());
 		List<Picture> pictures = swipeMessage.getPictures();
+		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
 
+		int i = 0;
 		for (Picture picture : pictures) {
 			FrameLayout frameLayout = new FrameLayout(getActivity());
 			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -111,7 +112,33 @@ public class SwipeMessageFragment extends Fragment {
 			imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
 
 			frameLayout.addView(imageView);
+
+			Button button = buttons.get(i);
+
+			final ImageButton imageButton = (ImageButton) button;
+
+			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
+			touchableImageView.setScaleType(ScaleType.FIT_CENTER);
+			touchableImageView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
+					if (!getActivity().isFinishing())
+						getActivity().finish();
+				}
+			});
+			touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+
+			int buttonWidth = (int) (displayMetrics.widthPixels * 0.85);
+			int buttonHeight = (int) (displayMetrics.heightPixels * 0.85 * 0.10);
+			int butotnLeftMargin = (int) (displayMetrics.widthPixels * (1 - 0.85) * 0.5);
+			int buttonTopMargin = (int) (displayMetrics.heightPixels * (1 - 0.85) * 0.5) + buttonHeight * 8;
+
+			frameLayout.addView(wrapViewWithAbsoluteLayout(touchableImageView,
+					new Rect(butotnLeftMargin, buttonTopMargin, buttonWidth, buttonHeight)));
+
 			adapter.add(frameLayout);
+			i++;
 		}
 
 		ViewPager viewPager = new ViewPager(getActivity());
@@ -125,7 +152,7 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showOneButton(FrameLayout innerLayout) {
-		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image, Button.Type.plain));
+		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
 
 		if (buttons.size() != 1)
 			return;
