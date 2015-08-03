@@ -71,10 +71,10 @@ public class SwipeMessageFragment extends Fragment {
 		buttonRect.setHeight((int) (displayMetrics.heightPixels * 0.85 * 0.10));
 
 		final Rect closeRect = new Rect();
-		closeRect.setLeft((int) (displayMetrics.widthPixels * 0.90));
-		closeRect.setTop((int) (displayMetrics.heightPixels * 0.01));
-		closeRect.setWidth((int) (displayMetrics.widthPixels * 0.10));
-		closeRect.setHeight((int) (displayMetrics.heightPixels * 0.10));
+		closeRect.setLeft(imageRect.getLeft() + imageRect.getWidth() - (int) (displayMetrics.density * 20 * 0.5));
+		closeRect.setTop(imageRect.getTop() - (int) (displayMetrics.density * 20 * 0.5));
+		closeRect.setWidth((int) (displayMetrics.density * 20));
+		closeRect.setHeight((int) (displayMetrics.density * 20));
 
 		MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
 			@Override
