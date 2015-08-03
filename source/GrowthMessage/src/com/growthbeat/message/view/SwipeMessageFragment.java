@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,10 +64,9 @@ public class SwipeMessageFragment extends Fragment {
 				progressBar.setVisibility(View.GONE);
 
 				showImages(baseLayout);
-				// if (swipeMessage.getType().equals(SwipeType.oneButton))
-				// showOneButton(baseLayout, outerRect, imageOuterRect, (int)
-				// buttonHeight);
-				 showCloseButton(baseLayout);
+				if (swipeMessage.getSwipeType().equals(SwipeType.oneButton))
+					showOneButton(baseLayout);
+				showCloseButton(baseLayout);
 			}
 
 			@Override
@@ -124,21 +124,23 @@ public class SwipeMessageFragment extends Fragment {
 		innerLayout.addView(viewPager);
 	}
 
-	private void showOneButton(FrameLayout innerLayout, Rect outerRect, Rect imageOuterRect, int buttonHeight) {
+	private void showOneButton(FrameLayout innerLayout) {
 		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image, Button.Type.plain));
 
 		if (buttons.size() != 1)
 			return;
 
-		Button button = buttons.get(0);
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		int width = (int) (displayMetrics.widthPixels * 0.85);
+		int height = (int) (displayMetrics.heightPixels * 0.85 * 0.10);
+		int leftMargin = (int) (displayMetrics.widthPixels * (1 - 0.85) * 0.5);
+		int topMargin = (int) (displayMetrics.heightPixels * (1 - 0.85) * 0.5) + height * 8;
 
-		Rect buttonRect = new Rect(imageOuterRect.getLeft(), outerRect.getTop() + imageOuterRect.getTop(),
-				imageOuterRect.getWidth(), buttonHeight);
+		Button button = buttons.get(0);
 
 		switch (button.getType()) {
 		case image:
 			final ImageButton imageButton = (ImageButton) button;
-			setImageButtonRect(buttonRect, imageButton);
 
 			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
 			touchableImageView.setScaleType(ScaleType.FIT_CENTER);
@@ -152,24 +154,8 @@ public class SwipeMessageFragment extends Fragment {
 			});
 			touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
 
-			innerLayout.addView(wrapViewWithAbsoluteLayout(touchableImageView, buttonRect));
-			break;
-		case plain:
-			final PlainButton plainButton = (PlainButton) button;
-
-			android.widget.Button plainButtonView = new android.widget.Button(getActivity());
-			plainButtonView.setText(plainButton.getLabel());
-
-			plainButtonView.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					GrowthMessage.getInstance().selectButton(plainButton, swipeMessage);
-					if (!getActivity().isFinishing())
-						getActivity().finish();
-				}
-			});
-			innerLayout.addView(wrapViewWithAbsoluteLayout(plainButtonView, buttonRect));
+			innerLayout.addView(
+					wrapViewWithAbsoluteLayout(touchableImageView, new Rect(leftMargin, topMargin, width, height)));
 			break;
 		default:
 			break;
@@ -218,13 +204,6 @@ public class SwipeMessageFragment extends Fragment {
 
 		return frameLayout;
 
-	}
-
-	private void setImageButtonRect(Rect rect, ImageButton button) {
-		Picture picture = button.getPicture();
-		double ratio = Math.min(rect.getWidth() / picture.getWidth(), rect.getHeight() / picture.getHeight());
-		rect.setWidth((int) (picture.getWidth() * ratio));
-		rect.setHeight((int) (picture.getHeight() * ratio));
 	}
 
 	private List<Button> extractButtons(EnumSet<Button.Type> types) {
