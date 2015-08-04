@@ -35,6 +35,7 @@ public class SwipeMessageFragment extends Fragment {
 	private SwipeMessage swipeMessage = null;
 
 	private ProgressBar progressBar = null;
+	private ViewPager viewPager = null;
 
 	Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
@@ -70,6 +71,12 @@ public class SwipeMessageFragment extends Fragment {
 		buttonRect.setWidth(imageRect.getWidth());
 		buttonRect.setHeight((int) (displayMetrics.heightPixels * 0.85 * 0.10));
 
+		final Rect indicatorRect = new Rect();
+		indicatorRect.setLeft(buttonRect.getLeft());
+		indicatorRect.setTop(buttonRect.getTop() + buttonRect.getHeight());
+		indicatorRect.setWidth(buttonRect.getWidth());
+		indicatorRect.setHeight(buttonRect.getHeight());
+
 		final Rect closeRect = new Rect();
 		closeRect.setLeft(imageRect.getLeft() + imageRect.getWidth() - (int) (displayMetrics.density * 20 * 0.5));
 		closeRect.setTop(imageRect.getTop() - (int) (displayMetrics.density * 20 * 0.5));
@@ -85,6 +92,7 @@ public class SwipeMessageFragment extends Fragment {
 				showPager(baseLayout, imageRect, buttonRect);
 				if (swipeMessage.getSwipeType().equals(SwipeType.oneButton))
 					showOneButton(baseLayout, buttonRect);
+				showIndicator(baseLayout, indicatorRect);
 				showCloseButton(baseLayout, closeRect);
 			}
 
@@ -128,7 +136,7 @@ public class SwipeMessageFragment extends Fragment {
 			i++;
 		}
 
-		ViewPager viewPager = new ViewPager(getActivity());
+		viewPager = new ViewPager(getActivity());
 		ViewPager.LayoutParams layoutParams = new ViewPager.LayoutParams();
 		layoutParams.width = ViewPager.LayoutParams.MATCH_PARENT;
 		layoutParams.height = ViewPager.LayoutParams.MATCH_PARENT;
@@ -148,6 +156,16 @@ public class SwipeMessageFragment extends Fragment {
 		if (buttonView != null) {
 			innerLayout.addView(buttonView);
 		}
+	}
+
+	private void showIndicator(FrameLayout innerLayout, Rect rect) {
+		SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator(getActivity());
+		swipePagerIndicator.setViewPager(viewPager);
+		FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
+		layoutParams2.leftMargin = rect.getLeft();
+		layoutParams2.topMargin = rect.getTop();
+		swipePagerIndicator.setLayoutParams(layoutParams2);
+		innerLayout.addView(swipePagerIndicator);
 	}
 
 	private void showCloseButton(FrameLayout innerLayout, Rect rect) {
