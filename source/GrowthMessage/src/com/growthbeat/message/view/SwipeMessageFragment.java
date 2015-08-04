@@ -216,7 +216,12 @@ public class SwipeMessageFragment extends Fragment {
 			final ImageButton imageButton = (ImageButton) button;
 
 			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-			touchableImageView.setScaleType(ScaleType.FIT_CENTER);
+			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(),
+					rect.getHeight());
+			imageLayoutParams.leftMargin = rect.getLeft();
+			imageLayoutParams.topMargin = rect.getTop();
+			touchableImageView.setLayoutParams(imageLayoutParams);
+			touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
 			touchableImageView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -226,25 +231,10 @@ public class SwipeMessageFragment extends Fragment {
 				}
 			});
 			touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
-			return wrapViewWithAbsoluteLayout(touchableImageView, rect);
+			return touchableImageView;
 		default:
 			return null;
 		}
-	}
-
-	private View wrapViewWithAbsoluteLayout(View view, Rect rect) {
-
-		FrameLayout frameLayout = new FrameLayout(getActivity());
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-		layoutParams.setMargins(rect.getLeft(), rect.getTop(), 0, 0);
-		layoutParams.gravity = android.view.Gravity.FILL;
-		frameLayout.setLayoutParams(layoutParams);
-
-		view.setLayoutParams(new ViewGroup.LayoutParams(rect.getWidth(), rect.getHeight()));
-		frameLayout.addView(view);
-
-		return frameLayout;
-
 	}
 
 	private List<Button> extractButtons(EnumSet<Button.Type> types) {
