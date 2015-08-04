@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -112,7 +115,7 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showPager(FrameLayout innerLayout, Rect imageRect, Rect buttonRect) {
-		SwipePagerAdapter adapter = new SwipePagerAdapter(getActivity());
+		SwipePagerAdapter adapter = new SwipePagerAdapter();
 		List<Picture> pictures = swipeMessage.getPictures();
 		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
 
@@ -159,7 +162,7 @@ public class SwipeMessageFragment extends Fragment {
 	}
 
 	private void showIndicator(FrameLayout innerLayout, Rect rect) {
-		SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator(getActivity());
+		SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator();
 		swipePagerIndicator.setViewPager(viewPager);
 		FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
 		layoutParams2.leftMargin = rect.getLeft();
@@ -252,5 +255,106 @@ public class SwipeMessageFragment extends Fragment {
 
 		return buttons;
 
+	}
+
+	private class SwipePagerAdapter extends PagerAdapter {
+		private ArrayList<FrameLayout> itemList;
+
+		public SwipePagerAdapter() {
+			itemList = new ArrayList<FrameLayout>();
+		}
+
+		public void add(FrameLayout layout) {
+			itemList.add(layout);
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			FrameLayout layout = itemList.get(position);
+			container.addView(layout);
+			return layout;
+		}
+
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			container.removeView((View) object);
+		}
+
+		@Override
+		public int getCount() {
+			return itemList.size();
+		}
+
+		@Override
+		public boolean isViewFromObject(View view, Object object) {
+			return view == (FrameLayout) object;
+		}
+	}
+
+	private class SwipePagerIndicator extends View {
+		private static final float DISTANCE = 50.0f;
+		private static final float RADIUS = 10.0f;
+
+		private ViewPager viewPager;
+		private int position;
+		private Paint paint;
+
+		public SwipePagerIndicator() {
+			super(getActivity());
+
+			paint = new Paint();
+			paint.setStrokeWidth(1);
+			paint.setStyle(Paint.Style.FILL_AND_STROKE);
+			paint.setStrokeCap(Paint.Cap.ROUND);
+			paint.setAntiAlias(true);
+		}
+
+		public void setViewPager(ViewPager viewPager) {
+			this.viewPager = viewPager;
+
+			this.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+				@Override
+				public void onPageSelected(int position) {
+					setPosition(position);
+					invalidate();
+				}
+
+				@Override
+				public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				}
+
+				@Override
+				public void onPageScrollStateChanged(int state) {
+				}
+			});
+		}
+
+		private void setPosition(int position) {
+			this.position = position;
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas) {
+			super.onDraw(canvas);
+
+			if (viewPager == null) {
+				return;
+			}
+
+			final int count = viewPager.getAdapter().getCount();
+			final float longOffset = (getWidth() * 0.5f) + (DISTANCE * 0.5f) - (count * DISTANCE * 0.5f);
+			final float shortOffset = getHeight() * 0.5f;
+
+			for (int i = 0; i < count; i++) {
+				if (position == i) {
+					paint.setColor(Color.WHITE);
+				} else {
+					paint.setColor(Color.DKGRAY);
+				}
+				float cx = longOffset + (i * DISTANCE);
+				float cy = shortOffset;
+				canvas.drawCircle(cx, cy, RADIUS, paint);
+			}
+		}
 	}
 }
