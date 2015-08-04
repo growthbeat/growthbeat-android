@@ -75,8 +75,8 @@ public class SwipeMessageFragment extends Fragment {
 		buttonRect.setHeight((int) (displayMetrics.heightPixels * 0.85 * 0.10));
 
 		final Rect indicatorRect = new Rect();
-		indicatorRect.setLeft(buttonRect.getLeft());
-		indicatorRect.setTop(buttonRect.getTop() + buttonRect.getHeight());
+		indicatorRect.setLeft(imageRect.getLeft());
+		indicatorRect.setTop(imageRect.getTop() + (int) (displayMetrics.heightPixels * 0.85 * 0.90));
 		indicatorRect.setWidth(buttonRect.getWidth());
 		indicatorRect.setHeight(buttonRect.getHeight());
 
