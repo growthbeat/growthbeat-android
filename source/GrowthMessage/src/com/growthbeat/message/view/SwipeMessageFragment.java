@@ -180,7 +180,11 @@ public class SwipeMessageFragment extends Fragment {
 		final CloseButton closeButton = (CloseButton) buttons.get(0);
 
 		TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-		touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
+		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
+		layoutParams.leftMargin = rect.getLeft();
+		layoutParams.topMargin = rect.getTop();
+		touchableImageView.setLayoutParams(layoutParams);
+		touchableImageView.setScaleType(ScaleType.FIT_CENTER);
 		touchableImageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -191,7 +195,7 @@ public class SwipeMessageFragment extends Fragment {
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
 
-		innerLayout.addView(wrapViewWithAbsoluteLayout(touchableImageView, rect));
+		innerLayout.addView(touchableImageView);
 	}
 
 	private View createImage(Picture picture, Rect rect) {
