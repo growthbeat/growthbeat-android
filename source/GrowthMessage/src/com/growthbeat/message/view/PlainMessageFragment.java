@@ -116,7 +116,6 @@ public class PlainMessageFragment extends DialogFragment {
 			ScrollView scrollView = new ScrollView(getActivity());
 			TextView textView = new TextView(getActivity());
 			textView.setText(plainMessage.getText());
-			textView.setTextSize(17);
 			scrollView.addView(textView, new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT));
