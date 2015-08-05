@@ -37,7 +37,6 @@ public class GrowthMessage {
 			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
 	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
-	private Context context = null;
 	private String applicationId = null;
 	private String credentialId = null;
 
@@ -63,7 +62,6 @@ public class GrowthMessage {
 			return;
 		}
 
-		this.context = context.getApplicationContext();
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
 
@@ -116,7 +114,7 @@ public class GrowthMessage {
 					});
 
 				} catch (GrowthbeatException e) {
-					logger.info(String.format("Message is not found.", e.getMessage()));
+					logger.info(String.format("Message is not found. %s", e.getMessage()));
 				}
 
 			}
@@ -158,10 +156,6 @@ public class GrowthMessage {
 
 		GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
 
-	}
-
-	public Context getContext() {
-		return context;
 	}
 
 	public String getApplicationId() {
