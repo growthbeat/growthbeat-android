@@ -81,27 +81,25 @@ public class PlainMessageFragment extends DialogFragment {
 		if (plainMessage.getButtons().size() < 3) {
 			dialogBuilder.setMessage(plainMessage.getText());
 			if (positiveButton != null) {
-				dialogBuilder.setPositiveButton(positiveButton.getLabel(),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
-								if (!getActivity().isFinishing())
-									getActivity().finish();
-							}
-						});
+				dialogBuilder.setPositiveButton(positiveButton.getLabel(), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
+						if (!getActivity().isFinishing())
+							getActivity().finish();
+					}
+				});
 			}
 
 			if (negativeButton != null) {
-				dialogBuilder.setNegativeButton(negativeButton.getLabel(),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
-								if (!getActivity().isFinishing())
-									getActivity().finish();
-							}
-						});
+				dialogBuilder.setNegativeButton(negativeButton.getLabel(), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
+						if (!getActivity().isFinishing())
+							getActivity().finish();
+					}
+				});
 			}
 		} else {
 			String[] items = { positiveButton.getLabel(), neutralButton.getLabel(), negativeButton.getLabel() };
@@ -110,34 +108,32 @@ public class PlainMessageFragment extends DialogFragment {
 			layout.setOrientation(LinearLayout.VERTICAL);
 
 			LinearLayout.LayoutParams textViewParams = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT,
-					LinearLayout.LayoutParams.WRAP_CONTENT);
+					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
 			ScrollView scrollView = new ScrollView(getActivity());
 			TextView textView = new TextView(getActivity());
 			textView.setText(plainMessage.getText());
-			scrollView.addView(textView, new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT,
+			scrollView.addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT));
 
-			layout.addView(scrollView, new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, 150));
+			layout.addView(scrollView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150));
 
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-					getActivity(), android.R.layout.simple_list_item_1, items);
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,
+					items);
 			final ListView listView = new ListView(getActivity());
 			listView.setAdapter(adapter);
-			
+
 			View item = adapter.getView(0, null, listView);
-	        item.measure(0, 0);         
-	        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, (int) (1.0 * item.getMeasuredHeight()));
-	        listView.setLayoutParams(params);
+			item.measure(0, 0);
+			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
+					(int) (1.0 * item.getMeasuredHeight()));
+			listView.setLayoutParams(params);
 
 			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-					switch(position) {
+					switch (position) {
 					case 0:
 						GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
 						break;
