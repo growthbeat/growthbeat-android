@@ -107,9 +107,6 @@ public class PlainMessageFragment extends DialogFragment {
 			LinearLayout layout = new LinearLayout(getActivity());
 			layout.setOrientation(LinearLayout.VERTICAL);
 
-			LinearLayout.LayoutParams textViewParams = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
 			ScrollView scrollView = new ScrollView(getActivity());
 			TextView textView = new TextView(getActivity());
 			textView.setText(plainMessage.getText());
@@ -122,13 +119,6 @@ public class PlainMessageFragment extends DialogFragment {
 					items);
 			final ListView listView = new ListView(getActivity());
 			listView.setAdapter(adapter);
-
-			View item = adapter.getView(0, null, listView);
-			item.measure(0, 0);
-			ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT,
-					(int) (1.0 * item.getMeasuredHeight()));
-			listView.setLayoutParams(params);
-
 			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 				@Override
@@ -150,7 +140,8 @@ public class PlainMessageFragment extends DialogFragment {
 						getActivity().finish();
 				}
 			});
-			layout.addView(listView, textViewParams);
+			layout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.WRAP_CONTENT));
 			dialogBuilder.setView(layout);
 		}
 
