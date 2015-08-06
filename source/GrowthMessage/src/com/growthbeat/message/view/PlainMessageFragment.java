@@ -144,9 +144,6 @@ public class PlainMessageFragment extends DialogFragment {
 			layout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 					LinearLayout.LayoutParams.WRAP_CONTENT));
 
-//			layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//					LinearLayout.LayoutParams.MATCH_PARENT));
-
 			dialogBuilder.setView(layout);
 		}
 
