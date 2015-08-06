@@ -176,7 +176,7 @@ public class BannerMessageView extends FrameLayout {
 		int iconDesignWidth = 56;
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 
-		int iconWidthpixels = (int) (iconDesignWidth * ratio * displayMetrics.density);
+		int iconWidthpixels = (int) (iconDesignWidth * bannerMetrics.ratio * displayMetrics.density);
 		LinearLayout.LayoutParams iconLayoutParams = new LinearLayout.LayoutParams(iconWidthpixels, iconWidthpixels);
 		int margin = (int) ((bannerMetrics.shortPixels - iconWidthpixels) * 0.5);
 		iconLayoutParams.setMargins(margin, margin, 0, 0);
