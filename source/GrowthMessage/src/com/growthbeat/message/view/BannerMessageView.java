@@ -173,6 +173,7 @@ public class BannerMessageView extends FrameLayout {
 		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout);
 		innerLayout.addView(baseLayout);
+		showBanner = true;
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
