@@ -19,6 +19,7 @@ import android.graphics.PixelFormat;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,6 +48,23 @@ public class BannerMessageView extends FrameLayout {
 	private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
 	private boolean showBanner = false;
+
+	private BannerMetrics bannerMetrics = null;
+
+	private class BannerMetrics {
+		public int designWidth = 320;
+		public int designHeight = 70;
+		public float ratio = 1.0f;
+		public int longPixels = 0;
+		public int shortPixels = 0;
+
+		BannerMetrics() {
+			DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+			longPixels = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+			ratio = longPixels / displayMetrics.density / designWidth;
+			shortPixels = (int) (designHeight * ratio * displayMetrics.density);
+		}
+	}
 
 	public BannerMessageView(Context context, Message message) {
 
@@ -79,17 +97,16 @@ public class BannerMessageView extends FrameLayout {
 		BannerImageLoader bannerImageLoader = new BannerImageLoader(message, callback);
 		bannerImageLoader.download();
 
-		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		bannerMetrics = new BannerMetrics();
 		WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-		layoutParams.width = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
+		layoutParams.width = bannerMetrics.longPixels;
 		if (bannerMessage.getBannerType() == BannerType.onlyImage)
-			layoutParams.height = (int) ((float) layoutParams.width / (float) bannerMessage.getPicture().getWidth() * bannerMessage
-					.getPicture().getHeight());
+			layoutParams.height = FrameLayout.LayoutParams.WRAP_CONTENT;
 		else
-			layoutParams.height = (int) (70 * displayMetrics.density);
+			layoutParams.height = bannerMetrics.shortPixels;
 
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
-		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 				| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 		layoutParams.format = PixelFormat.TRANSLUCENT;
@@ -109,7 +126,8 @@ public class BannerMessageView extends FrameLayout {
 
 		ImageView imageView = new ImageView(getContext());
 		imageView.setScaleType(ScaleType.FIT_CENTER);
-		LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(innerLayout.getWidth(), innerLayout.getHeight());
+		LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(innerLayout.getWidth(),
+				innerLayout.getHeight());
 		imageView.setLayoutParams(parms);
 		imageView.setOnClickListener(new View.OnClickListener() {
 
@@ -155,23 +173,29 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 
+		int iconDesignWidth = 56;
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+
+		int iconWidthpixels = (int) (iconDesignWidth * ratio * displayMetrics.density);
+		LinearLayout.LayoutParams iconLayoutParams = new LinearLayout.LayoutParams(iconWidthpixels, iconWidthpixels);
+		int margin = (int) ((bannerMetrics.shortPixels - iconWidthpixels) * 0.5);
+		iconLayoutParams.setMargins(margin, margin, 0, 0);
+		ImageView iconImage = new ImageView(getContext());
+		iconImage.setScaleType(ScaleType.FIT_CENTER);
+		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
+		baseLayout.addView(iconImage, iconLayoutParams);
+
 		LinearLayout textLayout = new LinearLayout(getContext());
 		textLayout.setOrientation(LinearLayout.VERTICAL);
 
-//		LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(50, 50);
 		TextView caption = new TextView(getContext());
 		TextView text = new TextView(getContext());
 		caption.setText(bannerMessage.getCaption());
 		text.setText(bannerMessage.getText());
 		textLayout.addView(caption);
 		textLayout.addView(text);
-
-		LinearLayout.LayoutParams baseLayoutParams = new LinearLayout.LayoutParams(100, 100);
-		baseLayoutParams.setMargins(10, 10, 10, 10);
-		ImageView iconImage = new ImageView(getContext());
-		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
-		baseLayout.addView(iconImage, baseLayoutParams);
 		baseLayout.addView(textLayout);
+
 		innerLayout.addView(baseLayout);
 		showBanner = true;
 
@@ -306,7 +330,8 @@ public class BannerMessageView extends FrameLayout {
 
 					try {
 						HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
-						if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
+						if (httpResponse.getStatusLine().getStatusCode() < 200
+								&& httpResponse.getStatusLine().getStatusCode() >= 300)
 							continue;
 						images.put(urlString, BitmapFactory.decodeStream(httpResponse.getEntity().getContent()));
 					} catch (Exception e) {
