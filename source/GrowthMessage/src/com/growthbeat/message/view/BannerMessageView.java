@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Matrix.ScaleToFit;
 import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -192,29 +193,28 @@ public class BannerMessageView extends FrameLayout {
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
 				(int) (bannerMetrics.longPixels * 0.65), RelativeLayout.LayoutParams.MATCH_PARENT);
 		textLayout.setLayoutParams(layoutParams);
-//		textLayout.setBackgroundColor(Color.RED);
 
 		TextView caption = new TextView(getContext());
-		caption.setTextSize(10);
+		caption.setTextSize(10 * bannerMetrics.ratio);
 		caption.setHorizontallyScrolling(true);
 		caption.setEllipsize(TruncateAt.END);
 		caption.setText(bannerMessage.getCaption());
 		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		captionParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-		captionParams.setMargins(0, (int) (bannerMetrics.shortPixels * 0.3), 0, 0);
+		captionParams.setMargins(0, (int) (bannerMetrics.shortPixels * 0.28), 0, 0);
 		caption.setLayoutParams(captionParams);
 		textLayout.addView(caption);
 
 		TextView text = new TextView(getContext());
-		text.setTextSize(12);
+		text.setTextSize(12 * bannerMetrics.ratio);
 		text.setHorizontallyScrolling(true);
 		text.setEllipsize(TruncateAt.END);
 		text.setText(bannerMessage.getText());
 		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
 				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 		textParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-		textParams.setMargins(0, 0, 0, (int) (bannerMetrics.shortPixels * 0.3));
+		textParams.setMargins(0, 0, 0, (int) (bannerMetrics.shortPixels * 0.28));
 		text.setLayoutParams(textParams);
 		textLayout.addView(text);
 
@@ -239,9 +239,18 @@ public class BannerMessageView extends FrameLayout {
 		if (bannerMessage.getButtons().size() < 2)
 			return;
 
+		int closeDesignWidth = 20;
+		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+		int closeWidthpixels = (int) (closeDesignWidth * bannerMetrics.ratio * displayMetrics.density);
+		FrameLayout.LayoutParams closeParams = new FrameLayout.LayoutParams(closeWidthpixels, closeWidthpixels);
+		int margin = (int) ((bannerMetrics.shortPixels - closeWidthpixels) * 0.5);
+		closeParams.gravity = Gravity.RIGHT;
+		closeParams.setMargins(0, margin, (int) (margin * 0.5), 0);
+
 		final CloseButton closeButton = (CloseButton) buttons.get(0);
 
 		TouchableImageView touchableImageView = new TouchableImageView(getContext());
+		touchableImageView.setScaleType(ScaleType.FIT_CENTER);
 		touchableImageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -250,10 +259,7 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
-		// TODO : other device displayMetrics.density use
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(50, 50);
-		layoutParams.setMargins(innerLayout.getWidth() - 75, innerLayout.getHeight() / 2 - 25, 0, 0);
-		innerLayout.addView(touchableImageView, layoutParams);
+		innerLayout.addView(touchableImageView, closeParams);
 
 		new Handler().postDelayed(new Runnable() {
 			@Override
