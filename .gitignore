@@ -31,4 +31,5 @@ proguard/
 
 # InteliJ files
 *.iml
+lint.xml
 .idea/

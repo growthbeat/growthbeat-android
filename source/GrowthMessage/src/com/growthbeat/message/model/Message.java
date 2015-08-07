@@ -48,6 +48,8 @@ public class Message extends Model implements Parcelable {
 			return new PlainMessage(jsonObject);
 		case image:
 			return new ImageMessage(jsonObject);
+		case banner:
+			return new BannerMessage(jsonObject);
 		default:
 			return null;
 		}
@@ -226,7 +228,7 @@ public class Message extends Model implements Parcelable {
 	}
 
 	public static enum Type {
-		plain, image
+		plain, image, banner
 	}
 
 	@Override
