@@ -129,7 +129,7 @@ public class BannerMessageView extends FrameLayout {
 			return;
 
 		ImageView imageView = new ImageView(getContext());
-		imageView.setScaleType(ScaleType.FIT_CENTER);
+		imageView.setScaleType(ScaleType.FIT_XY);
 		imageView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -140,8 +140,10 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 
+		innerLayout.setBackgroundColor(Color.RED);
 		imageView.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
-		innerLayout.addView(imageView);
+		innerLayout.addView(imageView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+				FrameLayout.LayoutParams.WRAP_CONTENT));
 		showBanner = true;
 
 		new Handler().postDelayed(new Runnable() {
