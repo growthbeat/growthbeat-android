@@ -16,8 +16,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.text.TextUtils.TruncateAt;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.growthbeat.message.GrowthMessage;
@@ -179,21 +182,42 @@ public class BannerMessageView extends FrameLayout {
 		int iconWidthpixels = (int) (iconDesignWidth * bannerMetrics.ratio * displayMetrics.density);
 		LinearLayout.LayoutParams iconLayoutParams = new LinearLayout.LayoutParams(iconWidthpixels, iconWidthpixels);
 		int margin = (int) ((bannerMetrics.shortPixels - iconWidthpixels) * 0.5);
-		iconLayoutParams.setMargins(margin, margin, 0, 0);
+		iconLayoutParams.setMargins(margin, margin, margin, 0);
 		ImageView iconImage = new ImageView(getContext());
 		iconImage.setScaleType(ScaleType.FIT_CENTER);
 		iconImage.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
 		baseLayout.addView(iconImage, iconLayoutParams);
 
-		LinearLayout textLayout = new LinearLayout(getContext());
-		textLayout.setOrientation(LinearLayout.VERTICAL);
+		RelativeLayout textLayout = new RelativeLayout(getContext());
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+				(int) (bannerMetrics.longPixels * 0.65), RelativeLayout.LayoutParams.MATCH_PARENT);
+		textLayout.setLayoutParams(layoutParams);
+//		textLayout.setBackgroundColor(Color.RED);
 
 		TextView caption = new TextView(getContext());
-		TextView text = new TextView(getContext());
+		caption.setTextSize(10);
+		caption.setHorizontallyScrolling(true);
+		caption.setEllipsize(TruncateAt.END);
 		caption.setText(bannerMessage.getCaption());
-		text.setText(bannerMessage.getText());
+		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		captionParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+		captionParams.setMargins(0, (int) (bannerMetrics.shortPixels * 0.3), 0, 0);
+		caption.setLayoutParams(captionParams);
 		textLayout.addView(caption);
+
+		TextView text = new TextView(getContext());
+		text.setTextSize(12);
+		text.setHorizontallyScrolling(true);
+		text.setEllipsize(TruncateAt.END);
+		text.setText(bannerMessage.getText());
+		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		textParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+		textParams.setMargins(0, 0, 0, (int) (bannerMetrics.shortPixels * 0.3));
+		text.setLayoutParams(textParams);
 		textLayout.addView(text);
+
 		baseLayout.addView(textLayout);
 
 		innerLayout.addView(baseLayout);
