@@ -4,7 +4,11 @@ Growthbeat SDK for Android
 
 ## Usage
 
-1. Add growthbeat.jar into libs directory in your project. 
+### Growthbeat
+
+1. Add growthbeat.jar into libs directory in your project.
+
+1. Add google-play-services.jar and android-support-v4.jar into libs directory in your project. 
 
 1. Write initialization code
 
@@ -26,6 +30,22 @@ Growthbeat SDK for Android
 	Growthbeat.getInstance().stop();
 	```
 
+### Growth Analytics
+
+1. Write following code in the place to track custom event with Growth Analytics .
+
+	```java
+	GrowthAnalytics.getInstance().track("EVENT_ID");
+	```
+	
+### Growth Message
+
+1. Write following code in the place to display a message with Growth Message. (The same code with Growth Analytics)
+	
+	```java
+	GrowthAnalytics.getInstance().track("EVENT_ID");
+	```
+	
 1. Add following code as a element of `<application/>` in AndroidManifest.xml
 
 	```xml
@@ -33,16 +53,16 @@ Growthbeat SDK for Android
 		android:name="com.growthbeat.message.view.AlertActivity"
 		android:theme="@android:style/Theme.Translucent" />
 	```
-    
-1. Write following code in the place to track custom event with Growth Analytics or display a message with Growth Message.
+
+### Growth Push
+
+1. Write following code to get device token and send it to server.
 
 	```java
-	GrowthAnalytics.getInstance().track("EVENT_ID");
+	GrowthPush.getInstance().requestRegistrationId("SENDER_ID");
 	```
 
-1. Use push notification
-
-	*Setting xml activity, receiver and permission.*
+1. Setting xml activity, receiver and permission.
 
 	```xml
 	<application>
@@ -81,38 +101,48 @@ Growthbeat SDK for Android
     <uses-permission android:name="YOUR_PACKAGE_NAME.permission.C2D_MESSAGE" />
 	```
 
-	```java
-	Growthbeat.getInstance().requestRegistrationId("YOUR_SENDER_ID");
+### Growth Link
+
+1. Add growthlink.jar into libs directory in your project. 
+
+1. Add following code as a element of `<application/>` in AndroidManifest.xml
+
+	```xml
+        <receiver
+            android:name="com.growthbeat.link.InstallReferrerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
 	```
 
+1. Write initialization code
+
+	```java
+	GrowthLink.getInstance().initialize(getApplicationContext(), "APPLICATION_ID", "CREDENTIAL_ID");
+	```
+
+	You can get the APPLICATION_ID and CREDENTIAL_ID on web site of Growthbeat.
+	
+1. Write following code to handle url in Activity's onCreate after initialization
+
+	```java
+	GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
+	```
 	
 ## Included SDKs
 
 Growthbeat is growth hack platform for mobile apps. This repository includes Growthbeat Core SDK, Growth Analytics, Growth Push SDK and Growth Replay SDK.
 
-### Growthbeat Core
+* Growthbeat Core - core functions for Growthbeat integrated services.
+* Growth Analytics - analytics service for mobile apps.
+* Growth Message - in-app message tool for mobile apps.
+* Growth Push - push notification and analysis platform for mobile apps.
+* Growth Link (Pre-release) - deep linking tool.
+* Growth Replay (Under development) - usability testing tool for mobile apps.
 
-Growthbeat Core SDK is core functions for Growthbeat integrated services.
-
-* [Growthbeat Core SDK for Android](https://github.com/SIROK/growthbeat-core-android/)
-
-### Growth Analytics
-
-[Growth Analytics](https://analytics.growthbeat.com/) is analytics service for mobile apps.
-
-* [Growth Analytics SDK for Android](https://github.com/SIROK/growthanalytics-android)
-
-### Growth Message
-
-[Growth Message](https://message.growthbeat.com/) is in-app message service for mobile apps.
-
-* [Growth Message SDK for Android](https://github.com/SIROK/growthmessage-android)
-
-### Growth Push
-
-[Growth Push](https://growthpush.com/) is push notification and analysis platform for mobile apps.
-
-* [Growth Push SDK for Android](https://github.com/SIROK/growthpush-android)
 
 ## Supported Environment
 

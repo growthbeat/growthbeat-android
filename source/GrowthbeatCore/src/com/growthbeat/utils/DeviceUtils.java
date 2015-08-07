@@ -2,6 +2,9 @@ package com.growthbeat.utils;
 
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -12,7 +15,41 @@ import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.growthbeat.GrowthbeatCore;
+
 public final class DeviceUtils {
+
+	public static Future<Boolean> getTrackingEnabled() {
+		FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
+			public Boolean call() throws Exception {
+				try {
+					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					return !adInfo.isLimitAdTrackingEnabled();
+				} catch (Throwable e) {
+					return null;
+				}
+			}
+		});
+		new Thread(future).start();
+		return future;
+	}
+
+	public static Future<String> getAdvertisingId() {
+		FutureTask<String> future = new FutureTask<String>(new Callable<String>() {
+			public String call() throws Exception {
+				try {
+					Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+					return adInfo.getId();
+				} catch (Throwable e) {
+					return null;
+				}
+			}
+		});
+		new Thread(future).start();
+		return future;
+	}
 
 	public static String getModel() {
 		return Build.MODEL;

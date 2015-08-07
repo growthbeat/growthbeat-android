@@ -25,11 +25,18 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="growthbeat-sample" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.growthbeat.message.view.MessageActivity"
             android:theme="@android:style/Theme.Translucent" />
-        
         <activity
             android:name="com.growthpush.view.AlertActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -44,6 +51,14 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
                 <category android:name="com.growthbeat.growthbeatsample" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.growthbeat.link.InstallReferrerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
     </application>
