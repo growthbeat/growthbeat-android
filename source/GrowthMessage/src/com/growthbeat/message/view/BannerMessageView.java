@@ -130,9 +130,6 @@ public class BannerMessageView extends FrameLayout {
 
 		ImageView imageView = new ImageView(getContext());
 		imageView.setScaleType(ScaleType.FIT_CENTER);
-		LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(innerLayout.getWidth(),
-				innerLayout.getHeight());
-		imageView.setLayoutParams(parms);
 		imageView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -235,7 +232,6 @@ public class BannerMessageView extends FrameLayout {
 	private void showCloseButton(FrameLayout innerLayout) {
 
 		List<Button> buttons = extractButtons(Button.Type.close);
-
 		if (bannerMessage.getButtons().size() < 2)
 			return;
 
@@ -243,9 +239,8 @@ public class BannerMessageView extends FrameLayout {
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 		int closeWidthpixels = (int) (closeDesignWidth * bannerMetrics.ratio * displayMetrics.density);
 		FrameLayout.LayoutParams closeParams = new FrameLayout.LayoutParams(closeWidthpixels, closeWidthpixels);
-		int margin = (int) ((bannerMetrics.shortPixels - closeWidthpixels) * 0.5);
-		closeParams.gravity = Gravity.RIGHT;
-		closeParams.setMargins(0, margin, (int) (margin * 0.5), 0);
+		closeParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+		closeParams.setMargins(0, 0, (int) (closeWidthpixels * 0.8), 0);
 
 		final CloseButton closeButton = (CloseButton) buttons.get(0);
 
