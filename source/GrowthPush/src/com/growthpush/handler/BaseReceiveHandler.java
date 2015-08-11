@@ -68,6 +68,12 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		if (intent.getExtras().containsKey("message")) {
+			String message = intent.getExtras().getString("message");
+			if (message == null || message.length() <= 0 || message.equals(""))
+				return;
+		}
+
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.notify("GrowthPush" + context.getPackageName(), 1, generateNotification(context, intent.getExtras()));
 
