@@ -127,7 +127,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	private void download(SwipeMessage swipeMessage) {
 
-		for (Picture picture : swipeMessage.getPictures())
+		for (Picture picture : swipeMessage.getSwipeImages().getPictures())
 			urlStrings.add(picture.getUrl());
 
 		for (Button button : swipeMessage.getButtons()) {

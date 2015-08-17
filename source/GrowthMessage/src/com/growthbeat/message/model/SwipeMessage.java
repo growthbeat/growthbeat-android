@@ -1,9 +1,5 @@
 package com.growthbeat.message.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,8 +8,7 @@ import com.growthbeat.utils.JSONObjectUtils;
 public class SwipeMessage extends Message {
 
 	private SwipeType swipeType;
-
-	private List<Picture> pictures;
+	private SwipeImages swipeImages;
 
 	public SwipeMessage() {
 		super();
@@ -23,12 +18,12 @@ public class SwipeMessage extends Message {
 		super(jsonObject);
 	}
 
-	public List<Picture> getPictures() {
-		return pictures;
+	public SwipeImages getSwipeImages() {
+		return swipeImages;
 	}
 
-	public void setPictures(List<Picture> pictures) {
-		this.pictures = pictures;
+	public void setSwipeImages(SwipeImages swipeImages) {
+		this.swipeImages = swipeImages;
 	}
 
 	public SwipeType getSwipeType() {
@@ -47,12 +42,8 @@ public class SwipeMessage extends Message {
 		try {
 			if (swipeType != null)
 				jsonObject.put("swipeType", swipeType.toString());
-			if (pictures != null) {
-				JSONArray picturesJsonArray = new JSONArray();
-				for (Picture picture : pictures) {
-					picturesJsonArray.put(picture.getJsonObject());
-				}
-				jsonObject.put("pictures", picturesJsonArray);
+			if (swipeImages != null) {
+				jsonObject.put("swipeImages", swipeImages.getJsonObject());
 			}
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to get JSON.");
@@ -73,13 +64,8 @@ public class SwipeMessage extends Message {
 		try {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeType"))
 				setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "pictures")){
-				JSONArray picturesJsonArray = jsonObject.getJSONArray("pictures");
-				List<Picture> pictures = new ArrayList<Picture>(picturesJsonArray.length());
-				for (int i = 0; i < picturesJsonArray.length(); i++)
-					pictures.add(new Picture(picturesJsonArray.getJSONObject(i)));
-				setPictures(pictures);
-			}
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
+				setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.", e);
 		}

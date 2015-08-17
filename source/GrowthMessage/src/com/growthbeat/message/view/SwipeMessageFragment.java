@@ -116,7 +116,7 @@ public class SwipeMessageFragment extends Fragment {
 
 	private void showPager(FrameLayout innerLayout, Rect imageRect, Rect buttonRect) {
 		SwipePagerAdapter adapter = new SwipePagerAdapter();
-		List<Picture> pictures = swipeMessage.getPictures();
+		List<Picture> pictures = swipeMessage.getSwipeImages().getPictures();
 		List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
 
 		int i = 0;
