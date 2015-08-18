@@ -155,17 +155,14 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Registering client... (applicationId: %s, environment: %s)", applicationId, environment));
+			logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId, registrationId, environment));
 			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
-
-			logger.info(String.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
-					client.getApplicationId()));
+			logger.info(String.format("Create client success (clientId: %d)", client.getId()));
 			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.error(String.format("Registering client fail. %s", e.getMessage()));
+			logger.error(String.format("Create client fail. %s", e.getMessage()));
 		}
 
 	}
@@ -174,7 +171,7 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (applicationId: %s, token: %s, environment: %s)", applicationId, registrationId,
+			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getGrowthbeatClientId(), registrationId,
 					environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
@@ -185,7 +182,7 @@ public class GrowthPush {
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.error(String.format("Updating client fail. %s", e.getMessage()));
+			logger.error(String.format("Update client fail. %s", e.getMessage()));
 		}
 
 	}
