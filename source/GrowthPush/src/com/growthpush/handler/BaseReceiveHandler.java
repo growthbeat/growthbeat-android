@@ -37,7 +37,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
-		if (!intent.getExtras().containsKey("message") && intent.getExtras().containsKey("dialogType"))
+		if (!intent.getExtras().containsKey("message") && !intent.getExtras().containsKey("dialogType"))
 			return;
 
 		if (intent.getExtras().containsKey("message")) {
