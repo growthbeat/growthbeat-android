@@ -105,7 +105,6 @@ public class GrowthLink {
 			GrowthAnalytics.getInstance().setUUID(uuid);
 		}
 
-		final Handler handler = new Handler();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -123,7 +122,7 @@ public class GrowthLink {
 
 					logger.info(String.format("Deeplink success. (clickId: %s)", click.getId()));
 
-					handler.post(new Runnable() {
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						@Override
 						public void run() {
 

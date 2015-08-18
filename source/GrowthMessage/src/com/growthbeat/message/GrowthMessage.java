@@ -8,6 +8,7 @@ import java.util.Map;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
@@ -24,8 +25,6 @@ import com.growthbeat.message.handler.PlainMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
-import com.growthbeat.message.model.SwipeMessage;
-import com.growthbeat.message.view.MessageActivity;
 
 public class GrowthMessage {
 
@@ -87,14 +86,13 @@ public class GrowthMessage {
 			}
 		});
 
-		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context),
-				new BannerMessageHandler(context), new SwipeMessageHandler(context)));
+		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new BannerMessageHandler(
+				context), new SwipeMessageHandler(context)));
 
 	}
 
 	private void recevieMessage(final String eventId) {
 
-		final Handler handler = new Handler();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -111,7 +109,7 @@ public class GrowthMessage {
 
 					logger.info(String.format("Message is received. (id: %s)", message.getId()));
 
-					handler.post(new Runnable() {
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						@Override
 						public void run() {
 							openMessage(message);
