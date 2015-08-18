@@ -54,7 +54,7 @@ public class GrowthPush {
 		return instance;
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
+	public void initialize(final Context context, final String applicationId, final String credentialId) {
 
 		if (initialized)
 			return;
@@ -67,7 +67,6 @@ public class GrowthPush {
 
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-		this.environment = environment;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -90,7 +89,7 @@ public class GrowthPush {
 
 	}
 
-	public void requestRegistrationId(final String senderId) {
+	public void requestRegistrationId(final String senderId, final Environment environment) {
 
 		if (!initialized) {
 			logger.warning("Growth Push must be initilaize.");
@@ -99,6 +98,8 @@ public class GrowthPush {
 
 		if (client != null)
 			return;
+
+		this.environment = environment;
 
 		new Thread(new Runnable() {
 			@Override
