@@ -3,6 +3,7 @@ package com.growthbeat.link;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.net.Uri;
@@ -34,7 +35,6 @@ public class GrowthLink {
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
-	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -236,6 +236,15 @@ public class GrowthLink {
 
 	public String getInstallReferrer() {
 		return this.preference.getString(INSTALL_REFERRER_KEY);
+	}
+
+	public String waitInstallReferrer(long timeout) {
+		try {
+			installReferrerLatch.await(timeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			return null;
+		}
+		return getInstallReferrer();
 	}
 
 	public void setInstallReferrer(String installReferrer) {
