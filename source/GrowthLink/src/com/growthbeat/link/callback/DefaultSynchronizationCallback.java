@@ -21,48 +21,55 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
 				if (installReferrer != null && installReferrer.length() != 0) {
-					synchronizeWithInstallReferrer(installReferrer);
+					synchronizeWithInstallReferrer(synchronization, installReferrer);
 					return;
 				}
 
-				if (synchronization.getBrowser())
-					synchronizeWithCookieTracking();
+				if (synchronization.getBrowser()) {
+					synchronizeWithCookieTracking(synchronization);
+				}
 
 				installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
-				synchronizeWithInstallReferrer(installReferrer);
+				synchronizeWithInstallReferrer(synchronization, installReferrer);
 
 			}
-		});
+		}).start();
+		;
 
 	}
 
-	protected void synchronizeWithInstallReferrer(String installReferrer) {
+	protected void synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
 		String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+		Synchronization.save(synchronization);
 	}
 
-	protected void synchronizeWithCookieTracking() {
+	protected void synchronizeWithCookieTracking(final Synchronization synchronization) {
 
-		String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
-				+ GrowthLink.getInstance().getApplicationId();
+		String advertisingId = null;
 		try {
-			String advertisingId = DeviceUtils.getAdvertisingId().get();
-			if (advertisingId != null) {
-				urlString += "&advertisingId=" + advertisingId;
-			}
+			advertisingId = DeviceUtils.getAdvertisingId().get();
 		} catch (Exception e) {
 			GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
 		}
 
+		final String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
+				+ GrowthLink.getInstance().getApplicationId() + (advertisingId != null ? "&advertisingId=" + advertisingId : "");
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			public void run() {
+				openBrowser(urlString);
+				Synchronization.save(synchronization);
+			}
+		});
+
+	}
+
+	protected void openBrowser(String urlString) {
+
 		Uri uri = Uri.parse(urlString);
 		final android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
 		androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			public void run() {
-				GrowthLink.getInstance().getContext().startActivity(androidIntent);
-			}
-		});
+		GrowthLink.getInstance().getContext().startActivity(androidIntent);
 
 	}
 
