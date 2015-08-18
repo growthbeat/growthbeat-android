@@ -141,7 +141,6 @@ public class Message extends Model implements Parcelable {
 		this.cap = cap;
 	}
 
-	
 	public Date getCreated() {
 		return created;
 	}
@@ -248,7 +247,7 @@ public class Message extends Model implements Parcelable {
 	public static enum Animation {
 		none, defaults
 	}
-	
+
 	@Override
 	public int describeContents() {
 		return 0;
