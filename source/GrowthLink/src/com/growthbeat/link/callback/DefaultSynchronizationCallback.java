@@ -20,10 +20,8 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			public void run() {
 
 				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
-				if (installReferrer != null && installReferrer.length() != 0) {
-					synchronizeWithInstallReferrer(synchronization, installReferrer);
+				if (synchronizeWithInstallReferrer(synchronization, installReferrer))
 					return;
-				}
 
 				if (synchronization.getBrowser()) {
 					synchronizeWithCookieTracking(synchronization);
@@ -34,14 +32,20 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 			}
 		}).start();
-		;
 
 	}
 
-	protected void synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
+	protected boolean synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
+
+		if (installReferrer == null || installReferrer.length() == 0)
+			return false;
+
 		String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
 		Synchronization.save(synchronization);
+
+		return true;
+
 	}
 
 	protected void synchronizeWithCookieTracking(final Synchronization synchronization) {
@@ -67,7 +71,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 	protected void openBrowser(String urlString) {
 
 		Uri uri = Uri.parse(urlString);
-		final android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+		android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
 		androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
 		GrowthLink.getInstance().getContext().startActivity(androidIntent);
 

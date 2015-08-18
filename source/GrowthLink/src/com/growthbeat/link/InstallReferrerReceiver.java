@@ -1,7 +1,5 @@
 package com.growthbeat.link;
 
-import com.growthbeat.Logger;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
