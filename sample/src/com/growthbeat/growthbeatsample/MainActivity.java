@@ -13,6 +13,7 @@ import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
 import com.growthpush.GrowthPush;
+import com.growthpush.model.Environment;
 
 public class MainActivity extends Activity {
 
@@ -21,9 +22,10 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo", BuildConfig.DEBUG);
+		Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
 		GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-		GrowthPush.getInstance().requestRegistrationId("1000565500410");
+		GrowthPush.getInstance().requestRegistrationId("1000565500410",
+				BuildConfig.DEBUG ? Environment.development : Environment.production);
 		GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
 
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {

@@ -7,6 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.PlainButton;
@@ -41,7 +50,6 @@ public class PlainMessageFragment extends DialogFragment {
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
 		dialogBuilder.setTitle(plainMessage.getCaption());
-		dialogBuilder.setMessage(plainMessage.getText());
 
 		if (plainMessage.getButtons() == null)
 			return null;
@@ -70,37 +78,73 @@ public class PlainMessageFragment extends DialogFragment {
 			return null;
 		}
 
-		if (positiveButton != null) {
-			dialogBuilder.setPositiveButton(positiveButton.getLabel(), new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
-					if (!getActivity().isFinishing())
-						getActivity().finish();
-				}
-			});
-		}
+		if (plainMessage.getButtons().size() < 3) {
+			dialogBuilder.setMessage(plainMessage.getText());
+			if (positiveButton != null) {
+				dialogBuilder.setPositiveButton(positiveButton.getLabel(), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
+						if (!getActivity().isFinishing())
+							getActivity().finish();
+					}
+				});
+			}
 
-		if (neutralButton != null) {
-			dialogBuilder.setNeutralButton(neutralButton.getLabel(), new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					GrowthMessage.getInstance().selectButton(neutralButton, plainMessage);
-					if (!getActivity().isFinishing())
-						getActivity().finish();
-				}
-			});
-		}
+			if (negativeButton != null) {
+				dialogBuilder.setNegativeButton(negativeButton.getLabel(), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
+						if (!getActivity().isFinishing())
+							getActivity().finish();
+					}
+				});
+			}
+		} else {
+			String[] items = { positiveButton.getLabel(), neutralButton.getLabel(), negativeButton.getLabel() };
 
-		if (negativeButton != null) {
-			dialogBuilder.setNegativeButton(negativeButton.getLabel(), new DialogInterface.OnClickListener() {
+			LinearLayout layout = new LinearLayout(getActivity());
+			layout.setOrientation(LinearLayout.VERTICAL);
+
+			ScrollView scrollView = new ScrollView(getActivity());
+			TextView textView = new TextView(getActivity());
+			textView.setText(plainMessage.getText());
+			scrollView.addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.WRAP_CONTENT));
+
+			layout.addView(scrollView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.MATCH_PARENT, 1.0f));
+
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1,
+					items);
+			final ListView listView = new ListView(getActivity());
+			listView.setAdapter(adapter);
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
 				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
+				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+					switch (position) {
+					case 0:
+						GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
+						break;
+					case 1:
+						GrowthMessage.getInstance().selectButton(neutralButton, plainMessage);
+						break;
+					case 2:
+						GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
+						break;
+					default:
+						break;
+					}
 					if (!getActivity().isFinishing())
 						getActivity().finish();
 				}
 			});
+			layout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+					LinearLayout.LayoutParams.WRAP_CONTENT));
+
+			dialogBuilder.setView(layout);
 		}
 
 		AlertDialog dialog = dialogBuilder.create();
