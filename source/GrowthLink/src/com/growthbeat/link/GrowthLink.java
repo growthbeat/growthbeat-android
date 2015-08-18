@@ -3,7 +3,6 @@ package com.growthbeat.link;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.net.Uri;
@@ -183,29 +182,12 @@ public class GrowthLink {
 						return;
 					}
 
-					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
 
-					if (getInstallReferrer() == null) {
-						try {
-							installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
-						} catch (InterruptedException e) {
-							logger.warning(String.format("Failed to fetch install referrer in %d ms", INSTALL_REFERRER_TIMEOUT));
-						}
-					}
-
 					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						@Override
 						public void run() {
-							String newInstallReferrer = getInstallReferrer();
-							if (newInstallReferrer != null && newInstallReferrer.length() != 0) {
-								String uriString = "?"
-										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-								handleOpenUrl(Uri.parse(uriString));
-							} else {
-								if (GrowthLink.this.synchronizationCallback != null) {
-									GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-								}
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
 							}
 						}
 					});
