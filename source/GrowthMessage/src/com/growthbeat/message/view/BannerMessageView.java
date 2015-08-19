@@ -16,13 +16,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.Matrix.ScaleToFit;
-import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.text.TextUtils.TruncateAt;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -111,8 +108,7 @@ public class BannerMessageView extends FrameLayout {
 
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-				| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 		layoutParams.format = PixelFormat.TRANSLUCENT;
 
 		getWindowsManager().addView(this, layoutParams);
@@ -189,8 +185,8 @@ public class BannerMessageView extends FrameLayout {
 		baseLayout.addView(iconImage, iconLayoutParams);
 
 		RelativeLayout textLayout = new RelativeLayout(getContext());
-		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-				(int) (bannerMetrics.longPixels * 0.65), RelativeLayout.LayoutParams.MATCH_PARENT);
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams((int) (bannerMetrics.longPixels * 0.65),
+				RelativeLayout.LayoutParams.MATCH_PARENT);
 		textLayout.setLayoutParams(layoutParams);
 
 		TextView caption = new TextView(getContext());
@@ -198,8 +194,8 @@ public class BannerMessageView extends FrameLayout {
 		caption.setHorizontallyScrolling(true);
 		caption.setEllipsize(TruncateAt.END);
 		caption.setText(bannerMessage.getCaption());
-		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		captionParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		captionParams.setMargins(0, (int) (bannerMetrics.shortPixels * 0.28), 0, 0);
 		caption.setLayoutParams(captionParams);
@@ -210,8 +206,8 @@ public class BannerMessageView extends FrameLayout {
 		text.setHorizontallyScrolling(true);
 		text.setEllipsize(TruncateAt.END);
 		text.setText(bannerMessage.getText());
-		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		textParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 		textParams.setMargins(0, 0, 0, (int) (bannerMetrics.shortPixels * 0.28));
 		text.setLayoutParams(textParams);
@@ -357,8 +353,7 @@ public class BannerMessageView extends FrameLayout {
 
 					try {
 						HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
-						if (httpResponse.getStatusLine().getStatusCode() < 200
-								&& httpResponse.getStatusLine().getStatusCode() >= 300)
+						if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
 							continue;
 						images.put(urlString, BitmapFactory.decodeStream(httpResponse.getEntity().getContent()));
 					} catch (Exception e) {

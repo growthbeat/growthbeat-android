@@ -35,7 +35,6 @@ public class GrowthLink {
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
-	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -106,7 +105,6 @@ public class GrowthLink {
 			GrowthAnalytics.getInstance().setUUID(uuid);
 		}
 
-		final Handler handler = new Handler();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -124,7 +122,7 @@ public class GrowthLink {
 
 					logger.info(String.format("Deeplink success. (clickId: %s)", click.getId()));
 
-					handler.post(new Runnable() {
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						@Override
 						public void run() {
 
@@ -183,29 +181,12 @@ public class GrowthLink {
 						return;
 					}
 
-					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
 
-					if (getInstallReferrer() == null) {
-						try {
-							installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
-						} catch (InterruptedException e) {
-							logger.warning(String.format("Failed to fetch install referrer in %d ms", INSTALL_REFERRER_TIMEOUT));
-						}
-					}
-
 					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						@Override
 						public void run() {
-							String newInstallReferrer = getInstallReferrer();
-							if (newInstallReferrer != null && newInstallReferrer.length() != 0) {
-								String uriString = "?"
-										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-								handleOpenUrl(Uri.parse(uriString));
-							} else {
-								if (GrowthLink.this.synchronizationCallback != null) {
-									GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-								}
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
 							}
 						}
 					});
@@ -254,6 +235,15 @@ public class GrowthLink {
 
 	public String getInstallReferrer() {
 		return this.preference.getString(INSTALL_REFERRER_KEY);
+	}
+
+	public String waitInstallReferrer(long timeout) {
+		try {
+			installReferrerLatch.await(timeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			return null;
+		}
+		return getInstallReferrer();
 	}
 
 	public void setInstallReferrer(String installReferrer) {

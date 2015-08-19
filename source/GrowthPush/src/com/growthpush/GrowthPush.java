@@ -156,7 +156,8 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId, registrationId, environment));
+			logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
+					registrationId, environment));
 			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Create client success (clientId: %d)", client.getId()));
 			Client.save(client);
@@ -172,8 +173,8 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getGrowthbeatClientId(), registrationId,
-					environment));
+			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)",
+					client.getGrowthbeatClientId(), registrationId, environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
 			client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);

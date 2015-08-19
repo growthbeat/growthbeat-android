@@ -106,8 +106,8 @@ public class SwipeMessageFragment extends Fragment {
 			}
 		};
 
-		MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(
-				getActivity().getSupportLoaderManager(), getActivity(), swipeMessage, callback);
+		MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
+				swipeMessage, callback);
 		messageImageDonwloader.download();
 
 		return baseLayout;
@@ -216,8 +216,7 @@ public class SwipeMessageFragment extends Fragment {
 			final ImageButton imageButton = (ImageButton) button;
 
 			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(),
-					rect.getHeight());
+			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
 			imageLayoutParams.leftMargin = rect.getLeft();
 			imageLayoutParams.topMargin = rect.getTop();
 			touchableImageView.setLayoutParams(imageLayoutParams);

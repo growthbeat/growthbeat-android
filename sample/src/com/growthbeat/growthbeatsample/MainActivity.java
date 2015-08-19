@@ -24,8 +24,8 @@ public class MainActivity extends Activity {
 
 		Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
 		GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-		GrowthPush.getInstance()
-				.requestRegistrationId("955057365401", BuildConfig.DEBUG ? Environment.development : Environment.production);
+		GrowthPush.getInstance().requestRegistrationId("1000565500410",
+				BuildConfig.DEBUG ? Environment.development : Environment.production);
 		GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
 
 		findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
