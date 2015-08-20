@@ -44,6 +44,7 @@ public class GrowthLink {
 	private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
+	private static final String FINGERPRINT_URL = "http://gbt.io/1/synchronize/fingerprint";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -110,9 +111,7 @@ public class GrowthLink {
 	
 	@SuppressLint("SetJavaScriptEnabled")
 	public void getFingerprintParameters(){
-		//sessionとlocalstrageはセキュリティエラーとなるためとらない。
-		String data = "<html><body>hoge<script>var elementCanvas = document.createElement('canvas');function browserSupportsWebGL(canvas) {var context = null;var names = [\"webgl\", \"experimental-webgl\", \"webkit-3d\", \"moz-webgl\"];for (var i = 0; i < names.length; ++i) {try {context = canvas.getContext(names[i]);    } catch(e) {    }    if (context) {break;}}return context != null;}function browserSupportCanvas(canvas) {try {    return !!(canvas.getContext && canvas.getContext('2d'));} catch(e) {    return false;}}function canvasContent(canvas) {var ctx = canvas.getContext('2d');var txt = 'example_canvas';ctx.textBaseline = \"top\";ctx.font = \"14px 'Arial'\";ctx.textBaseline = \"alphabetic\";ctx.fillStyle = \"#f60\";ctx.fillRect(125,1,62,20);ctx.fillStyle = \"#069\";ctx.fillText(txt, 2, 15);ctx.fillStyle = \"rgba(102, 204, 0, 0.7)\";ctx.fillText(txt, 4, 17);return canvas.toDataURL();}var plugins = [];for(var i=0;i < navigator.plugins.length;i++){plugins.push(navigator.plugins[i].name);}var mimeTypes = [];for(var i=0;i<navigator.mimeTypes.length;i++){ mimeTypes.push(navigator.mimeTypes[i].description);};window.onload = function(){var fingerprint_parameters = {userAgent: navigator.userAgent,language: navigator.language || navigator.userLanguage,platform: navigator.platform,appName: navigator.appName,appVersion: navigator.appVersion,cookieSupport: navigator.cookieEnabled,javaSupport: navigator.javaEnabled(),vendor: navigator.vendor,product: navigator.product,maxTouchPoints: navigator.maxTouchPoints,appCodeName: navigator.appCodeName,currentResolution: window.screen.width + 'x' + window.screen.height,colorDepth: window.screen.colorDepth,timeZone: new Date().getTimezoneOffset(),hasIndexedDB: !!window.indexedDB,plugins: plugins.toString(),encoding: document.characterSet,canvasSupport: browserSupportCanvas(elementCanvas),webgl: browserSupportsWebGL(elementCanvas),mineTypes: mimeTypes.toString(),canvasContent: canvasContent(elementCanvas).toString(),clientWidthHeight: document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight};location.replace('native://js?fingerprint_parameters=' + encodeURIComponent(JSON.stringify(fingerprint_parameters)) + '&useragent=' + encodeURIComponent(navigator.userAgent) + '&client_width_height=' + encodeURIComponent(document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight));  }</script></body></html>";
-        
+		
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -123,6 +122,7 @@ public class GrowthLink {
         final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         final WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
         webView.setVisibility(View.INVISIBLE);
         webView.setWebViewClient( new WebViewClient(){
         	 public boolean shouldOverrideUrlLoading( WebView argWebView, String argString ){
@@ -147,7 +147,7 @@ public class GrowthLink {
         	  return( true );
         	 }
         	});
-        webView.loadDataWithBaseURL("", data, "text/html", "UTF-8", "");
+        webView.loadUrl(FINGERPRINT_URL); 
         // Viewを画面上に重ね合わせする
         wm.addView(webView, params);   
 	}
