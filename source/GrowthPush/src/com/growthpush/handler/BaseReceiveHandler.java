@@ -81,8 +81,8 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		String title = "";
 		try {
 			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.APPLICATION_ICON_META_KEY))
-				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.APPLICATION_ICON_META_KEY));
+			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
+				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_META_KEY));
 			else
 				icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
 			title = packageManager.getApplicationLabel(applicationInfo).toString();
