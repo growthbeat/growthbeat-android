@@ -63,7 +63,6 @@ public class GrowthLink {
 	private String credentialId = null;
 	private String fingerprintParameters = null;
 	private String userAgent = null;
-	private String clientWidthHeight = null;
 
 	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 
@@ -135,7 +134,6 @@ public class GrowthLink {
         			  param = splitQuery(new URI(requestString));
         			  fingerprintParameters = param.get("fingerprint_parameters");
         			  userAgent = param.get("useragent");
-        			  clientWidthHeight = param.get("client_width_height");
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					} catch (UnsupportedEncodingException e) {
@@ -239,7 +237,7 @@ public class GrowthLink {
 				try {
 
 					String version = AppUtils.getaAppVersion(context);
-					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId, userAgent, clientWidthHeight, fingerprintParameters);
+					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId, userAgent , fingerprintParameters);
 					if (synchronization == null) {
 						logger.error("Failed to Synchronize.");
 						return;
@@ -248,7 +246,7 @@ public class GrowthLink {
 					Synchronization.save(synchronization);
 					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
 
-					if (getInstallReferrer() == null) {
+					if (synchronization.getInstallReferrer() && getInstallReferrer() == null) {
 						try {
 							installReferrerLatch.await(INSTALL_REFERRER_TIMEOUT, TimeUnit.MILLISECONDS);
 						} catch (InterruptedException e) {
@@ -263,6 +261,9 @@ public class GrowthLink {
 							if (newInstallReferrer != null && newInstallReferrer.length() != 0) {
 								String uriString = "?"
 										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+								handleOpenUrl(Uri.parse(uriString));
+							} else if (!synchronization.getBrowser() && synchronization.getClickToken() != null ) {
+								String uriString = "?clickId=" + synchronization.getClickToken();
 								handleOpenUrl(Uri.parse(uriString));
 							} else {
 								if (GrowthLink.this.synchronizationCallback != null) {
