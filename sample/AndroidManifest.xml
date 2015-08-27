@@ -36,7 +36,8 @@
         </activity>
         <activity
             android:name="com.growthbeat.message.view.MessageActivity"
-            android:theme="@android:style/Theme.Translucent" />
+            android:theme="@android:style/Theme.Translucent"
+            android:finishOnCloseSystemDialogs="true"  />
         <activity
             android:name="com.growthpush.view.AlertActivity"
             android:configChanges="orientation|keyboardHidden"
