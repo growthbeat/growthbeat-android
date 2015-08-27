@@ -17,7 +17,7 @@ public class Synchronization extends Model {
 
 	private boolean browser;
 	private boolean installReferrer;
-	private String clickToken;
+	private String clickId;
 
 	protected Synchronization() {
 		super();
@@ -37,8 +37,12 @@ public class Synchronization extends Model {
 			params.put("version", version);
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
+		//TODO:消す
+		userAgent = "Mozilla/5.0 (Linux; Android 5.0.2; SOV31 Build/28.0.D.5.25) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.2214.89 Mobile Safari/537.36";
 		if (userAgent != null)
 			params.put("userAgent", userAgent);
+		//TODO:消す
+		fingerprintParameters = "test";
 		if (fingerprintParameters != null)
 			params.put("fingerprintParameters", fingerprintParameters);
 		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("/1/synchronize", params);
@@ -78,12 +82,12 @@ public class Synchronization extends Model {
 		this.browser = browser;
 	}
 
-	public String getClickToken() {
-		return clickToken;
+	public String getClickId() {
+		return clickId;
 	}
 
-	public void setClickToken(String clickToken) {
-		this.clickToken = clickToken;
+	public void setClickId(String clickId) {
+		this.clickId = clickId;
 	}
 
 	@Override
@@ -94,8 +98,8 @@ public class Synchronization extends Model {
 		try {
 			jsonObject.put("installReferrer", installReferrer);
 			jsonObject.put("browser", browser);
-			if (clickToken != null)
-				jsonObject.put("clickToken", clickToken);
+			if (clickId != null)
+				jsonObject.put("clickId", clickId);
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to get JSON.", e);
 		}
@@ -115,8 +119,8 @@ public class Synchronization extends Model {
 				setInstallReferrer(jsonObject.getBoolean("installReferrer"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "browser"))
 				setBrowser(jsonObject.getBoolean("browser"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickToken"))
-				setClickToken(jsonObject.getString("clickToken"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickId"))
+				setClickId(jsonObject.getString("clickId"));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.", e);
 		}

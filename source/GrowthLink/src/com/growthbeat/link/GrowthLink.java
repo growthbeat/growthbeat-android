@@ -44,13 +44,14 @@ public class GrowthLink {
 	private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
-	private static final String FINGERPRINT_URL = "http://gbt.io/1/synchronize/fingerprint";
+	private static final String DEFAULT_FINGERPRINT_URL = "http://gbt.io/l/fingerprint";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
 	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
+	private static final long FINGERPRINT_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -65,10 +66,12 @@ public class GrowthLink {
 	private String userAgent = null;
 
 	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
+	private String fingerprintUrl = DEFAULT_FINGERPRINT_URL;
 
 	private boolean initialized = false;
 	private boolean firstSession = false;
 	private CountDownLatch installReferrerLatch = new CountDownLatch(1);
+	private CountDownLatch fingerprintLatch = new CountDownLatch(1);
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
@@ -127,25 +130,26 @@ public class GrowthLink {
         	 public boolean shouldOverrideUrlLoading( WebView argWebView, String argString ){
         	 
         	  String requestString = argString;
-        	  if( requestString.startsWith( "native://js?fingerprint_parameters=" ) ){
+        	  if( requestString.startsWith( "native://js?fingerprintParameters=" ) ){
         		  Log.d("request_string", requestString);
         		  Map<String, String> param;
         		  try {
         			  param = splitQuery(new URI(requestString));
-        			  fingerprintParameters = param.get("fingerprint_parameters");
-        			  userAgent = param.get("useragent");
+        			  fingerprintParameters = param.get("fingerprintParameters");
+        			  userAgent = param.get("userAgent");
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					} catch (UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
         		  wm.removeView(webView);
-        	 
+        		  
+        		  fingerprintLatch.countDown();
         	  }
         	  return( true );
         	 }
         	});
-        webView.loadUrl(FINGERPRINT_URL); 
+        webView.loadUrl(fingerprintUrl); 
         // Viewを画面上に重ね合わせする
         wm.addView(webView, params);   
 	}
@@ -231,6 +235,12 @@ public class GrowthLink {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				try {
+					logger.info("Waiting for fingerprint");
+					fingerprintLatch.await(FINGERPRINT_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					logger.warning(String.format("Failed to fetch fingerprint in %d ms", FINGERPRINT_TIMEOUT));
+				}
 
 				logger.info("Synchronizing...");
 
@@ -262,8 +272,8 @@ public class GrowthLink {
 								String uriString = "?"
 										+ newInstallReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
 								handleOpenUrl(Uri.parse(uriString));
-							} else if (!synchronization.getBrowser() && synchronization.getClickToken() != null ) {
-								String uriString = "?clickId=" + synchronization.getClickToken();
+							} else if (!synchronization.getBrowser() && synchronization.getClickId() != null ) {
+								String uriString = "?clickId=" + synchronization.getClickId();
 								handleOpenUrl(Uri.parse(uriString));
 							} else {
 								if (GrowthLink.this.synchronizationCallback != null) {
@@ -314,7 +324,15 @@ public class GrowthLink {
 	public void setSyncronizationUrl(String syncronizationUrl) {
 		this.syncronizationUrl = syncronizationUrl;
 	}
+	
+	public String getFingerprintUrl() {
+		return fingerprintUrl;
+	}
 
+	public void setFingerprintUrl(String fingerprintUrl) {
+		this.fingerprintUrl = fingerprintUrl;
+	}
+	
 	public String getInstallReferrer() {
 		return this.preference.getString(INSTALL_REFERRER_KEY);
 	}
