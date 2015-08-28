@@ -1,5 +1,9 @@
 package com.growthbeat.message.view;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
@@ -9,6 +13,8 @@ import com.growthbeat.message.model.Message;
 
 public class MessageActivity extends FragmentActivity {
 
+    private BroadcastReceiver receiver;
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -44,6 +50,16 @@ public class MessageActivity extends FragmentActivity {
 			break;
 		}
 
+        //ホームボタン押された時の準備
+        IntentFilter iFilter = new IntentFilter();
+        iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);        
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1){
+            	((MessageActivity) arg0).finish();
+            }
+        };
+        this.registerReceiver(receiver, iFilter);
 	}
 
 	@Override
@@ -54,6 +70,8 @@ public class MessageActivity extends FragmentActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if (receiver != null)
+			this.unregisterReceiver(receiver);
 	}
 
 }
