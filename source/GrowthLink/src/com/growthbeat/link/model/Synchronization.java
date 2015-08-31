@@ -15,8 +15,8 @@ public class Synchronization extends Model {
 
 	private static final String PREFERENCE_SYNCHRONIZATION_KEY = "synchronization";
 
-	private String scheme;
 	private boolean browser;
+	private boolean installReferrer;
 	private String clickId;
 
 	protected Synchronization() {
@@ -27,7 +27,7 @@ public class Synchronization extends Model {
 		super(jsonObject);
 	}
 
-	public static Synchronization synchronize(String applicationId, String version, String credentialId) {
+	public static Synchronization synchronize(String applicationId, String version, String credentialId, String fingerprintParameters) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		if (applicationId != null)
@@ -37,7 +37,8 @@ public class Synchronization extends Model {
 			params.put("version", version);
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
-
+		if (fingerprintParameters != null)
+			params.put("fingerprintParameters", fingerprintParameters);
 		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("/1/synchronize", params);
 		if (jsonObject == null)
 			return null;
@@ -59,12 +60,12 @@ public class Synchronization extends Model {
 		return new Synchronization(jsonObject);
 	}
 
-	public String getScheme() {
-		return scheme;
+	public boolean getInstallReferrer() {
+		return installReferrer;
 	}
 
-	public void setScheme(String scheme) {
-		this.scheme = scheme;
+	public void setInstallReferrer(boolean installReferrer) {
+		this.installReferrer = installReferrer;
 	}
 
 	public boolean getBrowser() {
@@ -89,8 +90,7 @@ public class Synchronization extends Model {
 		JSONObject jsonObject = new JSONObject();
 
 		try {
-			if (scheme != null)
-				jsonObject.put("scheme", scheme);
+			jsonObject.put("installReferrer", installReferrer);
 			jsonObject.put("browser", browser);
 			if (clickId != null)
 				jsonObject.put("clickId", clickId);
@@ -109,8 +109,8 @@ public class Synchronization extends Model {
 			return;
 
 		try {
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "scheme"))
-				setScheme(jsonObject.getString("scheme"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "installReferrer"))
+				setInstallReferrer(jsonObject.getBoolean("installReferrer"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "browser"))
 				setBrowser(jsonObject.getBoolean("browser"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickId"))
@@ -120,5 +120,6 @@ public class Synchronization extends Model {
 		}
 
 	}
+
 
 }
