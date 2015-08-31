@@ -63,7 +63,6 @@ public class GrowthLink {
 	private String applicationId = null;
 	private String credentialId = null;
 	private String fingerprintParameters = null;
-	private String userAgent = null;
 
 	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
 	private String fingerprintUrl = DEFAULT_FINGERPRINT_URL;
@@ -136,7 +135,6 @@ public class GrowthLink {
         		  try {
         			  param = splitQuery(new URI(requestString));
         			  fingerprintParameters = param.get("fingerprintParameters");
-        			  userAgent = param.get("userAgent");
 					} catch (URISyntaxException e) {
 						e.printStackTrace();
 					} catch (UnsupportedEncodingException e) {
@@ -247,7 +245,7 @@ public class GrowthLink {
 				try {
 
 					String version = AppUtils.getaAppVersion(context);
-					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId, userAgent , fingerprintParameters);
+					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId , fingerprintParameters);
 					if (synchronization == null) {
 						logger.error("Failed to Synchronize.");
 						return;
@@ -275,11 +273,12 @@ public class GrowthLink {
 							} else if (!synchronization.getBrowser() && synchronization.getClickId() != null ) {
 								String uriString = "?clickId=" + synchronization.getClickId();
 								handleOpenUrl(Uri.parse(uriString));
-							} else {
-								if (GrowthLink.this.synchronizationCallback != null) {
-									GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-								}
 							}
+							
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+							}
+							
 						}
 					});
 
