@@ -33,10 +33,22 @@ public class MessageActivity extends FragmentActivity {
 			imageMessageFragment.setArguments(bundle);
 			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, imageMessageFragment).commitAllowingStateLoss();
 			break;
+		case banner:
+			break;
+		case swipe:
+			SwipeMessageFragment swipeMessageFragment = new SwipeMessageFragment();
+			swipeMessageFragment.setArguments(bundle);
+			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, swipeMessageFragment).commitAllowingStateLoss();
+			break;
 		default:
 			break;
 		}
 
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
 	}
 
 	@Override

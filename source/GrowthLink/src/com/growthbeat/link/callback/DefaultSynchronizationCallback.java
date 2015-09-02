@@ -10,39 +10,70 @@ import com.growthbeat.utils.DeviceUtils;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
-	@Override
-	public void onComplete(Synchronization synchronization) {
+	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
 
-		if (!synchronization.getBrowser())
-			return;
+	@Override
+	public void onComplete(final Synchronization synchronization) {
 
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 
-				String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
-						+ GrowthLink.getInstance().getApplicationId();
-				try {
-					String advertisingId = DeviceUtils.getAdvertisingId().get();
-					if (advertisingId != null) {
-						urlString += "&advertisingId=" + advertisingId;
-					}
-				} catch (Exception e) {
-					GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
+				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
+				if (synchronizeWithInstallReferrer(synchronization, installReferrer))
+					return;
+
+				if (synchronization.getBrowser()) {
+					synchronizeWithCookieTracking(synchronization);
 				}
 
-				Uri uri = Uri.parse(urlString);
-				final android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-				androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-
-				new Handler(Looper.getMainLooper()).post(new Runnable() {
-					public void run() {
-						GrowthLink.getInstance().getContext().startActivity(androidIntent);
-					}
-				});
+				installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
+				synchronizeWithInstallReferrer(synchronization, installReferrer);
 
 			}
 		}).start();
+
+	}
+
+	protected boolean synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
+
+		if (installReferrer == null || installReferrer.length() == 0)
+			return false;
+
+		String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+		Synchronization.save(synchronization);
+
+		return true;
+
+	}
+
+	protected void synchronizeWithCookieTracking(final Synchronization synchronization) {
+
+		String advertisingId = null;
+		try {
+			advertisingId = DeviceUtils.getAdvertisingId().get();
+		} catch (Exception e) {
+			GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
+		}
+
+		final String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
+				+ GrowthLink.getInstance().getApplicationId() + (advertisingId != null ? "&advertisingId=" + advertisingId : "");
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			public void run() {
+				openBrowser(urlString);
+				Synchronization.save(synchronization);
+			}
+		});
+
+	}
+
+	protected void openBrowser(String urlString) {
+
+		Uri uri = Uri.parse(urlString);
+		android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+		androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+		GrowthLink.getInstance().getContext().startActivity(androidIntent);
 
 	}
 
