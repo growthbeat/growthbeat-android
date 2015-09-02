@@ -50,8 +50,9 @@ Growthbeat SDK for Android
 
 	```xml
 	<activity
-		android:name="com.growthbeat.message.view.AlertActivity"
-		android:theme="@android:style/Theme.Translucent" />
+            android:name="com.growthbeat.message.view.MessageActivity"
+            android:theme="@android:style/Theme.Translucent"
+            android:finishOnCloseSystemDialogs="true"  />
 	```
 
 ### Growth Push

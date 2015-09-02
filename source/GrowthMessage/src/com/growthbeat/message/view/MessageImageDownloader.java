@@ -20,11 +20,14 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
+import com.growthbeat.message.model.BannerMessage;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.ImageMessage;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.Picture;
+import com.growthbeat.message.model.SwipeMessage;
 
 public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
@@ -50,6 +53,12 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 		case image:
 			download((ImageMessage) message);
 			break;
+		case banner:
+			download((BannerMessage) message);
+			break;
+		case swipe:
+			download((SwipeMessage) message);
+			break;
 		default:
 			if (callback != null) {
 				callback.failure();
@@ -67,6 +76,61 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 		}
 
 		for (Button button : imageMessage.getButtons()) {
+			switch (button.getType()) {
+			case image:
+				urlStrings.add(((ImageButton) button).getPicture().getUrl());
+				break;
+			case close:
+				urlStrings.add(((CloseButton) button).getPicture().getUrl());
+				break;
+			default:
+				continue;
+			}
+		}
+
+		int loaderId = -1;
+		for (String urlString : urlStrings) {
+			Bundle bundle = new Bundle();
+			bundle.putString("url", urlString);
+			loaderManager.initLoader(loaderId++, bundle, this);
+		}
+
+	}
+
+	private void download(BannerMessage bannerMessage) {
+
+		if (bannerMessage.getPicture().getUrl() != null) {
+			urlStrings.add(bannerMessage.getPicture().getUrl());
+		}
+
+		for (Button button : bannerMessage.getButtons()) {
+			switch (button.getType()) {
+			case image:
+				urlStrings.add(((ImageButton) button).getPicture().getUrl());
+				break;
+			case close:
+				urlStrings.add(((CloseButton) button).getPicture().getUrl());
+				break;
+			default:
+				continue;
+			}
+		}
+
+		int loaderId = -1;
+		for (String urlString : urlStrings) {
+			Bundle bundle = new Bundle();
+			bundle.putString("url", urlString);
+			loaderManager.initLoader(loaderId++, bundle, this);
+		}
+
+	}
+
+	private void download(SwipeMessage swipeMessage) {
+
+		for (Picture picture : swipeMessage.getSwipeImages().getPictures())
+			urlStrings.add(picture.getUrl());
+
+		for (Button button : swipeMessage.getButtons()) {
 			switch (button.getType()) {
 			case image:
 				urlStrings.add(((ImageButton) button).getPicture().getUrl());
