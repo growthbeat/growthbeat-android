@@ -54,11 +54,17 @@ public class MessageActivity extends FragmentActivity {
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);        
         receiver = new BroadcastReceiver() {
-            @Override
+			private MessageActivity activity;
+			public BroadcastReceiver setActivity(MessageActivity activity) {
+				this.activity = activity;
+				return this;
+			};
+
+			@Override
             public void onReceive(Context arg0, Intent arg1){
-            	((MessageActivity) arg0).finish();
+				activity.finish();
             }
-        };
+        }.setActivity(this);
         this.registerReceiver(receiver, iFilter);
 	}
 
