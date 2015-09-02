@@ -53,19 +53,20 @@ public class MessageActivity extends FragmentActivity {
         //ホームボタン押された時の準備
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);        
-        receiver = new BroadcastReceiver() {
+		receiver = new BroadcastReceiver() {
 			private MessageActivity activity;
+
 			public BroadcastReceiver setActivity(MessageActivity activity) {
 				this.activity = activity;
 				return this;
 			};
 
 			@Override
-            public void onReceive(Context arg0, Intent arg1){
+			public void onReceive(Context arg0, Intent arg1) {
 				activity.finish();
-            }
-        }.setActivity(this);
-        this.registerReceiver(receiver, iFilter);
+			}
+		}.setActivity(this);
+		this.registerReceiver(receiver, iFilter);
 	}
 
 	@Override
