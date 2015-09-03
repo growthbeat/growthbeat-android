@@ -39,7 +39,8 @@ public class Synchronization extends Model {
 			params.put("credentialId", credentialId);
 		if (fingerprintParameters != null)
 			params.put("fingerprintParameters", fingerprintParameters);
-		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("/1/synchronize", params);
+		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("1/synchronize", params);
+
 		if (jsonObject == null)
 			return null;
 

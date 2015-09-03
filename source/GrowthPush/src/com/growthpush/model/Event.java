@@ -48,7 +48,7 @@ public class Event extends Model {
 		return new Event(jsonObject);
 
 	}
-	
+
 	public int getGoalId() {
 		return goalId;
 	}

@@ -6,5 +6,5 @@ import android.content.Intent;
 public interface InstallReferrerReceiveHandler {
 
 	public void onReceive(Context context, Intent intent);
-		
+
 }
