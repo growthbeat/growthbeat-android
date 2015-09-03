@@ -11,25 +11,36 @@ import com.growthbeat.utils.DeviceUtils;
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
+	private static final long FINGERPRINT_TIMEOUT = 60 * 1000;
 
 	@Override
 	public void onComplete(final Synchronization synchronization) {
+		
+		if (synchronization == null) 
+			return;
 
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-
-				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
-				if (synchronizeWithInstallReferrer(synchronization, installReferrer))
+				
+				if (!synchronization.getInstallReferrer() && !synchronization.getBrowser() && synchronization.getClickId() != null ) {
+					GrowthLink.getInstance().waitFingerprint(FINGERPRINT_TIMEOUT);
+					synchronizeWithFingerprint(synchronization);
 					return;
-
-				if (synchronization.getBrowser()) {
+				}
+				
+				if ( synchronization.getInstallReferrer() ){
+					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
+					if (synchronizeWithInstallReferrer(synchronization, installReferrer))
+						return;
+					if (synchronization.getBrowser()) {
+						synchronizeWithCookieTracking(synchronization);
+					}
+					installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
+					synchronizeWithInstallReferrer(synchronization, installReferrer);
+				} else if(synchronization.getBrowser()){
 					synchronizeWithCookieTracking(synchronization);
 				}
-
-				installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
-				synchronizeWithInstallReferrer(synchronization, installReferrer);
-
 			}
 		}).start();
 
@@ -66,6 +77,11 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			}
 		});
 
+	}
+	
+	protected void synchronizeWithFingerprint(final Synchronization synchronization) {
+		String uriString = "?clickId=" + synchronization.getClickId();
+		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
 	}
 
 	protected void openBrowser(String urlString) {
