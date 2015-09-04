@@ -19,8 +19,6 @@ public class Synchronization extends Model {
 	private boolean installReferrer;
 	private boolean deviceFingerprint;
 	private String clickId;
-	
-	private boolean handled;
 
 	protected Synchronization() {
 		super();
@@ -66,11 +64,6 @@ public class Synchronization extends Model {
 		return new Synchronization(jsonObject);
 	}
 	
-	public static void handleFinish(){
-		Synchronization synchronization = Synchronization.load();
-		synchronization.setHandled(true);
-		Synchronization.save(synchronization);
-	}
 	
 	public boolean getInstallReferrer() {
 		return installReferrer;
@@ -104,13 +97,6 @@ public class Synchronization extends Model {
 		this.clickId = clickId;
 	}
 	
-	public boolean getHandled() {
-		return this.handled;
-	}
-	
-	public void setHandled(boolean handled) {
-		this.handled = handled;
-	}
 
 	@Override
 	public JSONObject getJsonObject() {
@@ -121,7 +107,6 @@ public class Synchronization extends Model {
 			jsonObject.put("installReferrer", installReferrer);
 			jsonObject.put("cookieTracking", cookieTracking);
 			jsonObject.put("deviceFingerprint", deviceFingerprint);
-			jsonObject.put("handled", handled);
 			if (clickId != null)
 				jsonObject.put("clickId", clickId);
 		} catch (JSONException e) {
@@ -145,11 +130,6 @@ public class Synchronization extends Model {
 				setCookieTracking(jsonObject.getBoolean("cookieTracking"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "deviceFingerprint"))
 				setDeviceFingerprint(jsonObject.getBoolean("deviceFingerprint"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "handled")) {
-				setHandled(jsonObject.getBoolean("handled"));
-			} else {
-				setHandled(false);
-			}
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickId"))
 				setClickId(jsonObject.getString("clickId"));
 		} catch (JSONException e) {

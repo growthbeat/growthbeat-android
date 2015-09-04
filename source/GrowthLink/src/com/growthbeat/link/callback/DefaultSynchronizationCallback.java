@@ -39,8 +39,6 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 					return;
 				}
 				
-				handleAndSaveSynchronization(synchronization);
-				
 			}
 		}).start();
 
@@ -51,8 +49,13 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 		if (installReferrer == null || installReferrer.length() == 0)
 			return false;
 
-		String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+		final String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+			public void run() {
+				GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+				Synchronization.save(synchronization);
+			}
+		});
 
 		return true;
 
@@ -72,7 +75,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 		new Handler(Looper.getMainLooper()).post(new Runnable() {
 			public void run() {
 				openBrowser(urlString);
-				handleAndSaveSynchronization(synchronization);
+				Synchronization.save(synchronization);
 			}
 		});
 
@@ -83,6 +86,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 		new Handler(Looper.getMainLooper()).post(new Runnable() {
 			public void run() {
 				GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+				Synchronization.save(synchronization);
 			}
 		});
 	}
@@ -96,9 +100,5 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	}
 	
-	private void handleAndSaveSynchronization(Synchronization synchronization){
-		synchronization.setHandled(true);
-		Synchronization.save(synchronization);
-	}
 
 }
