@@ -15,9 +15,12 @@ public class Synchronization extends Model {
 
 	private static final String PREFERENCE_SYNCHRONIZATION_KEY = "synchronization";
 
-	private boolean browser;
+	private boolean cookieTracking;
 	private boolean installReferrer;
+	private boolean deviceFingerprint;
 	private String clickId;
+	
+	private boolean handled;
 
 	protected Synchronization() {
 		super();
@@ -25,6 +28,7 @@ public class Synchronization extends Model {
 
 	protected Synchronization(JSONObject jsonObject) {
 		super(jsonObject);
+		
 	}
 
 	public static Synchronization synchronize(String applicationId, String version, String credentialId, String fingerprintParameters) {
@@ -39,7 +43,7 @@ public class Synchronization extends Model {
 			params.put("credentialId", credentialId);
 		if (fingerprintParameters != null)
 			params.put("fingerprintParameters", fingerprintParameters);
-		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("1/synchronize", params);
+		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("2/synchronize", params);
 
 		if (jsonObject == null)
 			return null;
@@ -53,6 +57,7 @@ public class Synchronization extends Model {
 			return;
 		GrowthAnalytics.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
 	}
+	
 
 	public static Synchronization load() {
 		JSONObject jsonObject = GrowthAnalytics.getInstance().getPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
@@ -60,7 +65,13 @@ public class Synchronization extends Model {
 			return null;
 		return new Synchronization(jsonObject);
 	}
-
+	
+	public static void handleFinish(){
+		Synchronization synchronization = Synchronization.load();
+		synchronization.setHandled(true);
+		Synchronization.save(synchronization);
+	}
+	
 	public boolean getInstallReferrer() {
 		return installReferrer;
 	}
@@ -69,12 +80,20 @@ public class Synchronization extends Model {
 		this.installReferrer = installReferrer;
 	}
 
-	public boolean getBrowser() {
-		return browser;
+	public boolean getCookieTracking() {
+		return cookieTracking;
 	}
 
-	public void setBrowser(boolean browser) {
-		this.browser = browser;
+	public void setCookieTracking(boolean cookieTracking) {
+		this.cookieTracking = cookieTracking;
+	}
+	
+	public boolean getDeviceFingerprint(){
+		return this.deviceFingerprint;
+	}
+	
+	public void setDeviceFingerprint(boolean deviceFingerprint){
+		this.deviceFingerprint = deviceFingerprint;
 	}
 
 	public String getClickId() {
@@ -84,6 +103,14 @@ public class Synchronization extends Model {
 	public void setClickId(String clickId) {
 		this.clickId = clickId;
 	}
+	
+	public boolean getHandled() {
+		return this.handled;
+	}
+	
+	public void setHandled(boolean handled) {
+		this.handled = handled;
+	}
 
 	@Override
 	public JSONObject getJsonObject() {
@@ -92,7 +119,9 @@ public class Synchronization extends Model {
 
 		try {
 			jsonObject.put("installReferrer", installReferrer);
-			jsonObject.put("browser", browser);
+			jsonObject.put("cookieTracking", cookieTracking);
+			jsonObject.put("deviceFingerprint", deviceFingerprint);
+			jsonObject.put("handled", handled);
 			if (clickId != null)
 				jsonObject.put("clickId", clickId);
 		} catch (JSONException e) {
@@ -112,8 +141,15 @@ public class Synchronization extends Model {
 		try {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "installReferrer"))
 				setInstallReferrer(jsonObject.getBoolean("installReferrer"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "browser"))
-				setBrowser(jsonObject.getBoolean("browser"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "cookieTracking"))
+				setCookieTracking(jsonObject.getBoolean("cookieTracking"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "deviceFingerprint"))
+				setDeviceFingerprint(jsonObject.getBoolean("deviceFingerprint"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "handled")) {
+				setHandled(jsonObject.getBoolean("handled"));
+			} else {
+				setHandled(false);
+			}
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickId"))
 				setClickId(jsonObject.getString("clickId"));
 		} catch (JSONException e) {

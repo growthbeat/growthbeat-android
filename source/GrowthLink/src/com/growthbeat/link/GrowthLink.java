@@ -178,6 +178,9 @@ public class GrowthLink {
 							credentialId);
 					if (click == null || click.getPattern() == null || click.getPattern().getLink() == null) {
 						logger.error("Failed to deeplink.");
+						Synchronization synchronization = Synchronization.load();
+						synchronization.setHandled(true);
+						Synchronization.save(synchronization);
 						return;
 					}
 
@@ -199,7 +202,8 @@ public class GrowthLink {
 							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
 							firstSession = false;
-
+							Synchronization.handleFinish();
+							
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
 							}
@@ -220,7 +224,7 @@ public class GrowthLink {
 	private void synchronize() {
 
 		logger.info("Check initialization...");
-		if (Synchronization.load() != null) {
+		if (Synchronization.load() != null && Synchronization.load().getHandled()) {
 			logger.info("Already initialized.");
 			return;
 		}
@@ -239,7 +243,12 @@ public class GrowthLink {
 						return;
 					}
 					
-					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
+					if (Synchronization.load() == null) {
+						Synchronization.save(synchronization);
+					}
+				
+					
+					logger.info(String.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, clickId: %s)", synchronization.getInstallReferrer(), synchronization.getCookieTracking(), synchronization.getClickId()));
 					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						public void run() {
 							if (GrowthLink.this.synchronizationCallback != null) {
