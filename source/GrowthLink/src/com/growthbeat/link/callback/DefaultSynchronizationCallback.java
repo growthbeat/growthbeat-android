@@ -11,7 +11,6 @@ import com.growthbeat.utils.DeviceUtils;
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	private static final long INSTALL_REFERRER_TIMEOUT = 30 * 1000;
-	private static final long FINGERPRINT_TIMEOUT = 60 * 1000;
 
 	@Override
 	public void onComplete(final Synchronization synchronization) {
@@ -34,7 +33,6 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 				}
 				
 				if (synchronization.getClickId() != null) {
-					GrowthLink.getInstance().waitFingerprint(FINGERPRINT_TIMEOUT);
 					synchronizeWithFingerprint(synchronization);
 					return;
 				}

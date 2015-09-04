@@ -50,6 +50,8 @@ public class GrowthLink {
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
+	
+	private static final long FINGERPRINT_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -232,15 +234,18 @@ public class GrowthLink {
 			public void run() {
 				logger.info("Synchronizing...");
 				try {
+					fingerprintLatch.await(FINGERPRINT_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				try {
 					String version = AppUtils.getaAppVersion(context);
 					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId , fingerprintParameters);
 					if (synchronization == null) {
 						logger.error("Failed to Synchronize.");
 						return;
 					}
-					
-				
-					
+
 					logger.info(String.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, clickId: %s)", synchronization.getInstallReferrer(), synchronization.getCookieTracking(), synchronization.getClickId()));
 					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						public void run() {
@@ -308,15 +313,6 @@ public class GrowthLink {
 	public String waitInstallReferrer(long timeout) {
 		try {
 			installReferrerLatch.await(timeout, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			return null;
-		}
-		return getInstallReferrer();
-	}
-	
-	public String waitFingerprint(long timeout) {
-		try {
-			fingerprintLatch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			return null;
 		}
