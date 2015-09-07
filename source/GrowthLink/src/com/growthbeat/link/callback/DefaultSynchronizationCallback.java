@@ -9,6 +9,7 @@ import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.DeviceUtils;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
+	private static long INSTALLREFERRER_TIMEOUT = 60 * 1000;
 
 	@Override
 	public void onComplete(final Synchronization synchronization) {
@@ -20,7 +21,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			@Override
 			public void run() {
 				if (synchronization.getInstallReferrer()) {
-					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
+					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
 					synchronizeWithInstallReferrer(synchronization, installReferrer);
 					return;
 				}

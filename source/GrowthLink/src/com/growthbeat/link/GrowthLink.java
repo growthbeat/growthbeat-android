@@ -37,8 +37,6 @@ public class GrowthLink {
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
 
 	private static final String INSTALL_REFERRER_KEY = "installReferrer";
-	
-	private static final long FINGERPRINT_TIMEOUT = 10 * 1000;
 
 	private static final GrowthLink instance = new GrowthLink();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -56,7 +54,6 @@ public class GrowthLink {
 	private boolean initialized = false;
 	private boolean firstSession = false;
 	private CountDownLatch installReferrerLatch = new CountDownLatch(1);
-	private CountDownLatch fingerprintLatch = new CountDownLatch(1);
 
 	private SynchronizationCallback synchronizationCallback = new DefaultSynchronizationCallback();
 	private InstallReferrerReceiveHandler installReferrerReceiveHandler = new DefaultInstallReferrerReceiveHandler();
@@ -179,11 +176,6 @@ public class GrowthLink {
 					@Override
 					public void run() {
 						logger.info("Synchronizing...");
-						try {
-							fingerprintLatch.await(FINGERPRINT_TIMEOUT, TimeUnit.MILLISECONDS);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
 						try {
 							String version = AppUtils.getaAppVersion(context);
 							final Synchronization synchronization = Synchronization.synchronize(applicationId, version, fingerprintParameters, credentialId);
