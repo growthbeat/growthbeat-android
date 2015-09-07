@@ -10,8 +10,6 @@ import com.growthbeat.utils.DeviceUtils;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
-	private static final long INSTALL_REFERRER_TIMEOUT = 30 * 1000;
-
 	@Override
 	public void onComplete(final Synchronization synchronization) {
 		
@@ -22,7 +20,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			@Override
 			public void run() {
 				if (synchronization.getInstallReferrer()) {
-					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
+					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
 					synchronizeWithInstallReferrer(synchronization, installReferrer);
 					return;
 				}
@@ -32,8 +30,8 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 					return;
 				}
 				
-				if (synchronization.getClickId() != null) {
-					synchronizeWithFingerprint(synchronization);
+				if (synchronization.getDeviceFingerprint()) {
+					synchronizeWithDeviceFingerprint(synchronization);
 					return;
 				}
 				
@@ -79,7 +77,10 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	}
 	
-	protected void synchronizeWithFingerprint(final Synchronization synchronization) {
+	protected void synchronizeWithDeviceFingerprint(final Synchronization synchronization) {
+		if(synchronization.getClickId() != null)
+			return;
+		
 		final String uriString = "?clickId=" + synchronization.getClickId();
 		new Handler(Looper.getMainLooper()).post(new Runnable() {
 			public void run() {

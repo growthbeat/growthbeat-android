@@ -29,7 +29,7 @@ public class Synchronization extends Model {
 		
 	}
 
-	public static Synchronization synchronize(String applicationId, String version, String credentialId, String fingerprintParameters) {
+	public static Synchronization synchronize(String applicationId, String version, String fingerprintParameters, String credentialId) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		if (applicationId != null)
