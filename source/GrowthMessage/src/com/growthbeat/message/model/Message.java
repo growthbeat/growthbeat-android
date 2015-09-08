@@ -28,6 +28,7 @@ public class Message extends Model implements Parcelable {
 	private int frequency;
 	private String segmentId;
 	private int cap;
+	private Animation animation;
 	private Date created;
 	private Task task;
 	private List<Button> buttons;
@@ -48,6 +49,10 @@ public class Message extends Model implements Parcelable {
 			return new PlainMessage(jsonObject);
 		case image:
 			return new ImageMessage(jsonObject);
+		case banner:
+			return new BannerMessage(jsonObject);
+		case swipe:
+			return new SwipeMessage(jsonObject);
 		default:
 			return null;
 		}
@@ -64,7 +69,7 @@ public class Message extends Model implements Parcelable {
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
 
-		JSONObject jsonObject = GrowthMessage.getInstance().getHttpClient().post("/1/receive", params);
+		JSONObject jsonObject = GrowthMessage.getInstance().getHttpClient().post("1/receive", params);
 		if (jsonObject == null)
 			return null;
 
@@ -118,6 +123,14 @@ public class Message extends Model implements Parcelable {
 
 	public void setSegmentId(String segmentId) {
 		this.segmentId = segmentId;
+	}
+
+	public Animation getAnimation() {
+		return animation;
+	}
+
+	public void setAnimation(Animation animation) {
+		this.animation = animation;
 	}
 
 	public int getCap() {
@@ -208,6 +221,8 @@ public class Message extends Model implements Parcelable {
 				setSegmentId(jsonObject.getString("segmentId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "cap"))
 				setCap(jsonObject.getInt("cap"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "animation"))
+				setAnimation(Animation.valueOf(jsonObject.getString("animation")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
 				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
@@ -226,7 +241,11 @@ public class Message extends Model implements Parcelable {
 	}
 
 	public static enum Type {
-		plain, image
+		plain, image, banner, swipe
+	}
+
+	public static enum Animation {
+		none, defaults
 	}
 
 	@Override

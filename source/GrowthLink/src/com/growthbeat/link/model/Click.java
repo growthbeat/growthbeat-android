@@ -41,7 +41,7 @@ public class Click extends Model {
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
 
-		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("/1/deeplink", params);
+		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("1/deeplink", params);
 		if (jsonObject == null)
 			return null;
 

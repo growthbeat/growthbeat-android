@@ -6,7 +6,6 @@ import android.os.Build;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.message.GrowthMessage;
 import com.growthpush.GrowthPush;
-import com.growthpush.model.Environment;
 
 public class Growthbeat {
 
@@ -20,13 +19,11 @@ public class Growthbeat {
 		return instance;
 	}
 
-	public void initialize(Context context, String applicationId, String credentialId, boolean debug) {
+	public void initialize(Context context, String applicationId, String credentialId) {
 		context = context.getApplicationContext();
-		setLoggerSilent(!debug);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
 			GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-			GrowthPush.getInstance().initialize(context, applicationId, credentialId,
-					debug ? Environment.development : Environment.production);
+			GrowthPush.getInstance().initialize(context, applicationId, credentialId);
 			GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
 			GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 		}

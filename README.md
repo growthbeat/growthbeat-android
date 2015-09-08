@@ -50,8 +50,8 @@ Growthbeat SDK for Android
 
 	```xml
 	<activity
-		android:name="com.growthbeat.message.view.AlertActivity"
-		android:theme="@android:style/Theme.Translucent" />
+            android:name="com.growthbeat.message.view.MessageActivity"
+            android:theme="@android:style/Theme.Translucent" />
 	```
 
 ### Growth Push
@@ -104,6 +104,19 @@ Growthbeat SDK for Android
 ### Growth Link
 
 1. Add growthlink.jar into libs directory in your project. 
+
+1. Add following code as a element of `<application/>` in AndroidManifest.xml
+
+	```xml
+        <receiver
+            android:name="com.growthbeat.link.InstallReferrerReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
+	```
 
 1. Write initialization code
 

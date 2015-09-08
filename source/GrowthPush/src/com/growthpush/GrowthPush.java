@@ -58,7 +58,7 @@ public class GrowthPush {
 		return instance;
 	}
 
-	public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
+	public void initialize(final Context context, final String applicationId, final String credentialId) {
 
 		if (initialized)
 			return;
@@ -71,7 +71,6 @@ public class GrowthPush {
 
 		this.applicationId = applicationId;
 		this.credentialId = credentialId;
-		this.environment = environment;
 
 		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -94,7 +93,7 @@ public class GrowthPush {
 
 	}
 
-	public void requestRegistrationId(final String senderId) {
+	public void requestRegistrationId(final String senderId, final Environment environment) {
 
 		if (!initialized) {
 			logger.warning("Growth Push must be initilaize.");
@@ -103,6 +102,8 @@ public class GrowthPush {
 
 		if (client != null)
 			return;
+
+		this.environment = environment;
 
 		new Thread(new Runnable() {
 			@Override
@@ -159,17 +160,15 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Registering client... (applicationId: %s, environment: %s)", applicationId, environment));
+			logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
+					registrationId, environment));
 			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-			logger.info(String.format("Registering client success (clientId: %d)", client.getId()));
-
-			logger.info(String.format("See https://growthpush.com/applications/%d/clients to check the client registration.",
-					client.getApplicationId()));
+			logger.info(String.format("Create client success (clientId: %d)", client.getId()));
 			Client.save(client);
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.error(String.format("Registering client fail. %s", e.getMessage()));
+			logger.error(String.format("Create client fail. %s", e.getMessage()));
 		}
 
 	}
@@ -178,8 +177,8 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (applicationId: %s, token: %s, environment: %s)", applicationId, registrationId,
-					environment));
+			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)",
+					client.getGrowthbeatClientId(), registrationId, environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
 			client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
@@ -189,7 +188,7 @@ public class GrowthPush {
 			latch.countDown();
 
 		} catch (GrowthPushException e) {
-			logger.error(String.format("Updating client fail. %s", e.getMessage()));
+			logger.error(String.format("Update client fail. %s", e.getMessage()));
 		}
 
 	}

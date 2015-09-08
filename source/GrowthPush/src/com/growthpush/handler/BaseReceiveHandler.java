@@ -38,6 +38,9 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		if (!intent.getExtras().containsKey("message") && !intent.getExtras().containsKey("dialogType"))
+			return;
+
 		if (intent.getExtras().containsKey("message")) {
 			String message = intent.getExtras().getString("message");
 			if (message == null || message.length() <= 0 || message.equals(""))
@@ -69,6 +72,13 @@ public class BaseReceiveHandler implements ReceiveHandler {
 		if (context == null || intent == null || intent.getExtras() == null)
 			return;
 
+		if (!intent.getExtras().containsKey("message"))
+			return;
+
+		String message = intent.getExtras().getString("message");
+		if (message == null || message.length() <= 0 || message.equals(""))
+			return;
+
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.notify("GrowthPush" + context.getPackageName(), 1, generateNotification(context, intent.getExtras()));
 
@@ -77,11 +87,10 @@ public class BaseReceiveHandler implements ReceiveHandler {
 	private Notification generateNotification(Context context, Bundle extras) {
 		PackageManager packageManager = context.getPackageManager();
 
-		ApplicationInfo applicationInfo = null;
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
 		try {
-			applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
 
 			int icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
 			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
@@ -91,7 +100,8 @@ public class BaseReceiveHandler implements ReceiveHandler {
 			builder.setTicker(title);
 			builder.setSmallIcon(icon);
 			builder.setContentTitle(title);
-			if (applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))
+			if (applicationInfo.metaData != null
+					&& applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))
 				builder.setColor(Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)));
 		} catch (NameNotFoundException e) {
 		}
