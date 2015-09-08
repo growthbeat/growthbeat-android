@@ -79,7 +79,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 	}
 	
 	protected void synchronizeWithDeviceFingerprint(final Synchronization synchronization) {
-		if(synchronization.getClickId() != null)
+		if(synchronization.getClickId() == null)
 			return;
 		
 		final String uriString = "?clickId=" + synchronization.getClickId();
