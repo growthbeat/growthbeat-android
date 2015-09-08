@@ -17,9 +17,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         
-        <meta-data android:name="com.growthpush.NotificationIcon" android:resource="@drawable/sample_notification_icon" />
-        <meta-data android:name="com.growthpush.NotificationIconBackgroundColor" android:resource="@android:color/black" />
-        <meta-data android:name="com.growthpush.AlertIcon" android:resource="@drawable/sample_notification_icon" />
+        <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
+        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/black" />
+        <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />
 
         <activity
             android:name="com.growthbeat.growthbeatsample.MainActivity"
