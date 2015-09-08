@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="21" />
 
     <application
         android:allowBackup="true"
@@ -17,8 +17,9 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <meta-data android:name="com.growthpush.NotificationIcon" android:resource="@drawable/icon_service_launcher_push"/>
-        <meta-data android:name="com.growthpush.AlertIcon" android:resource="@drawable/icon_service_launcher_push"/>
+        <meta-data android:name="com.growthpush.NotificationIcon" android:resource="@drawable/sample_notification_icon"/>
+        <meta-data android:name="com.growthpush.NotificationIconBackgroundColor" android:resource="@android:color/black"/>
+        <meta-data android:name="com.growthpush.AlertIcon" android:resource="@drawable/sample_notification_icon"/>
         
         <activity
             android:name="com.growthbeat.growthbeatsample.MainActivity"
