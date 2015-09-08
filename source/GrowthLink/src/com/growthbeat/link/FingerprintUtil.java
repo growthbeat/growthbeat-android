@@ -40,7 +40,7 @@ public class FingerprintUtil {
         	 public boolean shouldOverrideUrlLoading( WebView argWebView, String argString ){
         	 
         	  String requestString = argString;
-        	  if( requestString.startsWith( "native://js?fingerprintParameters=" ) ){
+        	  if( requestString.startsWith( "native://fingerprint?fingerprintParameters=" ) ){
         		  Log.d("request_string", requestString);
         		  Map<String, String> param;
         		  String fingerpritnParameters = null;
