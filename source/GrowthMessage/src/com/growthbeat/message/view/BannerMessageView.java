@@ -55,15 +55,15 @@ public class BannerMessageView extends FrameLayout {
 	private BannerMetrics bannerMetrics = null;
 
 	private class BannerMetrics {
-		private final int widthDp = 320;
-		private final int heightDp = 70;
-		private final int iconWidthDp = 50;
-		private final int textAreaWidthDp = 210;
-		private final int upperTextTopMarginDp = 19 - 2; // Offset font baseline
-		private final int lowerTextBottomMarginDp = 19 - 2; // Offset font baseline
-		private final int closeWidthDp = 20;
-		private final int closeRightMarginDp = 10;
-		private final int closeTopMarginDp = 25;
+		private final int WIDTH_DP = 320;
+		private final int HEIGHT_DP = 70;
+		private final int ICON_WIDTH_DP = 50;
+		private final int TEXT_AREA_WIDTH_DP = 210;
+		private final int UPPER_TEXT_TOP_MARGIN_DP = 19 - 2; // Offset font baseline
+		private final int LOWER_TEXT_BOTTOM_MARGIN_DP = 19 - 2; // Offset font baseline
+		private final int CLOSE_WIDTH_DP = 20;
+		private final int CLOSE_RIGHT_MARGIN_DP = 10;
+		private final int CLOSE_TOP_MARGIN_DP = 25;
 
 		public int longPixels = 0;
 		public int shortPixels = 0;
@@ -80,20 +80,23 @@ public class BannerMessageView extends FrameLayout {
 		BannerMetrics() {
 			DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 			longPixels = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
-			ratio = longPixels / displayMetrics.density / widthDp;
-			shortPixels = (int) (heightDp * ratio * displayMetrics.density);
-			iconWidthPixels = (int) (iconWidthDp * ratio * displayMetrics.density);
-			textAreaWidthPixels = (int) (textAreaWidthDp * ratio * displayMetrics.density);
-			upperTextTopMarginPixels = (int) (upperTextTopMarginDp * ratio * displayMetrics.density);
-			lowerTextBottomMarginPixels = (int) (lowerTextBottomMarginDp * ratio * displayMetrics.density);
-			closeWidthPixels = (int) (closeWidthDp * ratio * displayMetrics.density);
-			closeRightMarginPixels = (int) (closeRightMarginDp * ratio * displayMetrics.density);
-			closeTopMarginPixels = (int) (closeTopMarginDp * ratio * displayMetrics.density);
+			ratio = longPixels / displayMetrics.density / WIDTH_DP;
+			shortPixels = (int) (HEIGHT_DP * ratio * displayMetrics.density);
+			iconWidthPixels = (int) (ICON_WIDTH_DP * ratio * displayMetrics.density);
+			textAreaWidthPixels = (int) (TEXT_AREA_WIDTH_DP * ratio * displayMetrics.density);
+			upperTextTopMarginPixels = (int) (UPPER_TEXT_TOP_MARGIN_DP * ratio * displayMetrics.density);
+			lowerTextBottomMarginPixels = (int) (LOWER_TEXT_BOTTOM_MARGIN_DP * ratio * displayMetrics.density);
+			closeWidthPixels = (int) (CLOSE_WIDTH_DP * ratio * displayMetrics.density);
+			closeRightMarginPixels = (int) (CLOSE_RIGHT_MARGIN_DP * ratio * displayMetrics.density);
+			closeTopMarginPixels = (int) (CLOSE_TOP_MARGIN_DP * ratio * displayMetrics.density);
 		}
 	}
-	
-	private final int upperTextFontSize = 10;
-	private final int lowerTextFontSize = 12;
+
+	private final int BACKGROUND_COLOR = 0xFF1F1F1F;
+	private final float BACKGROUND_ALPHA = 0.92f;
+	private final int UPPER_TEXT_FONT_SIZE = 10;
+	private final int LOWER_TEXT_FONT_SIZE = 12;
+	private final int TEXT_COLOR = 0xFFFFFFFF;
 
 	public BannerMessageView(Context context, Message message) {
 
@@ -185,13 +188,16 @@ public class BannerMessageView extends FrameLayout {
 		if (bannerMessage.getBannerType() != BannerType.imageText)
 			return;
 
-		LinearLayout baseLayout = new LinearLayout(getContext());
-		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
-		baseLayout.setBackgroundColor(Color.GRAY);
-		AlphaAnimation alpha = new AlphaAnimation(0.98f, 0.98f);
+		FrameLayout background = new FrameLayout(getContext());
+		background.setBackgroundColor(BACKGROUND_COLOR);
+		AlphaAnimation alpha = new AlphaAnimation(BACKGROUND_ALPHA, BACKGROUND_ALPHA);
 		alpha.setDuration(0);
 		alpha.setFillAfter(true);
-		baseLayout.startAnimation(alpha);
+		background.startAnimation(alpha);
+		innerLayout.addView(background);
+
+		LinearLayout baseLayout = new LinearLayout(getContext());
+		baseLayout.setOrientation(LinearLayout.HORIZONTAL);
 		baseLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -216,7 +222,8 @@ public class BannerMessageView extends FrameLayout {
 		textLayout.setLayoutParams(layoutParams);
 
 		TextView caption = new TextView(getContext());
-		caption.setTextSize(upperTextFontSize * bannerMetrics.ratio);
+		caption.setTextColor(TEXT_COLOR);
+		caption.setTextSize(UPPER_TEXT_FONT_SIZE * bannerMetrics.ratio);
 		caption.setHorizontallyScrolling(true);
 		caption.setEllipsize(TruncateAt.END);
 		caption.setText(bannerMessage.getCaption());
@@ -228,7 +235,8 @@ public class BannerMessageView extends FrameLayout {
 		textLayout.addView(caption);
 
 		TextView text = new TextView(getContext());
-		text.setTextSize(lowerTextFontSize * bannerMetrics.ratio);
+		text.setTextColor(TEXT_COLOR);
+		text.setTextSize(LOWER_TEXT_FONT_SIZE * bannerMetrics.ratio);
 		text.setHorizontallyScrolling(true);
 		text.setEllipsize(TruncateAt.END);
 		text.setText(bannerMessage.getText());
