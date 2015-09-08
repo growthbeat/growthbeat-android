@@ -184,7 +184,7 @@ public class GrowthLink {
 								return;
 							}
 
-							logger.info(String.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, clickId: %s)", synchronization.getInstallReferrer(), synchronization.getCookieTracking(), synchronization.getClickId()));
+							logger.info(String.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)", synchronization.getInstallReferrer(), synchronization.getCookieTracking(), synchronization.getDeviceFingerprint(), synchronization.getClickId()));
 							new Handler(Looper.getMainLooper()).post(new Runnable() {
 								public void run() {
 									if (GrowthLink.this.synchronizationCallback != null) {
