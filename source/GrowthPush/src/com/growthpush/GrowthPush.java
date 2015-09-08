@@ -29,6 +29,10 @@ public class GrowthPush {
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
 
+	public static final String NOTIFICATION_ICON_META_KEY = "com.growthpush.notification.icon";
+	public static final String NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY = "com.growthpush.notification.icon.background.color";
+	public static final String DIALOG_ICON_META_KEY = "com.growthpush.dialog.icon";
+
 	private static final GrowthPush instance = new GrowthPush();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,

@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 
+import com.growthpush.GrowthPush;
+
 /**
  * Created by Shigeru Ogawa on 13/08/12.
  */
@@ -46,9 +48,12 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 			return null;
 		}
 
-		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(applicationInfo.icon)
-				.setTitle(packageManager.getApplicationLabel(applicationInfo)).setMessage(getArguments().getString("message"))
-				.setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
+		int icon = applicationInfo.icon;
+		if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.DIALOG_ICON_META_KEY))
+			icon = applicationInfo.metaData.getInt(GrowthPush.DIALOG_ICON_META_KEY);
+
+		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(icon).setTitle(packageManager.getApplicationLabel(applicationInfo))
+				.setMessage(getArguments().getString("message")).setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
 		dialog.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {

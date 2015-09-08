@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 
 import com.growthbeat.utils.PermissionUtils;
+import com.growthpush.GrowthPush;
 import com.growthpush.view.AlertActivity;
 import com.growthpush.view.DialogType;
 
@@ -86,12 +87,22 @@ public class BaseReceiveHandler implements ReceiveHandler {
 	private Notification generateNotification(Context context, Bundle extras) {
 		PackageManager packageManager = context.getPackageManager();
 
-		int icon = 0;
-		String title = "";
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
 		try {
-			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
-			icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
-			title = packageManager.getApplicationLabel(applicationInfo).toString();
+			ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+
+			int icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
+			if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
+				icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_META_KEY));
+			String title = packageManager.getApplicationLabel(applicationInfo).toString();
+
+			builder.setTicker(title);
+			builder.setSmallIcon(icon);
+			builder.setContentTitle(title);
+			if (applicationInfo.metaData != null
+					&& applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))
+				builder.setColor(Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)));
 		} catch (NameNotFoundException e) {
 		}
 
@@ -107,10 +118,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-		builder.setTicker(title);
-		builder.setSmallIcon(icon);
-		builder.setContentTitle(title);
 		builder.setContentText(message);
 		builder.setContentIntent(pendingIntent);
 		builder.setWhen(System.currentTimeMillis());
