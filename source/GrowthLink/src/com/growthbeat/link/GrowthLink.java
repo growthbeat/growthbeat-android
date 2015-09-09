@@ -31,7 +31,7 @@ public class GrowthLink {
 	private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
-	private static final String DEFAULT_FINGERPRINT_URL = "http://gbt.io/l/fingerprint";
+	private static final String DEFAULT_FINGERPRINT_URL = "http://gbt.io/l/fingerprints";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
