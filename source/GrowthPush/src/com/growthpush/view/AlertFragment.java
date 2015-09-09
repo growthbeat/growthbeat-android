@@ -43,7 +43,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
 		PackageManager packageManager = getActivity().getPackageManager();
 		ApplicationInfo applicationInfo = null;
 		try {
-			applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), 0);
+			applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
 		} catch (NameNotFoundException e) {
 			return null;
 		}
