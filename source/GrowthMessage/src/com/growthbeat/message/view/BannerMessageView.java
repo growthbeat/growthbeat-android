@@ -17,6 +17,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.text.TextUtils.TruncateAt;
@@ -222,6 +223,7 @@ public class BannerMessageView extends FrameLayout {
 		textLayout.setLayoutParams(layoutParams);
 
 		TextView caption = new TextView(getContext());
+		caption.setTypeface(null, Typeface.BOLD);
 		caption.setTextColor(TEXT_COLOR);
 		caption.setTextSize(UPPER_TEXT_FONT_SIZE * bannerMetrics.ratio);
 		caption.setHorizontallyScrolling(true);
