@@ -12,7 +12,7 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.link.FingerprintUtil.FingerprintGetter;
+import com.growthbeat.link.FingerprintReceiver.Callback;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
 import com.growthbeat.link.handler.DefaultInstallReferrerReceiveHandler;
@@ -168,10 +168,10 @@ public class GrowthLink {
 		}
 		firstSession = true;
 		
-		FingerprintUtil.asyncGetFingerprintParameters(context, fingerprintUrl, new FingerprintGetter() {
+		FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
 			
 			@Override
-			public void getFingerprintParameters(final String fingerprintParameters) {
+			public void onComplete(final String fingerprintParameters) {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
