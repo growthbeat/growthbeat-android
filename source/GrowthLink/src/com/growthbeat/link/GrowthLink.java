@@ -5,6 +5,11 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
@@ -20,11 +25,6 @@ import com.growthbeat.link.handler.InstallReferrerReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
-
-import android.content.Context;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 
 public class GrowthLink {
 
@@ -141,7 +141,7 @@ public class GrowthLink {
 							GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
 							firstSession = false;
-							
+
 							if (click.getPattern().getIntent() != null) {
 								GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
 							}
@@ -167,9 +167,8 @@ public class GrowthLink {
 			return;
 		}
 		firstSession = true;
-		
+
 		FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
-			
 			@Override
 			public void onComplete(final String fingerprintParameters) {
 				new Thread(new Runnable() {
@@ -178,19 +177,22 @@ public class GrowthLink {
 						logger.info("Synchronizing...");
 						try {
 							String version = AppUtils.getaAppVersion(context);
-							final Synchronization synchronization = Synchronization.synchronize(applicationId, version, fingerprintParameters, credentialId);
+							final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
+									fingerprintParameters, credentialId);
 							if (synchronization == null) {
 								logger.error("Failed to Synchronize.");
 								return;
 							}
 
-							logger.info(String.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)", synchronization.getInstallReferrer(), synchronization.getCookieTracking(), synchronization.getDeviceFingerprint(), synchronization.getClickId()));
+							logger.info(String.format(
+									"Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
+									synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
+									synchronization.getDeviceFingerprint(), synchronization.getClickId()));
 							new Handler(Looper.getMainLooper()).post(new Runnable() {
 								public void run() {
 									if (GrowthLink.this.synchronizationCallback != null) {
 										GrowthLink.this.synchronizationCallback.onComplete(synchronization);
 									}
-									
 								}
 							});
 
@@ -201,10 +203,9 @@ public class GrowthLink {
 					}
 
 				}).start();
-				
+
 			}
 		});
-
 
 	}
 
@@ -239,7 +240,7 @@ public class GrowthLink {
 	public void setSyncronizationUrl(String syncronizationUrl) {
 		this.syncronizationUrl = syncronizationUrl;
 	}
-	
+
 	public String getFingerprintUrl() {
 		return fingerprintUrl;
 	}
@@ -247,7 +248,7 @@ public class GrowthLink {
 	public void setFingerprintUrl(String fingerprintUrl) {
 		this.fingerprintUrl = fingerprintUrl;
 	}
-	
+
 	public String getInstallReferrer() {
 		return this.preference.getString(INSTALL_REFERRER_KEY);
 	}
