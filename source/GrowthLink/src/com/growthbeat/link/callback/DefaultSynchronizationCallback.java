@@ -13,48 +13,46 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	@Override
 	public void onComplete(final Synchronization synchronization) {
-		
-		if (synchronization == null) 
+
+		if (synchronization == null)
 			return;
+
+		if (synchronization.getInstallReferrer()) {
+			synchronizeWithInstallReferrer(synchronization);
+			return;
+		}
+
+		if (synchronization.getCookieTracking()) {
+			synchronizeWithCookieTracking(synchronization);
+			return;
+		}
+
+		if (synchronization.getDeviceFingerprint()) {
+			synchronizeWithDeviceFingerprint(synchronization);
+			return;
+		}
+
+	}
+
+	protected void synchronizeWithInstallReferrer(final Synchronization synchronization) {
 
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (synchronization.getInstallReferrer()) {
-					String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
-					synchronizeWithInstallReferrer(synchronization, installReferrer);
+				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
+				Synchronization.save(synchronization);
+
+				if (installReferrer == null || installReferrer.length() == 0)
 					return;
-				}
-				
-				if (synchronization.getCookieTracking()) {
-					synchronizeWithCookieTracking(synchronization);
-					return;
-				}
-				
-				if (synchronization.getDeviceFingerprint()) {
-					synchronizeWithDeviceFingerprint(synchronization);
-					return;
-				}
-				
+
+				final String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					public void run() {
+						GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+					}
+				});
 			}
 		}).start();
-
-	}
-
-	protected boolean synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
-
-		if (installReferrer == null || installReferrer.length() == 0)
-			return false;
-
-		final String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			public void run() {
-				GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
-				Synchronization.save(synchronization);
-			}
-		});
-
-		return true;
 
 	}
 
@@ -67,28 +65,27 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
 		}
 
-		final String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
-				+ GrowthLink.getInstance().getApplicationId() + (advertisingId != null ? "&advertisingId=" + advertisingId : "");
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			public void run() {
-				openBrowser(urlString);
-				Synchronization.save(synchronization);
-			}
-		});
+		String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
+				+ GrowthLink.getInstance().getApplicationId();
+		if (advertisingId != null)
+			urlString += "&advertisingId=";
+
+		Synchronization.save(synchronization);
+
+		openBrowser(urlString);
 
 	}
-	
+
 	protected void synchronizeWithDeviceFingerprint(final Synchronization synchronization) {
-		if(synchronization.getClickId() == null)
+
+		Synchronization.save(synchronization);
+
+		if (synchronization.getClickId() == null)
 			return;
-		
+
 		final String uriString = "?clickId=" + synchronization.getClickId();
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			public void run() {
-				GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
-				Synchronization.save(synchronization);
-			}
-		});
+		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+
 	}
 
 	protected void openBrowser(String urlString) {
@@ -99,6 +96,5 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 		GrowthLink.getInstance().getContext().startActivity(androidIntent);
 
 	}
-	
 
 }

@@ -26,7 +26,7 @@ public class Synchronization extends Model {
 
 	protected Synchronization(JSONObject jsonObject) {
 		super(jsonObject);
-		
+
 	}
 
 	public static Synchronization synchronize(String applicationId, String version, String fingerprintParameters, String credentialId) {
@@ -37,10 +37,10 @@ public class Synchronization extends Model {
 		params.put("os", "android");
 		if (version != null)
 			params.put("version", version);
-		if (credentialId != null)
-			params.put("credentialId", credentialId);
 		if (fingerprintParameters != null)
 			params.put("fingerprintParameters", fingerprintParameters);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
 		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("2/synchronize", params);
 
 		if (jsonObject == null)
@@ -55,7 +55,6 @@ public class Synchronization extends Model {
 			return;
 		GrowthAnalytics.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
 	}
-	
 
 	public static Synchronization load() {
 		JSONObject jsonObject = GrowthAnalytics.getInstance().getPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
@@ -63,8 +62,7 @@ public class Synchronization extends Model {
 			return null;
 		return new Synchronization(jsonObject);
 	}
-	
-	
+
 	public boolean getInstallReferrer() {
 		return installReferrer;
 	}
@@ -80,12 +78,12 @@ public class Synchronization extends Model {
 	public void setCookieTracking(boolean cookieTracking) {
 		this.cookieTracking = cookieTracking;
 	}
-	
-	public boolean getDeviceFingerprint(){
+
+	public boolean getDeviceFingerprint() {
 		return this.deviceFingerprint;
 	}
-	
-	public void setDeviceFingerprint(boolean deviceFingerprint){
+
+	public void setDeviceFingerprint(boolean deviceFingerprint) {
 		this.deviceFingerprint = deviceFingerprint;
 	}
 
@@ -96,7 +94,6 @@ public class Synchronization extends Model {
 	public void setClickId(String clickId) {
 		this.clickId = clickId;
 	}
-	
 
 	@Override
 	public JSONObject getJsonObject() {
@@ -137,6 +134,5 @@ public class Synchronization extends Model {
 		}
 
 	}
-
 
 }
