@@ -16,6 +16,10 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        
+        <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
+        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/black" />
+        <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />
 
         <activity
             android:name="com.growthbeat.growthbeatsample.MainActivity"
@@ -52,11 +56,12 @@
 
                 <category android:name="com.growthbeat.growthbeatsample" />
             </intent-filter>
+
         </receiver>
         <receiver
             android:name="com.growthbeat.link.InstallReferrerReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
