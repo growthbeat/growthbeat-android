@@ -305,7 +305,7 @@ public class SwipeMessageFragment extends Fragment {
 		public void setViewPager(ViewPager viewPager) {
 			this.viewPager = viewPager;
 
-			this.viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			this.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 				@Override
 				public void onPageSelected(int position) {
 					setPosition(position);
