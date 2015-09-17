@@ -17,6 +17,7 @@ import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.link.FingerprintReceiver.Callback;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
 import com.growthbeat.link.handler.DefaultInstallReferrerReceiveHandler;
@@ -30,6 +31,7 @@ public class GrowthLink {
 	private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
 	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
 	private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
+	private static final String DEFAULT_FINGERPRINT_URL = "http://gbt.io/l/fingerprints";
 	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
 	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -47,6 +49,7 @@ public class GrowthLink {
 	private String credentialId = null;
 
 	private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
+	private String fingerprintUrl = DEFAULT_FINGERPRINT_URL;
 
 	private boolean initialized = false;
 	private boolean firstSession = false;
@@ -163,41 +166,46 @@ public class GrowthLink {
 			logger.info("Already initialized.");
 			return;
 		}
-
 		firstSession = true;
 
-		new Thread(new Runnable() {
+		FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
 			@Override
-			public void run() {
+			public void onComplete(final String fingerprintParameters) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						logger.info("Synchronizing...");
+						try {
+							String version = AppUtils.getaAppVersion(context);
+							final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
+									fingerprintParameters, credentialId);
+							if (synchronization == null) {
+								logger.error("Failed to Synchronize.");
+								return;
+							}
 
-				logger.info("Synchronizing...");
+							logger.info(String.format(
+									"Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
+									synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
+									synchronization.getDeviceFingerprint(), synchronization.getClickId()));
+							new Handler(Looper.getMainLooper()).post(new Runnable() {
+								public void run() {
+									if (GrowthLink.this.synchronizationCallback != null) {
+										GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+									}
+								}
+							});
 
-				try {
+						} catch (GrowthbeatException e) {
+							logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
+						}
 
-					String version = AppUtils.getaAppVersion(context);
-					final Synchronization synchronization = Synchronization.synchronize(applicationId, version, credentialId);
-					if (synchronization == null) {
-						logger.error("Failed to Synchronize.");
-						return;
 					}
 
-					logger.info(String.format("Synchronize success. (browser: %s)", synchronization.getBrowser()));
-
-					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						public void run() {
-							if (GrowthLink.this.synchronizationCallback != null) {
-								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-							}
-						}
-					});
-
-				} catch (GrowthbeatException e) {
-					logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
-				}
+				}).start();
 
 			}
-
-		}).start();
+		});
 
 	}
 
@@ -231,6 +239,14 @@ public class GrowthLink {
 
 	public void setSyncronizationUrl(String syncronizationUrl) {
 		this.syncronizationUrl = syncronizationUrl;
+	}
+
+	public String getFingerprintUrl() {
+		return fingerprintUrl;
+	}
+
+	public void setFingerprintUrl(String fingerprintUrl) {
+		this.fingerprintUrl = fingerprintUrl;
 	}
 
 	public String getInstallReferrer() {
@@ -283,5 +299,4 @@ public class GrowthLink {
 		}
 
 	}
-
 }

@@ -13,8 +13,8 @@ import com.growthbeat.message.model.Message;
 
 public class MessageActivity extends FragmentActivity {
 
-    private BroadcastReceiver receiver;
-    
+	private BroadcastReceiver receiver;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -50,23 +50,23 @@ public class MessageActivity extends FragmentActivity {
 			break;
 		}
 
-        //ホームボタン押された時の準備
-        IntentFilter iFilter = new IntentFilter();
-        iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);        
-        receiver = new BroadcastReceiver() {
-            private MessageActivity activity;
+		// ホームボタン押された時の準備
+		IntentFilter iFilter = new IntentFilter();
+		iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+		receiver = new BroadcastReceiver() {
+			private MessageActivity activity;
 
-            public BroadcastReceiver setActivity(MessageActivity activity) {
-                this.activity = activity;
-                return this;
-            };
+			public BroadcastReceiver setActivity(MessageActivity activity) {
+				this.activity = activity;
+				return this;
+			};
 
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                activity.finish();
-            }
-        }.setActivity(this);
-        this.registerReceiver(receiver, iFilter);
+			@Override
+			public void onReceive(Context arg0, Intent arg1) {
+				activity.finish();
+			}
+		}.setActivity(this);
+		this.registerReceiver(receiver, iFilter);
 	}
 
 	@Override

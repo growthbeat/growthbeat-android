@@ -9,42 +9,50 @@ import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.DeviceUtils;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
-
-	private static final long INSTALL_REFERRER_TIMEOUT = 10 * 1000;
+	private static long INSTALLREFERRER_TIMEOUT = 60 * 1000;
 
 	@Override
 	public void onComplete(final Synchronization synchronization) {
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+		if (synchronization == null)
+			return;
 
-				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALL_REFERRER_TIMEOUT);
-				if (synchronizeWithInstallReferrer(synchronization, installReferrer))
-					return;
+		if (synchronization.getInstallReferrer()) {
+			synchronizeWithInstallReferrer(synchronization);
+			return;
+		}
 
-				if (synchronization.getBrowser()) {
-					synchronizeWithCookieTracking(synchronization);
-				}
+		if (synchronization.getCookieTracking()) {
+			synchronizeWithCookieTracking(synchronization);
+			return;
+		}
 
-				installReferrer = GrowthLink.getInstance().waitInstallReferrer(Long.MAX_VALUE);
-				synchronizeWithInstallReferrer(synchronization, installReferrer);
-
-			}
-		}).start();
+		if (synchronization.getDeviceFingerprint()) {
+			synchronizeWithDeviceFingerprint(synchronization);
+			return;
+		}
 
 	}
 
-	protected boolean synchronizeWithInstallReferrer(final Synchronization synchronization, String installReferrer) {
+	protected void synchronizeWithInstallReferrer(final Synchronization synchronization) {
 
-		if (installReferrer == null || installReferrer.length() == 0)
-			return false;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
+				Synchronization.save(synchronization);
 
-		String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
-		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
-		Synchronization.save(synchronization);
+				if (installReferrer == null || installReferrer.length() == 0)
+					return;
 
-		return true;
+				final String uriString = "?" + installReferrer.replace("growthlink.clickId", "clickId").replace("growthbeat.uuid", "uuid");
+				new Handler(Looper.getMainLooper()).post(new Runnable() {
+					public void run() {
+						GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
+					}
+				});
+			}
+		}).start();
 
 	}
 
@@ -57,14 +65,26 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 			GrowthLink.getInstance().getLogger().warning("Failed to get advertisingId: " + e.getMessage());
 		}
 
-		final String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
-				+ GrowthLink.getInstance().getApplicationId() + (advertisingId != null ? "&advertisingId=" + advertisingId : "");
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
-			public void run() {
-				openBrowser(urlString);
-				Synchronization.save(synchronization);
-			}
-		});
+		String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
+				+ GrowthLink.getInstance().getApplicationId();
+		if (advertisingId != null)
+			urlString += "&advertisingId=";
+
+		Synchronization.save(synchronization);
+
+		openBrowser(urlString);
+
+	}
+
+	protected void synchronizeWithDeviceFingerprint(final Synchronization synchronization) {
+
+		Synchronization.save(synchronization);
+
+		if (synchronization.getClickId() == null)
+			return;
+
+		final String uriString = "?clickId=" + synchronization.getClickId();
+		GrowthLink.getInstance().handleOpenUrl(Uri.parse(uriString));
 
 	}
 
