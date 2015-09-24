@@ -60,8 +60,10 @@ public class BannerMessageView extends FrameLayout {
 		private final int HEIGHT_DP = 70;
 		private final int ICON_WIDTH_DP = 50;
 		private final int TEXT_AREA_WIDTH_DP = 210;
-		private final int UPPER_TEXT_TOP_MARGIN_DP = 19 - 2; // Offset font baseline
-		private final int LOWER_TEXT_BOTTOM_MARGIN_DP = 19 - 2; // Offset font baseline
+		private final int UPPER_TEXT_TOP_MARGIN_DP = 19 - 2; // Offset font
+																// baseline
+		private final int LOWER_TEXT_BOTTOM_MARGIN_DP = 19 - 2; // Offset font
+																// baseline
 		private final int CLOSE_WIDTH_DP = 20;
 		private final int CLOSE_RIGHT_MARGIN_DP = 10;
 		private final int CLOSE_TOP_MARGIN_DP = 25;
@@ -140,8 +142,7 @@ public class BannerMessageView extends FrameLayout {
 
 		layoutParams.gravity = bannerMessage.getPosition() == Position.top ? Gravity.TOP : Gravity.BOTTOM;
 		layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-				| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+		layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 		layoutParams.format = PixelFormat.TRANSLUCENT;
 
 		getWindowsManager().addView(this, layoutParams);
@@ -175,12 +176,14 @@ public class BannerMessageView extends FrameLayout {
 				FrameLayout.LayoutParams.WRAP_CONTENT));
 		showBanner = true;
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				hide();
-			}
-		}, this.bannerMessage.getDuration());
+		if (this.bannerMessage.getDuration() > 0) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					hide();
+				}
+			}, this.bannerMessage.getDuration());
+		}
 
 	}
 
@@ -229,8 +232,8 @@ public class BannerMessageView extends FrameLayout {
 		caption.setHorizontallyScrolling(true);
 		caption.setEllipsize(TruncateAt.END);
 		caption.setText(bannerMessage.getCaption());
-		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams captionParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		captionParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
 		captionParams.setMargins(0, bannerMetrics.upperTextTopMarginPixels, 0, 0);
 		caption.setLayoutParams(captionParams);
@@ -242,8 +245,8 @@ public class BannerMessageView extends FrameLayout {
 		text.setHorizontallyScrolling(true);
 		text.setEllipsize(TruncateAt.END);
 		text.setText(bannerMessage.getText());
-		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
-				RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		textParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 		textParams.setMargins(0, 0, 0, bannerMetrics.lowerTextBottomMarginPixels);
 		text.setLayoutParams(textParams);
@@ -254,13 +257,14 @@ public class BannerMessageView extends FrameLayout {
 		innerLayout.addView(baseLayout);
 		showBanner = true;
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				hide();
-			}
-		}, this.bannerMessage.getDuration());
-
+		if (this.bannerMessage.getDuration() > 0) {
+			new Handler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					hide();
+				}
+			}, this.bannerMessage.getDuration());
+		}
 	}
 
 	private void showCloseButton(FrameLayout innerLayout) {
@@ -282,8 +286,7 @@ public class BannerMessageView extends FrameLayout {
 		});
 		touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
 
-		FrameLayout.LayoutParams imageParams = new FrameLayout.LayoutParams(bannerMetrics.closeWidthPixels,
-				bannerMetrics.closeWidthPixels);
+		FrameLayout.LayoutParams imageParams = new FrameLayout.LayoutParams(bannerMetrics.closeWidthPixels, bannerMetrics.closeWidthPixels);
 		imageParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
 		imageParams.setMargins(0, 0, bannerMetrics.closeRightMarginPixels, 0);
 
@@ -404,8 +407,7 @@ public class BannerMessageView extends FrameLayout {
 
 					try {
 						HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
-						if (httpResponse.getStatusLine().getStatusCode() < 200
-								&& httpResponse.getStatusLine().getStatusCode() >= 300)
+						if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
 							continue;
 						images.put(urlString, BitmapFactory.decodeStream(httpResponse.getEntity().getContent()));
 					} catch (Exception e) {
