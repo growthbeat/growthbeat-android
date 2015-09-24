@@ -308,13 +308,6 @@ public class BannerMessageView extends FrameLayout {
 		closeArea.addView(touchableImageView, imageParams);
 		innerLayout.addView(closeArea);
 
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				hide();
-			}
-		}, this.bannerMessage.getDuration());
-
 	}
 
 	public void hide() {
