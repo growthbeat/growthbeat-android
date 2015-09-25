@@ -50,28 +50,22 @@ public class MessageActivity extends FragmentActivity {
 			break;
 		}
 
-		// ホームボタン押された時の準備
-		IntentFilter iFilter = new IntentFilter();
-		iFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+		// Pressed Home button
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
 		receiver = new BroadcastReceiver() {
-			private MessageActivity activity;
-
-			public BroadcastReceiver setActivity(MessageActivity activity) {
-				this.activity = activity;
-				return this;
-			};
 
 			@Override
 			public void onReceive(Context arg0, Intent arg1) {
-				activity.finish();
+				close();
 			}
-		}.setActivity(this);
-		this.registerReceiver(receiver, iFilter);
+		};
+		this.registerReceiver(receiver, intentFilter);
 	}
 
-	@Override
-	public void onStop() {
-		super.onStop();
+	private void close() {
+		if (!isFinishing())
+			finish();
 	}
 
 	@Override
@@ -80,5 +74,4 @@ public class MessageActivity extends FragmentActivity {
 		if (receiver != null)
 			this.unregisterReceiver(receiver);
 	}
-
 }
