@@ -68,7 +68,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 		String urlString = GrowthLink.getInstance().getSyncronizationUrl() + "?applicationId="
 				+ GrowthLink.getInstance().getApplicationId();
 		if (advertisingId != null)
-			urlString += "&advertisingId=";
+			urlString += "&advertisingId=" + advertisingId;
 
 		Synchronization.save(synchronization);
 
@@ -88,12 +88,20 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
 	}
 
-	protected void openBrowser(String urlString) {
+	protected void openBrowser(final String urlString) {
 
-		Uri uri = Uri.parse(urlString);
-		android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-		androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
-		GrowthLink.getInstance().getContext().startActivity(androidIntent);
+		new Handler(Looper.getMainLooper()).post(new Runnable() {
+
+			@Override
+			public void run() {
+
+				Uri uri = Uri.parse(urlString);
+				android.content.Intent androidIntent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
+				androidIntent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+				GrowthLink.getInstance().getContext().startActivity(androidIntent);
+
+			}
+		});
 
 	}
 

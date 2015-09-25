@@ -168,49 +168,39 @@ public class GrowthLink {
 		}
 		firstSession = true;
 
-		new Handler(Looper.getMainLooper()).post(new Runnable() {
+		FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
 			@Override
-			public void run() {
-
-				FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
+			public void onComplete(final String fingerprintParameters) {
+				new Thread(new Runnable() {
 					@Override
-					public void onComplete(final String fingerprintParameters) {
-						new Thread(new Runnable() {
-							@Override
-							public void run() {
-								logger.info("Synchronizing...");
-								try {
-									String version = AppUtils.getaAppVersion(context);
-									final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
-											fingerprintParameters, credentialId);
-									if (synchronization == null) {
-										logger.error("Failed to Synchronize.");
-										return;
-									}
-
-									logger.info(String
-											.format("Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
-													synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
-													synchronization.getDeviceFingerprint(), synchronization.getClickId()));
-									new Handler(Looper.getMainLooper()).post(new Runnable() {
-										@Override
-										public void run() {
-											if (GrowthLink.this.synchronizationCallback != null) {
-												GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-											}
-										}
-									});
-
-								} catch (GrowthbeatException e) {
-									logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
-								}
-
+					public void run() {
+						logger.info("Synchronizing...");
+						try {
+							String version = AppUtils.getaAppVersion(context);
+							final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
+									fingerprintParameters, credentialId);
+							if (synchronization == null) {
+								logger.error("Failed to Synchronize.");
+								return;
 							}
 
-						}).start();
+							logger.info(String.format(
+									"Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
+									synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
+									synchronization.getDeviceFingerprint(), synchronization.getClickId()));
+
+							if (GrowthLink.this.synchronizationCallback != null) {
+								GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+							}
+
+						} catch (GrowthbeatException e) {
+							logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
+						}
 
 					}
-				});
+
+				}).start();
+
 			}
 		});
 
