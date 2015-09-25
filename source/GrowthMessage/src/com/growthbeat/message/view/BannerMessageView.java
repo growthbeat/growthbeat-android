@@ -14,7 +14,6 @@ import org.apache.http.params.HttpConnectionParams;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -159,7 +158,8 @@ public class BannerMessageView extends FrameLayout {
 			return;
 
 		ImageView imageView = new ImageView(getContext());
-		imageView.setScaleType(ScaleType.FIT_XY);
+		imageView.setScaleType(ScaleType.FIT_CENTER);
+		imageView.setAdjustViewBounds(true);
 		imageView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -170,7 +170,6 @@ public class BannerMessageView extends FrameLayout {
 			}
 		});
 
-		innerLayout.setBackgroundColor(Color.RED);
 		imageView.setImageBitmap(cachedImages.get(bannerMessage.getPicture().getUrl()));
 		innerLayout.addView(imageView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
 				FrameLayout.LayoutParams.WRAP_CONTENT));
