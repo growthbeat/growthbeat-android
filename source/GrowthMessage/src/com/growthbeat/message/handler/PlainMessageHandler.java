@@ -25,7 +25,7 @@ public class PlainMessageHandler implements MessageHandler {
 
 		Intent intent = new Intent(context, MessageActivity.class);
 		intent.putExtra("message", (PlainMessage) message);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 
 		return true;

@@ -15,8 +15,9 @@ public class Synchronization extends Model {
 
 	private static final String PREFERENCE_SYNCHRONIZATION_KEY = "synchronization";
 
-	private String scheme;
-	private boolean browser;
+	private boolean cookieTracking;
+	private boolean installReferrer;
+	private boolean deviceFingerprint;
 	private String clickId;
 
 	protected Synchronization() {
@@ -25,9 +26,10 @@ public class Synchronization extends Model {
 
 	protected Synchronization(JSONObject jsonObject) {
 		super(jsonObject);
+
 	}
 
-	public static Synchronization synchronize(String applicationId, String version, String credentialId) {
+	public static Synchronization synchronize(String applicationId, String version, String fingerprintParameters, String credentialId) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		if (applicationId != null)
@@ -35,10 +37,12 @@ public class Synchronization extends Model {
 		params.put("os", "android");
 		if (version != null)
 			params.put("version", version);
+		if (fingerprintParameters != null)
+			params.put("fingerprintParameters", fingerprintParameters);
 		if (credentialId != null)
 			params.put("credentialId", credentialId);
+		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("2/synchronize", params);
 
-		JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("1/synchronize", params);
 		if (jsonObject == null)
 			return null;
 
@@ -59,20 +63,28 @@ public class Synchronization extends Model {
 		return new Synchronization(jsonObject);
 	}
 
-	public String getScheme() {
-		return scheme;
+	public boolean getInstallReferrer() {
+		return installReferrer;
 	}
 
-	public void setScheme(String scheme) {
-		this.scheme = scheme;
+	public void setInstallReferrer(boolean installReferrer) {
+		this.installReferrer = installReferrer;
 	}
 
-	public boolean getBrowser() {
-		return browser;
+	public boolean getCookieTracking() {
+		return cookieTracking;
 	}
 
-	public void setBrowser(boolean browser) {
-		this.browser = browser;
+	public void setCookieTracking(boolean cookieTracking) {
+		this.cookieTracking = cookieTracking;
+	}
+
+	public boolean getDeviceFingerprint() {
+		return this.deviceFingerprint;
+	}
+
+	public void setDeviceFingerprint(boolean deviceFingerprint) {
+		this.deviceFingerprint = deviceFingerprint;
 	}
 
 	public String getClickId() {
@@ -89,9 +101,9 @@ public class Synchronization extends Model {
 		JSONObject jsonObject = new JSONObject();
 
 		try {
-			if (scheme != null)
-				jsonObject.put("scheme", scheme);
-			jsonObject.put("browser", browser);
+			jsonObject.put("installReferrer", installReferrer);
+			jsonObject.put("cookieTracking", cookieTracking);
+			jsonObject.put("deviceFingerprint", deviceFingerprint);
 			if (clickId != null)
 				jsonObject.put("clickId", clickId);
 		} catch (JSONException e) {
@@ -109,10 +121,12 @@ public class Synchronization extends Model {
 			return;
 
 		try {
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "scheme"))
-				setScheme(jsonObject.getString("scheme"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "browser"))
-				setBrowser(jsonObject.getBoolean("browser"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "installReferrer"))
+				setInstallReferrer(jsonObject.getBoolean("installReferrer"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "cookieTracking"))
+				setCookieTracking(jsonObject.getBoolean("cookieTracking"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "deviceFingerprint"))
+				setDeviceFingerprint(jsonObject.getBoolean("deviceFingerprint"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clickId"))
 				setClickId(jsonObject.getString("clickId"));
 		} catch (JSONException e) {
