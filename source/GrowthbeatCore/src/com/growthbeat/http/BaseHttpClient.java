@@ -1,46 +1,40 @@
 package com.growthbeat.http;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import android.os.Build;
 
 import com.growthbeat.GrowthbeatException;
-import com.growthbeat.utils.HttpUtils;
-import com.growthbeat.utils.IOUtils;
 
 public class BaseHttpClient {
 
-	private HttpClient httpClient = null;
+	public enum RequestMethod {
+		GET, POST, PUT, DELETE
+	}
+
 	private String baseUrl = null;
+	private int connectionTimeout = 60 * 1000;
+	private int socketTimeout = 60 * 1000;
 
 	public BaseHttpClient() {
 		super();
-		HttpParams httpParams = new BasicHttpParams();
-		SchemeRegistry schemeRegistry = new SchemeRegistry();
-		schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-		schemeRegistry.register(new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-		this.httpClient = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, schemeRegistry), httpParams);
 	}
 
 	public BaseHttpClient(String baseUrl, int connectionTimeout, int socketTimeout) {
 		this();
 		setBaseUrl(baseUrl);
-		setConnectionTimeout(connectionTimeout);
-		setSocketTimeout(socketTimeout);
 	}
 
 	public String getBaseUrl() {
@@ -52,68 +46,120 @@ public class BaseHttpClient {
 	}
 
 	public int getConnectionTimeout() {
-		return HttpConnectionParams.getConnectionTimeout(httpClient.getParams());
+		return connectionTimeout;
 	}
 
-	public void setConnectionTimeout(int timeout) {
-		HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), timeout);
+	public void setConnectionTimeout(int connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
 	}
 
 	public int getSocketTimeout() {
-		return HttpConnectionParams.getSoTimeout(httpClient.getParams());
+		return socketTimeout;
 	}
 
-	public void setSocketTimeout(int timeout) {
-		HttpConnectionParams.setSoTimeout(httpClient.getParams(), timeout);
+	public void setSocketTimeout(int socketTimeout) {
+		this.socketTimeout = socketTimeout;
 	}
 
-	public HttpResponse request(HttpRequest httpRequest) {
+	public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters) {
 
-		String query = URLEncodedUtils.format(HttpUtils.makeNameValuePairs(httpRequest.getParameters()), "UTF-8");
-		String url = String.format("%s%s", baseUrl, httpRequest.getPath());
-
-		HttpUriRequest httpUriRequest = null;
-		if (httpRequest.getMethod() != null && httpRequest.getMethod().equalsIgnoreCase("GET")) {
-			url = url + (query.length() == 0 ? "" : "?" + query);
-			httpUriRequest = new HttpGet(url);
-		} else {
-			HttpEntityEnclosingRequest httpEntityEnclosingRequest = new HttpEntityEnclosingRequest(url);
-			httpEntityEnclosingRequest.setMethod(httpRequest.getMethod());
-			httpEntityEnclosingRequest.setEntity(httpRequest.getEntity());
-			httpUriRequest = httpEntityEnclosingRequest;
+		String query = "?";
+		for (Entry<String, Object> parameter : parameters.entrySet())
+			query += parameter.getKey() + "=" + parameter.getValue() + "&";
+		try {
+			query = URLEncoder.encode(query.substring(0, query.length() - 1), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
 		}
 
-		for (Map.Entry<String, String> entry : httpRequest.getHeaders().entrySet())
-			httpUriRequest.setHeader(entry.getKey(), entry.getValue());
+		String url = String.format("%s%s", baseUrl, path);
 
-		return request(httpUriRequest);
+		return request(requestMethod, url, query);
 
 	}
 
-	protected HttpResponse request(HttpUriRequest httpUriRequest) {
+	protected String request(RequestMethod requestMethod, String urlString, String query) {
 
-		org.apache.http.HttpResponse httpResponse = null;
-		try {
-			httpResponse = httpClient.execute(httpUriRequest);
-		} catch (IOException e) {
-			throw new GrowthbeatException("Feiled to execute HTTP request. " + e.getMessage(), e);
-		}
+		String response = null;
+		HttpURLConnection httpURLConnection = generateHttpURLConnection(requestMethod, urlString, query);
+		InputStream inputStream = null;
 
-		String body = null;
 		try {
-			InputStream inputStream = httpResponse.getEntity().getContent();
-			body = IOUtils.toString(inputStream);
-		} catch (IOException e) {
-			throw new GrowthbeatException("Failed to read HTTP response. " + e.getMessage(), e);
-		} finally {
-			try {
-				httpResponse.getEntity().consumeContent();
-			} catch (IOException e) {
-				throw new GrowthbeatException("Failed to close connection. " + e.getMessage(), e);
+			httpURLConnection.connect();
+
+			if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				throw new GrowthbeatException(httpURLConnection.getResponseMessage());
+			} else {
+				inputStream = new BufferedInputStream(httpURLConnection.getInputStream());
+				String line = "";
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				StringBuilder stringBuilder = new StringBuilder();
+
+				while ((line = bufferedReader.readLine()) != null) {
+					stringBuilder.append(line);
+				}
+
+				bufferedReader.close();
+				response = stringBuilder.toString();
 			}
+		} catch (IOException e) {
+			throw new GrowthbeatException("Failed to connection. " + e.getMessage(), e);
+		} finally {
+			if (inputStream != null)
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					throw new GrowthbeatException("Failed to close connection. " + e.getMessage(), e);
+				}
+			httpURLConnection.disconnect();
 		}
 
-		return new HttpResponse(httpResponse.getStatusLine().getStatusCode(), body);
+		return response;
+
+	}
+
+	private HttpURLConnection generateHttpURLConnection(RequestMethod requestMethod, String urlString, String query) {
+
+		try {
+
+			if (requestMethod == RequestMethod.GET && query != null && query.length() > 0)
+				urlString += query;
+
+			URL url = new URL(urlString);
+
+			HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
+				System.setProperty("http.keepAlive", "false");
+			}
+
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2 && Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+				httpURLConnection.setRequestProperty("Connection", "close");
+			}
+
+			httpURLConnection.setConnectTimeout(getConnectionTimeout());
+			httpURLConnection.setRequestMethod(requestMethod.toString());
+			httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+			httpURLConnection.setRequestProperty("Accept", "application/json");
+
+			if (requestMethod != RequestMethod.GET) {
+				httpURLConnection.setDoOutput(true);
+				httpURLConnection.setDoInput(true);
+
+				if (query != null) {
+					OutputStream outputStream = httpURLConnection.getOutputStream();
+					outputStream.write(query.getBytes());
+					outputStream.flush();
+					outputStream.close();
+				}
+			}
+
+			return httpURLConnection;
+
+		} catch (MalformedURLException e) {
+		} catch (IOException e) {
+		}
+
+		throw new GrowthbeatException("Failed create HttpURLConnection");
 
 	}
 
