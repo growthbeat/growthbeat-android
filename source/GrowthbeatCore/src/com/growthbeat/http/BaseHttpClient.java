@@ -20,6 +20,8 @@ import com.growthbeat.GrowthbeatException;
 
 public class BaseHttpClient {
 
+	private static final String CONTENT_CHARSET = "UTF-8";
+
 	public enum RequestMethod {
 		GET, POST, PUT, DELETE
 	}
@@ -63,13 +65,14 @@ public class BaseHttpClient {
 
 	public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters) {
 
-		String query = "?";
-		for (Entry<String, Object> parameter : parameters.entrySet())
-			query += parameter.getKey() + "=" + parameter.getValue() + "&";
-		try {
-			query = URLEncoder.encode(query.substring(0, query.length() - 1), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		String query = (requestMethod == RequestMethod.GET) ? "?" : "";
+		for (Entry<String, Object> parameter : parameters.entrySet()) {
+			try {
+				query += parameter.getKey() + "=" + URLEncoder.encode((String) parameter.getValue(), CONTENT_CHARSET) + "&";
+			} catch (UnsupportedEncodingException e) {
+			}
 		}
+		query = query.substring(0, query.length() - 1);
 
 		String url = String.format("%s%s", baseUrl, path);
 
@@ -91,7 +94,7 @@ public class BaseHttpClient {
 			} else {
 				inputStream = new BufferedInputStream(httpURLConnection.getInputStream());
 				String line = "";
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, CONTENT_CHARSET));
 				StringBuilder stringBuilder = new StringBuilder();
 
 				while ((line = bufferedReader.readLine()) != null) {
@@ -138,7 +141,7 @@ public class BaseHttpClient {
 
 			httpURLConnection.setConnectTimeout(getConnectionTimeout());
 			httpURLConnection.setRequestMethod(requestMethod.toString());
-			httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+			httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + CONTENT_CHARSET);
 			httpURLConnection.setRequestProperty("Accept", "application/json");
 
 			if (requestMethod != RequestMethod.GET) {
@@ -147,7 +150,7 @@ public class BaseHttpClient {
 
 				if (query != null) {
 					OutputStream outputStream = httpURLConnection.getOutputStream();
-					outputStream.write(query.getBytes());
+					outputStream.write(query.getBytes(CONTENT_CHARSET));
 					outputStream.flush();
 					outputStream.close();
 				}
