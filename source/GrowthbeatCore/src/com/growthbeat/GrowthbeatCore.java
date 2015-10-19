@@ -17,14 +17,14 @@ public class GrowthbeatCore {
 
 	private static final String LOGGER_DEFAULT_TAG = "Growthbeat";
 	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthbeat.com/";
-	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
-	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 60 * 1000;
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthbeat-preferences";
 
 	private static final GrowthbeatCore instance = new GrowthbeatCore();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
+			HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
 	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
 	private Context context = null;

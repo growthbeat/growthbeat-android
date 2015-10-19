@@ -27,16 +27,18 @@ public class BaseHttpClient {
 	}
 
 	private String baseUrl = null;
-	private int connectionTimeout = 60 * 1000;
-	private int socketTimeout = 60 * 1000;
+	private int connectTimeout = 60 * 1000;
+	private int readTimeout = 60 * 1000;
 
 	public BaseHttpClient() {
 		super();
 	}
 
-	public BaseHttpClient(String baseUrl, int connectionTimeout, int socketTimeout) {
+	public BaseHttpClient(String baseUrl, int connectTimeout, int readTimeout) {
 		this();
 		setBaseUrl(baseUrl);
+		setConnectTimeout(connectTimeout);
+		setReadTimeout(readTimeout);
 	}
 
 	public String getBaseUrl() {
@@ -47,20 +49,20 @@ public class BaseHttpClient {
 		this.baseUrl = baseUrl;
 	}
 
-	public int getConnectionTimeout() {
-		return connectionTimeout;
+	public int getConnectTimeout() {
+		return connectTimeout;
 	}
 
-	public void setConnectionTimeout(int connectionTimeout) {
-		this.connectionTimeout = connectionTimeout;
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
 	}
 
-	public int getSocketTimeout() {
-		return socketTimeout;
+	public int getReadTimeout() {
+		return readTimeout;
 	}
 
-	public void setSocketTimeout(int socketTimeout) {
-		this.socketTimeout = socketTimeout;
+	public void setReadTimeout(int readTimeout) {
+		this.readTimeout = readTimeout;
 	}
 
 	public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters) {
@@ -139,7 +141,8 @@ public class BaseHttpClient {
 				httpURLConnection.setRequestProperty("Connection", "close");
 			}
 
-			httpURLConnection.setConnectTimeout(getConnectionTimeout());
+			httpURLConnection.setConnectTimeout(getConnectTimeout());
+			httpURLConnection.setReadTimeout(getReadTimeout());
 			httpURLConnection.setRequestMethod(requestMethod.toString());
 			httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + CONTENT_CHARSET);
 			httpURLConnection.setRequestProperty("Accept", "application/json");
