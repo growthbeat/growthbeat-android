@@ -1,5 +1,9 @@
 package com.growthbeat.message.view;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -214,19 +218,20 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 			if (urlString == null)
 				return null;
 
-			HttpClient httpClient = new DefaultHttpClient();
-			HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
-			HttpConnectionParams.setSoTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
-
 			try {
-				HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
-				if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
+				URL url = new URL(urlString);
+				HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
+				httpConnection.setRequestMethod("GET");
+				httpConnection.setConnectTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+				httpConnection.setReadTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+				httpConnection.connect();
+				int code = httpConnection.getResponseCode();
+				if (code < 200 && code >= 300)
 					return null;
-				return BitmapFactory.decodeStream(httpResponse.getEntity().getContent());
+				return BitmapFactory.decodeStream(httpConnection.getInputStream());
 			} catch (Exception e) {
 				return null;
 			}
-
 		}
 
 		@Override
