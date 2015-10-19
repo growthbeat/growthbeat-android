@@ -1,5 +1,9 @@
 package com.growthbeat.message.view;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +38,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.vision.barcode.Barcode.UrlBookmark;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.BannerMessage;
 import com.growthbeat.message.model.BannerMessage.BannerType;
@@ -392,22 +397,22 @@ public class BannerMessageView extends FrameLayout {
 				Map<String, Bitmap> images = new HashMap<String, Bitmap>();
 
 				for (String urlString : params) {
-
-					HttpClient httpClient = new DefaultHttpClient();
-					HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
-					HttpConnectionParams.setSoTimeout(httpClient.getParams(), IMAGE_DOWNLOAD_TIMEOUT);
-
 					try {
-						HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
-						if (httpResponse.getStatusLine().getStatusCode() < 200 && httpResponse.getStatusLine().getStatusCode() >= 300)
+						URL url = new URL(urlString);
+						HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
+						httpConnection.setRequestMethod("GET");
+						httpConnection.setConnectTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+						httpConnection.setReadTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+						httpConnection.connect();
+						int code = httpConnection.getResponseCode();
+						if (code < 200 && code >= 300)
 							continue;
-						images.put(urlString, BitmapFactory.decodeStream(httpResponse.getEntity().getContent()));
+						images.put(urlString, BitmapFactory.decodeStream(httpConnection.getInputStream()));
 					} catch (Exception e) {
 					}
 				}
 
 				return images;
-
 			}
 
 			@Override
