@@ -25,8 +25,8 @@ public class GrowthPush {
 
 	public static final String LOGGER_DEFAULT_TAG = "GrowthPush";
 	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
-	private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
-	private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 60 * 1000;
 	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
 
 	public static final String NOTIFICATION_ICON_META_KEY = "com.growthpush.notification.icon";
@@ -36,7 +36,7 @@ public class GrowthPush {
 	private static final GrowthPush instance = new GrowthPush();
 	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
 	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-			HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
+			HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
 	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
 	private Client client = null;
