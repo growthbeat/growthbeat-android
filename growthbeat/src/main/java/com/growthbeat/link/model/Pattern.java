@@ -1,14 +1,14 @@
 package com.growthbeat.link.model;
 
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.growthbeat.model.Intent;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
 
 public class Pattern extends Model {
 

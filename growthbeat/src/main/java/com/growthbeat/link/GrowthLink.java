@@ -1,10 +1,5 @@
 package com.growthbeat.link;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -25,6 +20,11 @@ import com.growthbeat.link.handler.InstallReferrerReceiveHandler;
 import com.growthbeat.link.model.Click;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.AppUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class GrowthLink {
 

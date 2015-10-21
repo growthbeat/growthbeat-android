@@ -1,12 +1,12 @@
 package com.growthbeat.link.handler;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 import android.content.Context;
 import android.content.Intent;
 
 import com.growthbeat.link.GrowthLink;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 public class DefaultInstallReferrerReceiveHandler implements InstallReferrerReceiveHandler {
 

@@ -1,1 +1,1 @@
-include ':sample', ':growthbeat', ':growthlink'
+include ':sample', ':growthbeat'

@@ -1,10 +1,10 @@
 package com.growthbeat.link.model;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.JSONObjectUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Link extends Model {
 
