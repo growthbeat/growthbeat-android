@@ -35,219 +35,219 @@ import com.growthbeat.message.model.SwipeMessage;
 
 public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
-	private LoaderManager loaderManager;
-	private Context context;
-	private Message message;
-	private Callback callback;
+    private LoaderManager loaderManager;
+    private Context context;
+    private Message message;
+    private Callback callback;
 
-	private List<String> urlStrings = new ArrayList<String>();
-	private Map<String, Bitmap> images = new HashMap<String, Bitmap>();
+    private List<String> urlStrings = new ArrayList<String>();
+    private Map<String, Bitmap> images = new HashMap<String, Bitmap>();
 
-	public MessageImageDownloader(LoaderManager loaderManager, Context context, Message message, Callback callback) {
-		super();
-		this.loaderManager = loaderManager;
-		this.context = context;
-		this.message = message;
-		this.callback = callback;
-	}
+    public MessageImageDownloader(LoaderManager loaderManager, Context context, Message message, Callback callback) {
+        super();
+        this.loaderManager = loaderManager;
+        this.context = context;
+        this.message = message;
+        this.callback = callback;
+    }
 
-	public void download() {
+    public void download() {
 
-		switch (message.getType()) {
-		case image:
-			download((ImageMessage) message);
-			break;
-		case banner:
-			download((BannerMessage) message);
-			break;
-		case swipe:
-			download((SwipeMessage) message);
-			break;
-		default:
-			if (callback != null) {
-				callback.failure();
-				callback = null;
-			}
-			break;
-		}
+        switch (message.getType()) {
+            case image:
+                download((ImageMessage) message);
+                break;
+            case banner:
+                download((BannerMessage) message);
+                break;
+            case swipe:
+                download((SwipeMessage) message);
+                break;
+            default:
+                if (callback != null) {
+                    callback.failure();
+                    callback = null;
+                }
+                break;
+        }
 
-	}
+    }
 
-	private void download(ImageMessage imageMessage) {
+    private void download(ImageMessage imageMessage) {
 
-		if (imageMessage.getPicture().getUrl() != null) {
-			urlStrings.add(imageMessage.getPicture().getUrl());
-		}
+        if (imageMessage.getPicture().getUrl() != null) {
+            urlStrings.add(imageMessage.getPicture().getUrl());
+        }
 
-		for (Button button : imageMessage.getButtons()) {
-			switch (button.getType()) {
-			case image:
-				urlStrings.add(((ImageButton) button).getPicture().getUrl());
-				break;
-			case close:
-				urlStrings.add(((CloseButton) button).getPicture().getUrl());
-				break;
-			default:
-				continue;
-			}
-		}
+        for (Button button : imageMessage.getButtons()) {
+            switch (button.getType()) {
+                case image:
+                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    break;
+                case close:
+                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    break;
+                default:
+                    continue;
+            }
+        }
 
-		int loaderId = -1;
-		for (String urlString : urlStrings) {
-			Bundle bundle = new Bundle();
-			bundle.putString("url", urlString);
-			loaderManager.initLoader(loaderId++, bundle, this);
-		}
+        int loaderId = -1;
+        for (String urlString : urlStrings) {
+            Bundle bundle = new Bundle();
+            bundle.putString("url", urlString);
+            loaderManager.initLoader(loaderId++, bundle, this);
+        }
 
-	}
+    }
 
-	private void download(BannerMessage bannerMessage) {
+    private void download(BannerMessage bannerMessage) {
 
-		if (bannerMessage.getPicture().getUrl() != null) {
-			urlStrings.add(bannerMessage.getPicture().getUrl());
-		}
+        if (bannerMessage.getPicture().getUrl() != null) {
+            urlStrings.add(bannerMessage.getPicture().getUrl());
+        }
 
-		for (Button button : bannerMessage.getButtons()) {
-			switch (button.getType()) {
-			case image:
-				urlStrings.add(((ImageButton) button).getPicture().getUrl());
-				break;
-			case close:
-				urlStrings.add(((CloseButton) button).getPicture().getUrl());
-				break;
-			default:
-				continue;
-			}
-		}
+        for (Button button : bannerMessage.getButtons()) {
+            switch (button.getType()) {
+                case image:
+                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    break;
+                case close:
+                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    break;
+                default:
+                    continue;
+            }
+        }
 
-		int loaderId = -1;
-		for (String urlString : urlStrings) {
-			Bundle bundle = new Bundle();
-			bundle.putString("url", urlString);
-			loaderManager.initLoader(loaderId++, bundle, this);
-		}
+        int loaderId = -1;
+        for (String urlString : urlStrings) {
+            Bundle bundle = new Bundle();
+            bundle.putString("url", urlString);
+            loaderManager.initLoader(loaderId++, bundle, this);
+        }
 
-	}
+    }
 
-	private void download(SwipeMessage swipeMessage) {
+    private void download(SwipeMessage swipeMessage) {
 
-		for (Picture picture : swipeMessage.getSwipeImages().getPictures())
-			urlStrings.add(picture.getUrl());
+        for (Picture picture : swipeMessage.getSwipeImages().getPictures())
+            urlStrings.add(picture.getUrl());
 
-		for (Button button : swipeMessage.getButtons()) {
-			switch (button.getType()) {
-			case image:
-				urlStrings.add(((ImageButton) button).getPicture().getUrl());
-				break;
-			case close:
-				urlStrings.add(((CloseButton) button).getPicture().getUrl());
-				break;
-			default:
-				continue;
-			}
-		}
+        for (Button button : swipeMessage.getButtons()) {
+            switch (button.getType()) {
+                case image:
+                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    break;
+                case close:
+                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    break;
+                default:
+                    continue;
+            }
+        }
 
-		int loaderId = -1;
-		for (String urlString : urlStrings) {
-			Bundle bundle = new Bundle();
-			bundle.putString("url", urlString);
-			loaderManager.initLoader(loaderId++, bundle, this);
-		}
+        int loaderId = -1;
+        for (String urlString : urlStrings) {
+            Bundle bundle = new Bundle();
+            bundle.putString("url", urlString);
+            loaderManager.initLoader(loaderId++, bundle, this);
+        }
 
-	}
+    }
 
-	@Override
-	public Loader<Bitmap> onCreateLoader(int id, Bundle bundle) {
-		Loader<Bitmap> loader = new ImageLoader(context, bundle.getString("url"));
-		loader.forceLoad();
-		return loader;
-	}
+    @Override
+    public Loader<Bitmap> onCreateLoader(int id, Bundle bundle) {
+        Loader<Bitmap> loader = new ImageLoader(context, bundle.getString("url"));
+        loader.forceLoad();
+        return loader;
+    }
 
-	@Override
-	public void onLoadFinished(Loader<Bitmap> loader, Bitmap bitmap) {
+    @Override
+    public void onLoadFinished(Loader<Bitmap> loader, Bitmap bitmap) {
 
-		if (bitmap == null) {
-			if (callback != null) {
-				callback.failure();
-				callback = null;
-			}
-			return;
-		}
+        if (bitmap == null) {
+            if (callback != null) {
+                callback.failure();
+                callback = null;
+            }
+            return;
+        }
 
-		if (!(loader instanceof ImageLoader))
-			return;
-		String urlString = ((ImageLoader) loader).getUrlString();
+        if (!(loader instanceof ImageLoader))
+            return;
+        String urlString = ((ImageLoader) loader).getUrlString();
 
-		images.put(urlString, bitmap);
-		urlStrings.remove(urlString);
-		if (urlStrings.size() == 0) {
-			if (callback != null) {
-				callback.success(images);
-			}
-		}
+        images.put(urlString, bitmap);
+        urlStrings.remove(urlString);
+        if (urlStrings.size() == 0) {
+            if (callback != null) {
+                callback.success(images);
+            }
+        }
 
-	}
+    }
 
-	@Override
-	public void onLoaderReset(Loader<Bitmap> loader) {
-		loader.reset();
-	}
+    @Override
+    public void onLoaderReset(Loader<Bitmap> loader) {
+        loader.reset();
+    }
 
-	public interface Callback {
+    public interface Callback {
 
-		public void success(Map<String, Bitmap> images);
+        public void success(Map<String, Bitmap> images);
 
-		public void failure();
+        public void failure();
 
-	}
+    }
 
-	private static class ImageLoader extends AsyncTaskLoader<Bitmap> {
+    private static class ImageLoader extends AsyncTaskLoader<Bitmap> {
 
-		private static final int IMAGE_DOWNLOAD_TIMEOUT = 10 * 1000;
+        private static final int IMAGE_DOWNLOAD_TIMEOUT = 10 * 1000;
 
-		private String urlString;
+        private String urlString;
 
-		public ImageLoader(Context context, String urlString) {
-			super(context);
-			this.urlString = urlString;
-		}
+        public ImageLoader(Context context, String urlString) {
+            super(context);
+            this.urlString = urlString;
+        }
 
-		@Override
-		public Bitmap loadInBackground() {
+        @Override
+        public Bitmap loadInBackground() {
 
-			if (urlString == null)
-				return null;
+            if (urlString == null)
+                return null;
 
-			try {
-				URL url = new URL(urlString);
-				HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
-				httpConnection.setRequestMethod("GET");
-				httpConnection.setConnectTimeout(IMAGE_DOWNLOAD_TIMEOUT);
-				httpConnection.setReadTimeout(IMAGE_DOWNLOAD_TIMEOUT);
-				httpConnection.connect();
-				int code = httpConnection.getResponseCode();
-				if (code < 200 && code >= 300)
-					return null;
-				return BitmapFactory.decodeStream(httpConnection.getInputStream());
-			} catch (Exception e) {
-				return null;
-			}
-		}
+            try {
+                URL url = new URL(urlString);
+                HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+                httpConnection.setRequestMethod("GET");
+                httpConnection.setConnectTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+                httpConnection.setReadTimeout(IMAGE_DOWNLOAD_TIMEOUT);
+                httpConnection.connect();
+                int code = httpConnection.getResponseCode();
+                if (code < 200 && code >= 300)
+                    return null;
+                return BitmapFactory.decodeStream(httpConnection.getInputStream());
+            } catch (Exception e) {
+                return null;
+            }
+        }
 
-		@Override
-		public void onCanceled(Bitmap bitmap) {
-			if (bitmap == null)
-				return;
-			if (bitmap.isRecycled())
-				return;
-			bitmap.recycle();
-			bitmap = null;
-		}
+        @Override
+        public void onCanceled(Bitmap bitmap) {
+            if (bitmap == null)
+                return;
+            if (bitmap.isRecycled())
+                return;
+            bitmap.recycle();
+            bitmap = null;
+        }
 
-		public String getUrlString() {
-			return urlString;
-		}
+        public String getUrlString() {
+            return urlString;
+        }
 
-	}
+    }
 
 }

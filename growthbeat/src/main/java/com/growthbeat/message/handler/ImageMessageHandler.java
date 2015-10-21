@@ -9,27 +9,27 @@ import com.growthbeat.message.view.MessageActivity;
 
 public class ImageMessageHandler implements MessageHandler {
 
-	private Context context;
+    private Context context;
 
-	public ImageMessageHandler(Context context) {
-		this.context = context;
-	}
+    public ImageMessageHandler(Context context) {
+        this.context = context;
+    }
 
-	@Override
-	public boolean handle(final Message message) {
+    @Override
+    public boolean handle(final Message message) {
 
-		if (message.getType() != Message.Type.image)
-			return false;
-		if (!(message instanceof ImageMessage))
-			return false;
+        if (message.getType() != Message.Type.image)
+            return false;
+        if (!(message instanceof ImageMessage))
+            return false;
 
-		Intent intent = new Intent(context, MessageActivity.class);
-		intent.putExtra("message", (ImageMessage) message);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(intent);
+        Intent intent = new Intent(context, MessageActivity.class);
+        intent.putExtra("message", (ImageMessage) message);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
 
-		return true;
+        return true;
 
-	}
+    }
 
 }

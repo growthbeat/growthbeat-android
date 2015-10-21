@@ -7,71 +7,71 @@ import com.growthbeat.utils.JSONObjectUtils;
 
 public class SwipeMessage extends Message {
 
-	private SwipeType swipeType;
-	private SwipeImages swipeImages;
+    private SwipeType swipeType;
+    private SwipeImages swipeImages;
 
-	public SwipeMessage() {
-		super();
-	}
+    public SwipeMessage() {
+        super();
+    }
 
-	public SwipeMessage(JSONObject jsonObject) {
-		super(jsonObject);
-	}
+    public SwipeMessage(JSONObject jsonObject) {
+        super(jsonObject);
+    }
 
-	public SwipeImages getSwipeImages() {
-		return swipeImages;
-	}
+    public SwipeImages getSwipeImages() {
+        return swipeImages;
+    }
 
-	public void setSwipeImages(SwipeImages swipeImages) {
-		this.swipeImages = swipeImages;
-	}
+    public void setSwipeImages(SwipeImages swipeImages) {
+        this.swipeImages = swipeImages;
+    }
 
-	public SwipeType getSwipeType() {
-		return swipeType;
-	}
+    public SwipeType getSwipeType() {
+        return swipeType;
+    }
 
-	public void setSwipeType(SwipeType swipeType) {
-		this.swipeType = swipeType;
-	}
+    public void setSwipeType(SwipeType swipeType) {
+        this.swipeType = swipeType;
+    }
 
-	@Override
-	public JSONObject getJsonObject() {
+    @Override
+    public JSONObject getJsonObject() {
 
-		JSONObject jsonObject = super.getJsonObject();
+        JSONObject jsonObject = super.getJsonObject();
 
-		try {
-			if (swipeType != null)
-				jsonObject.put("swipeType", swipeType.toString());
-			if (swipeImages != null) {
-				jsonObject.put("swipeImages", swipeImages.getJsonObject());
-			}
-		} catch (JSONException e) {
-			throw new IllegalArgumentException("Failed to get JSON.");
-		}
+        try {
+            if (swipeType != null)
+                jsonObject.put("swipeType", swipeType.toString());
+            if (swipeImages != null) {
+                jsonObject.put("swipeImages", swipeImages.getJsonObject());
+            }
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to get JSON.");
+        }
 
-		return jsonObject;
+        return jsonObject;
 
-	}
+    }
 
-	@Override
-	public void setJsonObject(JSONObject jsonObject) {
+    @Override
+    public void setJsonObject(JSONObject jsonObject) {
 
-		if (jsonObject == null)
-			return;
+        if (jsonObject == null)
+            return;
 
-		super.setJsonObject(jsonObject);
+        super.setJsonObject(jsonObject);
 
-		try {
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeType"))
-				setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
-				setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
-		} catch (JSONException e) {
-			throw new IllegalArgumentException("Failed to parse JSON.", e);
-		}
-	}
+        try {
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeType"))
+                setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
+                setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse JSON.", e);
+        }
+    }
 
-	public static enum SwipeType {
-		imageOnly, oneButton, buttons
-	}
+    public static enum SwipeType {
+        imageOnly, oneButton, buttons
+    }
 }

@@ -28,182 +28,182 @@ import com.growthbeat.message.model.Message;
 
 public class GrowthMessage {
 
-	public static final String LOGGER_DEFAULT_TAG = "GrowthMessage";
-	public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.message.growthbeat.com/";
-	private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 10 * 1000;
-	private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 10 * 1000;
-	public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthmessage-preferences";
+    public static final String LOGGER_DEFAULT_TAG = "GrowthMessage";
+    public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.message.growthbeat.com/";
+    private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 10 * 1000;
+    private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 10 * 1000;
+    public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthmessage-preferences";
 
-	private static final GrowthMessage instance = new GrowthMessage();
-	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
-	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-			HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
-	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private static final GrowthMessage instance = new GrowthMessage();
+    private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
+    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
+        HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
+    private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
-	private String applicationId = null;
-	private String credentialId = null;
+    private String applicationId = null;
+    private String credentialId = null;
 
-	private boolean initialized = false;
-	private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
+    private boolean initialized = false;
+    private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
 
-	private GrowthMessage() {
-		super();
-	}
+    private GrowthMessage() {
+        super();
+    }
 
-	public static GrowthMessage getInstance() {
-		return instance;
-	}
+    public static GrowthMessage getInstance() {
+        return instance;
+    }
 
-	public void initialize(final Context context, final String applicationId, final String credentialId) {
+    public void initialize(final Context context, final String applicationId, final String credentialId) {
 
-		if (initialized)
-			return;
-		initialized = true;
+        if (initialized)
+            return;
+        initialized = true;
 
-		if (context == null) {
-			logger.warning("The context parameter cannot be null.");
-			return;
-		}
+        if (context == null) {
+            logger.warning("The context parameter cannot be null.");
+            return;
+        }
 
-		this.applicationId = applicationId;
-		this.credentialId = credentialId;
+        this.applicationId = applicationId;
+        this.credentialId = credentialId;
 
-		GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-		this.preference.setContext(GrowthbeatCore.getInstance().getContext());
-		if (GrowthbeatCore.getInstance().getClient() == null
-				|| (GrowthbeatCore.getInstance().getClient().getApplication() != null && !GrowthbeatCore.getInstance().getClient()
-						.getApplication().getId().equals(applicationId))) {
-			preference.removeAll();
-		}
+        GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+        this.preference.setContext(GrowthbeatCore.getInstance().getContext());
+        if (GrowthbeatCore.getInstance().getClient() == null
+            || (GrowthbeatCore.getInstance().getClient().getApplication() != null && !GrowthbeatCore.getInstance().getClient()
+            .getApplication().getId().equals(applicationId))) {
+            preference.removeAll();
+        }
 
-		GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
-		GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
-			@Override
-			public void callback(String eventId, Map<String, String> properties) {
-				if (eventId != null && eventId.startsWith("Event:" + applicationId + ":GrowthMessage"))
-					return;
-				recevieMessage(eventId);
-			}
-		});
+        GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+        GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
+            @Override
+            public void callback(String eventId, Map<String, String> properties) {
+                if (eventId != null && eventId.startsWith("Event:" + applicationId + ":GrowthMessage"))
+                    return;
+                recevieMessage(eventId);
+            }
+        });
 
-		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new BannerMessageHandler(
-				context), new SwipeMessageHandler(context)));
+        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new BannerMessageHandler(
+            context), new SwipeMessageHandler(context)));
 
-	}
+    }
 
-	private void recevieMessage(final String eventId) {
+    private void recevieMessage(final String eventId) {
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-				logger.info("Receive message...");
+                logger.info("Receive message...");
 
-				try {
+                try {
 
-					final Message message = Message.receive(GrowthbeatCore.getInstance().waitClient().getId(), eventId, credentialId);
-					if (message == null) {
-						logger.warning("Message response is null.");
-						return;
-					}
+                    final Message message = Message.receive(GrowthbeatCore.getInstance().waitClient().getId(), eventId, credentialId);
+                    if (message == null) {
+                        logger.warning("Message response is null.");
+                        return;
+                    }
 
-					logger.info(String.format("Message is received. (id: %s)", message.getId()));
+                    logger.info(String.format("Message is received. (id: %s)", message.getId()));
 
-					new Handler(Looper.getMainLooper()).post(new Runnable() {
-						@Override
-						public void run() {
-							openMessage(message);
-						}
-					});
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            openMessage(message);
+                        }
+                    });
 
-				} catch (GrowthbeatException e) {
-					logger.info(String.format("Message is not found. %s", e.getMessage()));
-				}
+                } catch (GrowthbeatException e) {
+                    logger.info(String.format("Message is not found. %s", e.getMessage()));
+                }
 
-			}
+            }
 
-		}).start();
+        }).start();
 
-	}
+    }
 
-	private void openMessage(Message message) {
+    private void openMessage(Message message) {
 
-		for (MessageHandler messageHandler : messageHandlers) {
-			if (!messageHandler.handle(message))
-				continue;
+        for (MessageHandler messageHandler : messageHandlers) {
+            if (!messageHandler.handle(message))
+                continue;
 
-			Map<String, String> properties = new HashMap<String, String>();
-			if (message != null && message.getTask() != null)
-				properties.put("taskId", message.getTask().getId());
-			if (message != null)
-				properties.put("messageId", message.getId());
+            Map<String, String> properties = new HashMap<String, String>();
+            if (message != null && message.getTask() != null)
+                properties.put("taskId", message.getTask().getId());
+            if (message != null)
+                properties.put("messageId", message.getId());
 
-			GrowthAnalytics.getInstance().track("GrowthMessage", "ShowMessage", properties, null);
+            GrowthAnalytics.getInstance().track("GrowthMessage", "ShowMessage", properties, null);
 
-			break;
-		}
+            break;
+        }
 
-	}
+    }
 
-	public void selectButton(Button button, Message message) {
+    public void selectButton(Button button, Message message) {
 
-		GrowthbeatCore.getInstance().handleIntent(button.getIntent());
+        GrowthbeatCore.getInstance().handleIntent(button.getIntent());
 
-		Map<String, String> properties = new HashMap<String, String>();
-		if (message != null && message.getTask() != null)
-			properties.put("taskId", message.getTask().getId());
-		if (message != null)
-			properties.put("messageId", message.getId());
-		if (button != null && button.getIntent() != null)
-			properties.put("intentId", button.getIntent().getId());
+        Map<String, String> properties = new HashMap<String, String>();
+        if (message != null && message.getTask() != null)
+            properties.put("taskId", message.getTask().getId());
+        if (message != null)
+            properties.put("messageId", message.getId());
+        if (button != null && button.getIntent() != null)
+            properties.put("intentId", button.getIntent().getId());
 
-		GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
+        GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
 
-	}
+    }
 
-	public String getApplicationId() {
-		return applicationId;
-	}
+    public String getApplicationId() {
+        return applicationId;
+    }
 
-	public String getCredentialId() {
-		return credentialId;
-	}
+    public String getCredentialId() {
+        return credentialId;
+    }
 
-	public Logger getLogger() {
-		return logger;
-	}
+    public Logger getLogger() {
+        return logger;
+    }
 
-	public GrowthbeatHttpClient getHttpClient() {
-		return httpClient;
-	}
+    public GrowthbeatHttpClient getHttpClient() {
+        return httpClient;
+    }
 
-	public Preference getPreference() {
-		return preference;
-	}
+    public Preference getPreference() {
+        return preference;
+    }
 
-	public void setMessageHandlers(List<MessageHandler> messageHandlers) {
-		this.messageHandlers = messageHandlers;
-	}
+    public void setMessageHandlers(List<MessageHandler> messageHandlers) {
+        this.messageHandlers = messageHandlers;
+    }
 
-	public void addMessageHandler(MessageHandler messageHandler) {
-		this.messageHandlers.add(messageHandler);
-	}
+    public void addMessageHandler(MessageHandler messageHandler) {
+        this.messageHandlers.add(messageHandler);
+    }
 
-	private static class Thread extends CatchableThread {
+    private static class Thread extends CatchableThread {
 
-		public Thread(Runnable runnable) {
-			super(runnable);
-		}
+        public Thread(Runnable runnable) {
+            super(runnable);
+        }
 
-		@Override
-		public void uncaughtException(java.lang.Thread thread, Throwable e) {
-			String message = "Uncaught Exception: " + e.getClass().getName();
-			if (e.getMessage() != null)
-				message += "; " + e.getMessage();
-			GrowthMessage.getInstance().getLogger().warning(message);
-			e.printStackTrace();
-		}
+        @Override
+        public void uncaughtException(java.lang.Thread thread, Throwable e) {
+            String message = "Uncaught Exception: " + e.getClass().getName();
+            if (e.getMessage() != null)
+                message += "; " + e.getMessage();
+            GrowthMessage.getInstance().getLogger().warning(message);
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 }

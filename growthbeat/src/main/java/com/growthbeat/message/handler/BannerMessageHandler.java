@@ -8,24 +8,24 @@ import com.growthbeat.message.view.BannerMessageView;
 
 public class BannerMessageHandler implements MessageHandler {
 
-	private Context context;
+    private Context context;
 
-	public BannerMessageHandler(Context context) {
-		this.context = context;
-	}
+    public BannerMessageHandler(Context context) {
+        this.context = context;
+    }
 
-	@Override
-	public boolean handle(final Message message) {
+    @Override
+    public boolean handle(final Message message) {
 
-		if (message.getType() != Message.Type.banner)
-			return false;
-		if (!(message instanceof BannerMessage))
-			return false;
+        if (message.getType() != Message.Type.banner)
+            return false;
+        if (!(message instanceof BannerMessage))
+            return false;
 
-		new BannerMessageView(context, message);
+        new BannerMessageView(context, message);
 
-		return true;
+        return true;
 
-	}
+    }
 
 }

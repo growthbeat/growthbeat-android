@@ -9,26 +9,26 @@ import com.growthbeat.message.view.MessageActivity;
 
 public class PlainMessageHandler implements MessageHandler {
 
-	private Context context;
+    private Context context;
 
-	public PlainMessageHandler(Context context) {
-		this.context = context;
-	}
+    public PlainMessageHandler(Context context) {
+        this.context = context;
+    }
 
-	@Override
-	public boolean handle(final Message message) {
+    @Override
+    public boolean handle(final Message message) {
 
-		if (message.getType() != Message.Type.plain)
-			return false;
-		if (!(message instanceof PlainMessage))
-			return false;
+        if (message.getType() != Message.Type.plain)
+            return false;
+        if (!(message instanceof PlainMessage))
+            return false;
 
-		Intent intent = new Intent(context, MessageActivity.class);
-		intent.putExtra("message", (PlainMessage) message);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(intent);
+        Intent intent = new Intent(context, MessageActivity.class);
+        intent.putExtra("message", (PlainMessage) message);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
 
-		return true;
+        return true;
 
-	}
+    }
 }

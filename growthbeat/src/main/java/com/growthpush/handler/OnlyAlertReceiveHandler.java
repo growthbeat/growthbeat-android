@@ -5,21 +5,21 @@ import android.content.Intent;
 
 public class OnlyAlertReceiveHandler extends BaseReceiveHandler {
 
-	public OnlyAlertReceiveHandler() {
-		super();
-	}
+    public OnlyAlertReceiveHandler() {
+        super();
+    }
 
-	public OnlyAlertReceiveHandler(Callback callback) {
-		this();
-		setCallback(callback);
-	}
+    public OnlyAlertReceiveHandler(Callback callback) {
+        this();
+        setCallback(callback);
+    }
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
+    @Override
+    public void onReceive(Context context, Intent intent) {
 
-		super.onReceive(context, intent);
-		showAlert(context, intent);
+        super.onReceive(context, intent);
+        showAlert(context, intent);
 
-	}
+    }
 
 }

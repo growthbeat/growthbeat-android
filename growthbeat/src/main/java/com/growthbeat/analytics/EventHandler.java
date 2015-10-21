@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface EventHandler {
 
-	void callback(String eventId, Map<String, String> properties);
+    void callback(String eventId, Map<String, String> properties);
 
 }

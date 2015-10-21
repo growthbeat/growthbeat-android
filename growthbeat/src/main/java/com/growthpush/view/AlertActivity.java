@@ -23,158 +23,158 @@ import com.growthpush.handler.ReceiveHandler;
  */
 public class AlertActivity extends FragmentActivity implements DialogCallback {
 
-	protected static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
+    protected static final int WAKE_LOCK_TIMEROUT = 10 * 1000;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-		super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setTheme(android.R.style.Theme_Translucent);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setTheme(android.R.style.Theme_Translucent);
 
-		if (getIntent().getExtras().containsKey("message")) {
-			String message = getIntent().getExtras().getString("message");
-			if (message == null || message.length() <= 0 || message.equals("")) {
-				finish();
-				return;
-			}
-		}
+        if (getIntent().getExtras().containsKey("message")) {
+            String message = getIntent().getExtras().getString("message");
+            if (message == null || message.length() <= 0 || message.equals("")) {
+                finish();
+                return;
+            }
+        }
 
-		DialogType dialogType = DialogType.none;
-		if (getIntent().getExtras().containsKey("dialogType")) {
-			try {
-				dialogType = DialogType.valueOf(getIntent().getExtras().getString("dialogType"));
-			} catch (IllegalArgumentException e) {
-			} catch (NullPointerException e) {
-			}
-		}
+        DialogType dialogType = DialogType.none;
+        if (getIntent().getExtras().containsKey("dialogType")) {
+            try {
+                dialogType = DialogType.valueOf(getIntent().getExtras().getString("dialogType"));
+            } catch (IllegalArgumentException e) {
+            } catch (NullPointerException e) {
+            }
+        }
 
-		switch (dialogType) {
-		case plain:
-			showDialog();
-			break;
+        switch (dialogType) {
+            case plain:
+                showDialog();
+                break;
 
-		default:
-			if (getCallback() != null) {
-				getCallback().onOpen(this, getIntent());
-			}
-			finish();
-			break;
-		}
+            default:
+                if (getCallback() != null) {
+                    getCallback().onOpen(this, getIntent());
+                }
+                finish();
+                break;
+        }
 
-	}
+    }
 
-	@Override
-	public void onDestroy() {
+    @Override
+    public void onDestroy() {
 
-		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
-		super.onDestroy();
+        super.onDestroy();
 
-	}
+    }
 
-	protected void showDialog() {
+    protected void showDialog() {
 
-		manageKeyguard();
-		managePower();
+        manageKeyguard();
+        managePower();
 
-		final AlertFragment fragment = new AlertFragment();
-		fragment.setCancelable(false);
+        final AlertFragment fragment = new AlertFragment();
+        fragment.setCancelable(false);
 
-		Bundle bundle = new Bundle();
-		bundle.putString("message", getIntent().getExtras().getString("message"));
-		fragment.setArguments(bundle);
+        Bundle bundle = new Bundle();
+        bundle.putString("message", getIntent().getExtras().getString("message"));
+        fragment.setArguments(bundle);
 
-		if (!isFinishing()) {
-			runOnUiThread(new Runnable() {
+        if (!isFinishing()) {
+            runOnUiThread(new Runnable() {
 
-				@Override
-				public void run() {
-					fragment.show(getSupportFragmentManager(), getClass().getName());
-				}
-			});
-		}
+                @Override
+                public void run() {
+                    fragment.show(getSupportFragmentManager(), getClass().getName());
+                }
+            });
+        }
 
-	}
+    }
 
-	@SuppressLint("NewApi")
-	protected void manageKeyguard() {
+    @SuppressLint("NewApi")
+    protected void manageKeyguard() {
 
-		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-		if (!keyguardManager.inKeyguardRestrictedInputMode())
-			return;
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        if (!keyguardManager.inKeyguardRestrictedInputMode())
+            return;
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
-			if (keyguardManager.isKeyguardSecure())
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-			else if (keyguardManager.isKeyguardLocked())
-				getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+            if (keyguardManager.isKeyguardSecure())
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            else if (keyguardManager.isKeyguardLocked())
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
-			return;
+            return;
 
-		}
+        }
 
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
-	}
+    }
 
-	@SuppressWarnings("deprecation")
-	protected void managePower() {
+    @SuppressWarnings("deprecation")
+    protected void managePower() {
 
-		PowerManager powerManager = SystemServiceUtils.getPowerManager(getApplicationContext());
-		if (powerManager == null)
-			return;
+        PowerManager powerManager = SystemServiceUtils.getPowerManager(getApplicationContext());
+        if (powerManager == null)
+            return;
 
-		final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-				| PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
-		try {
-			wakeLock.acquire();
-		} catch (SecurityException e) {
-			return;
-		}
+        final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+            | PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
+        try {
+            wakeLock.acquire();
+        } catch (SecurityException e) {
+            return;
+        }
 
-		new Handler().postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
 
-			@Override
-			public void run() {
-				wakeLock.release();
-			}
+            @Override
+            public void run() {
+                wakeLock.release();
+            }
 
-		}, WAKE_LOCK_TIMEROUT);
+        }, WAKE_LOCK_TIMEROUT);
 
-	}
+    }
 
-	@Override
-	public void onClickPositive(DialogInterface dialog) {
+    @Override
+    public void onClickPositive(DialogInterface dialog) {
 
-		dialog.dismiss();
-		if (getCallback() != null)
-			getCallback().onOpen(this, this.getIntent());
+        dialog.dismiss();
+        if (getCallback() != null)
+            getCallback().onOpen(this, this.getIntent());
 
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		if (notificationManager != null)
-			notificationManager.cancel("GrowthPush" + getPackageName(), 1);
-	}
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null)
+            notificationManager.cancel("GrowthPush" + getPackageName(), 1);
+    }
 
-	@Override
-	public void onClickNegative(DialogInterface dialog) {
-		dialog.dismiss();
-		finish();
-	}
+    @Override
+    public void onClickNegative(DialogInterface dialog) {
+        dialog.dismiss();
+        finish();
+    }
 
-	private BaseReceiveHandler.Callback getCallback() {
+    private BaseReceiveHandler.Callback getCallback() {
 
-		ReceiveHandler receiveHandler = GrowthPush.getInstance().getReceiveHandler();
-		if (receiveHandler == null)
-			return null;
-		if (!(receiveHandler instanceof BaseReceiveHandler))
-			return null;
+        ReceiveHandler receiveHandler = GrowthPush.getInstance().getReceiveHandler();
+        if (receiveHandler == null)
+            return null;
+        if (!(receiveHandler instanceof BaseReceiveHandler))
+            return null;
 
-		BaseReceiveHandler baseReceiveHandler = (BaseReceiveHandler) GrowthPush.getInstance().getReceiveHandler();
-		return baseReceiveHandler.getCallback();
+        BaseReceiveHandler baseReceiveHandler = (BaseReceiveHandler) GrowthPush.getInstance().getReceiveHandler();
+        return baseReceiveHandler.getCallback();
 
-	}
+    }
 
 }
