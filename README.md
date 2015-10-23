@@ -16,9 +16,12 @@ dependencies {
 }
 ```
 
-- **Local libraly**
+## Dependencies
 
-Add growthbeat.jar into libs directory in your project.
+- Android Support Library
+- Google Play Services SDK
+
+See more in the [`growthbeat/build.gradle`](https://github.com/growthbeat/growthbeat-android/blob/master/growthbeat/build.gradle).
 
 ## Usage
 
@@ -101,7 +104,7 @@ Add growthbeat.jar into libs directory in your project.
 
   Add following code as a elements of `<manifest/>`.
 
-  ```
+  ```xml
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.GET_ACCOUNTS" />
   <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -143,13 +146,6 @@ Add growthbeat.jar into libs directory in your project.
   ```java
   GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
   ```
-
-## Requirements
-
-- Android Support Library
-- Google Play Services SDK
-
-See more in the [`growthbeat/build.gradle`](https://github.com/growthbeat/growthbeat-android/blob/master/growthbeat/build.gradle).
 
 ## Supported Environment
 
