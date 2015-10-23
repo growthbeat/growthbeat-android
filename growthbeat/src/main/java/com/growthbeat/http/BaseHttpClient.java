@@ -70,7 +70,7 @@ public class BaseHttpClient {
         String query = (requestMethod == RequestMethod.GET) ? "?" : "";
         for (Entry<String, Object> parameter : parameters.entrySet()) {
             try {
-                query += parameter.getKey() + "=" + URLEncoder.encode((String) parameter.getValue(), CONTENT_CHARSET) + "&";
+                query += parameter.getKey() + "=" + URLEncoder.encode(String.valueOf(parameter.getValue()), CONTENT_CHARSET) + "&";
             } catch (UnsupportedEncodingException e) {
             }
         }
