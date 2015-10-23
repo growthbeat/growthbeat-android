@@ -1,4 +1,8 @@
-# Growthbeat SDK for Android
+Growthbeat SDK for Android
+===
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Download](https://api.bintray.com/packages/growthbeat/maven/growthbeat-android/images/download.svg)](https://bintray.com/growthbeat/maven/growthbeat-android/_latestVersion)
+
 
 Growthbeat SDK for Android
 
