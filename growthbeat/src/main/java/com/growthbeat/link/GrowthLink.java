@@ -30,8 +30,8 @@ public class GrowthLink {
 
     private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
     private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
-    private static final String DEFAULT_SYNCRONIZATION_URL = "http://gbt.io/l/synchronize";
-    private static final String DEFAULT_FINGERPRINT_URL = "http://gbt.io/l/fingerprints";
+    private static final String DEFAULT_SYNCRONIZATION_URL = "https://gbt.io/l/synchronize";
+    private static final String DEFAULT_FINGERPRINT_URL = "https://gbt.io/l/fingerprints";
     private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
     private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
     private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -135,8 +135,13 @@ public class GrowthLink {
                             if (click.getPattern().getIntent() != null)
                                 properties.put("intentId", click.getPattern().getIntent().getId());
 
-                            if (firstSession)
+                            if (firstSession) {
                                 GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
+                                if (click.getPattern().getLink() != null && click.getPattern().getLink().getId() != null) {
+                                    GrowthAnalytics.getInstance().tag("GrowthLink", "InstallLink", click.getPattern().getLink().getId());
+                                }
+                            }
+
 
                             GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
 
