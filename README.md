@@ -80,7 +80,7 @@ See more in the [`growthbeat/build.gradle`](https://github.com/growthbeat/growth
 1. Write following code to get device token and send it to server.
 
   ```java
-  GrowthPush.getInstance().requestRegistrationId("SENDER_ID");
+  GrowthPush.getInstance().requestRegistrationId("YOUR_SENDER_ID", BuildConfig.DEBUG ? Environment.development : Environment.production);
   ```
 
 1. Setting AndroidManifest.xml.
