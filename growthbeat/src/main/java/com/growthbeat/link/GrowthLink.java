@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
@@ -108,7 +107,7 @@ public class GrowthLink {
             GrowthAnalytics.getInstance().setUUID(uuid);
         }
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -160,8 +159,7 @@ public class GrowthLink {
 
             }
 
-        }).start();
-
+        });
     }
 
     private void synchronize() {
@@ -176,7 +174,7 @@ public class GrowthLink {
         FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
             @Override
             public void onComplete(final String fingerprintParameters) {
-                new Thread(new Runnable() {
+                GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
                     @Override
                     public void run() {
                         logger.info("Synchronizing...");
@@ -204,8 +202,7 @@ public class GrowthLink {
 
                     }
 
-                }).start();
-
+                });
             }
         });
 
@@ -283,22 +280,5 @@ public class GrowthLink {
 
     public void setInstallReferrerReceiveHandler(InstallReferrerReceiveHandler installReferrerReceiveHandler) {
         this.installReferrerReceiveHandler = installReferrerReceiveHandler;
-    }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String link = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                link += "; " + e.getMessage();
-            GrowthLink.getInstance().getLogger().warning(link);
-            e.printStackTrace();
-        }
-
     }
 }

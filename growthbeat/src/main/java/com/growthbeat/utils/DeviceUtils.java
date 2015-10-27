@@ -32,7 +32,7 @@ public final class DeviceUtils {
                 }
             }
         });
-        new Thread(future).start();
+        GrowthbeatCore.getInstance().getExecutor().execute(future);
         return future;
     }
 
@@ -47,7 +47,7 @@ public final class DeviceUtils {
                 }
             }
         });
-        new Thread(future).start();
+        GrowthbeatCore.getInstance().getExecutor().execute(future);
         return future;
     }
 

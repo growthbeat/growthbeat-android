@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.DeviceUtils;
@@ -35,8 +36,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
     }
 
     protected void synchronizeWithInstallReferrer(final Synchronization synchronization) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
@@ -52,8 +52,7 @@ public class DefaultSynchronizationCallback implements SynchronizationCallback {
                     }
                 });
             }
-        }).start();
-
+        });
     }
 
     protected void synchronizeWithCookieTracking(final Synchronization synchronization) {

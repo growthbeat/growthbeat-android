@@ -10,7 +10,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
@@ -93,7 +92,7 @@ public class GrowthMessage {
 
     private void recevieMessage(final String eventId) {
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -122,8 +121,7 @@ public class GrowthMessage {
 
             }
 
-        }).start();
-
+        });
     }
 
     private void openMessage(Message message) {
@@ -188,22 +186,4 @@ public class GrowthMessage {
     public void addMessageHandler(MessageHandler messageHandler) {
         this.messageHandlers.add(messageHandler);
     }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            GrowthMessage.getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
-    }
-
 }

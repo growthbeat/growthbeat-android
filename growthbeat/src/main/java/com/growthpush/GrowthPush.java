@@ -7,7 +7,6 @@ import java.util.concurrent.Semaphore;
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -75,7 +74,7 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -89,8 +88,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     public void requestRegistrationId(final String senderId, final Environment environment) {
@@ -105,7 +103,7 @@ public class GrowthPush {
 
         this.environment = environment;
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(GrowthbeatCore.getInstance().getContext());
@@ -115,13 +113,11 @@ public class GrowthPush {
                 } catch (IOException e) {
                 }
             }
-        }).start();
-
+        });
     }
 
     public void registerClient(final String registrationId) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -152,8 +148,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     private void createClient(final String growthbeatClientId, final String registrationId) {
@@ -198,8 +193,7 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -222,8 +216,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     public void setTag(final String name) {
@@ -231,8 +224,7 @@ public class GrowthPush {
     }
 
     public void setTag(final String name, final String value) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -261,8 +253,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     public void setDeviceTags() {
@@ -309,22 +300,4 @@ public class GrowthPush {
         Client.clear();
 
     }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            GrowthPush.getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
-    }
-
 }
