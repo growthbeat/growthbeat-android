@@ -10,15 +10,15 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Shotaro Watanabe on 2015/10/27.
  */
-public class GrowthbeatExecutor extends ThreadPoolExecutor {
+public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
     private static final String TAG = "Growthbeat";
     private static final String THREAD_NAME = "growthbeat-thread";
 
-    public GrowthbeatExecutor() {
+    public GrowthbeatThreadExecutor() {
         this(Math.max(1, Runtime.getRuntime().availableProcessors()));
     }
 
-    public GrowthbeatExecutor(int poolSize) {
+    public GrowthbeatThreadExecutor(int poolSize) {
         super(poolSize, poolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
             new GrowthbeatThreadFactory());
     }
