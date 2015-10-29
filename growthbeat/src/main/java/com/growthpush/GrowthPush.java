@@ -1,6 +1,7 @@
 package com.growthpush;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -11,6 +12,7 @@ import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
+import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -193,10 +195,18 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#track(String)} instead.
+     */
+    @Deprecated
     public void trackEvent(final String name) {
         trackEvent(name, null);
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#track(String, Map)} instead.
+     */
+    @Deprecated
     public void trackEvent(final String name, final String value) {
 
         new Thread(new Runnable() {
@@ -226,10 +236,18 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#tag(String)} instead
+     */
+    @Deprecated
     public void setTag(final String name) {
         setTag(name, null);
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#tag(String, String)} instead.
+     */
+    @Deprecated
     public void setTag(final String name, final String value) {
 
         new Thread(new Runnable() {
@@ -265,6 +283,10 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#setBasicTags()} instead.
+     */
+    @Deprecated
     public void setDeviceTags() {
         setTag("Device", DeviceUtils.getModel());
         setTag("OS", "Android " + DeviceUtils.getOsVersion());
