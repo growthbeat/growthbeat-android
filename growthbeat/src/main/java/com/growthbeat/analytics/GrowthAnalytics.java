@@ -11,7 +11,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
@@ -102,7 +101,8 @@ public class GrowthAnalytics {
         final String eventId = generateEventId(namespace, name);
 
         final Handler handler = new Handler(Looper.getMainLooper());
-        new Thread(new Runnable() {
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -154,7 +154,7 @@ public class GrowthAnalytics {
                 });
 
             }
-        }).start();
+        });
 
     }
 
@@ -173,7 +173,7 @@ public class GrowthAnalytics {
     public void tag(final String namespace, final String name, final String value) {
 
         final String tagId = generateTagId(namespace, name);
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -203,8 +203,7 @@ public class GrowthAnalytics {
                 }
 
             }
-        }).start();
-
+        });
     }
 
     public void open() {
@@ -288,7 +287,7 @@ public class GrowthAnalytics {
     }
 
     public void setAdvertisingId() {
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             public void run() {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
@@ -298,11 +297,11 @@ public class GrowthAnalytics {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
             }
-        }).start();
+        });
     }
 
     public void setTrackingEnabled() {
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             public void run() {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
@@ -312,7 +311,7 @@ public class GrowthAnalytics {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }
             }
-        }).start();
+        });
     }
 
     public void setBasicTags() {
@@ -372,22 +371,4 @@ public class GrowthAnalytics {
         }
 
     }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            GrowthAnalytics.getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
-    }
-
 }
