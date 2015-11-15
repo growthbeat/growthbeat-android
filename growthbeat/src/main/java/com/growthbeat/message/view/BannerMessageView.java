@@ -161,7 +161,7 @@ public class BannerMessageView extends FrameLayout {
 
     @TargetApi(Build.VERSION_CODES.M)
     private boolean checkOverlayPermission() {
-        if (Build.VERSION.SDK_INT < 23) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
         return Settings.canDrawOverlays(getContext());
