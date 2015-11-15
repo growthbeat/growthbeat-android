@@ -77,7 +77,7 @@ public class GrowthAnalytics {
         }
 
         setBasicTags();
-
+        track(DEFAULT_NAMESPACE, "Install", null, TrackOption.ONCE);
     }
 
     public void track(String name) {
@@ -209,7 +209,6 @@ public class GrowthAnalytics {
     public void open() {
         openDate = new Date();
         track(DEFAULT_NAMESPACE, "Open", null, TrackOption.COUNTER);
-        track(DEFAULT_NAMESPACE, "Install", null, TrackOption.ONCE);
     }
 
     public void close() {
