@@ -54,6 +54,10 @@ public class GrowthAnalytics {
     }
 
     public void initialize(final Context context, final String applicationId, final String credentialId) {
+        initialize(context, applicationId, credentialId, true);
+    }
+
+    public void initialize(final Context context, final String applicationId, final String credentialId, boolean adInfoEnabled) {
 
         if (initialized)
             return;
@@ -76,7 +80,7 @@ public class GrowthAnalytics {
             preference.removeAll();
         }
 
-        setBasicTags();
+        setBasicTags(adInfoEnabled);
         track(DEFAULT_NAMESPACE, "Install", null, TrackOption.ONCE);
     }
 
@@ -314,14 +318,20 @@ public class GrowthAnalytics {
     }
 
     public void setBasicTags() {
+        setBasicTags(true);
+    }
+
+    public void setBasicTags(boolean adInfoEnabled) {
         setDeviceModel();
         setOS();
         setLanguage();
         setTimeZone();
         setTimeZoneOffset();
         setAppVersion();
-        setAdvertisingId();
-        setTrackingEnabled();
+        if (adInfoEnabled) {
+            setAdvertisingId();
+            setTrackingEnabled();
+        }
     }
 
     public String getApplicationId() {

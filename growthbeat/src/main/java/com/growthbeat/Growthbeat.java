@@ -20,11 +20,15 @@ public class Growthbeat {
     }
 
     public void initialize(Context context, String applicationId, String credentialId) {
+        initialize(context, applicationId, credentialId, true);
+    }
+
+    public void initialize(Context context, String applicationId, String credentialId, boolean adInfoEnabled) {
         context = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
             GrowthPush.getInstance().initialize(context, applicationId, credentialId);
-            GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+            GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId, adInfoEnabled);
             GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
         }
     }
