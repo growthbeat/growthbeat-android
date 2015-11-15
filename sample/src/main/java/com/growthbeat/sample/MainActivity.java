@@ -11,6 +11,7 @@ import android.widget.EditText;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
+import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Environment;
 
@@ -24,8 +25,14 @@ public class MainActivity extends AppCompatActivity {
         Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
         GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
         GrowthPush.getInstance().requestRegistrationId("1000565500410",
-                BuildConfig.DEBUG ? Environment.development : Environment.production);
+            BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
+        Growthbeat.getInstance().getClient(new Growthbeat.ClientCallback() {
+            @Override
+            public void callback(Client client) {
+                Log.d("GrowthbeatSample", String.format("clientId is %s", client.getId()));
+            }
+        });
 
         findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
             @Override
