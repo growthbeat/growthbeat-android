@@ -9,12 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.http.params.HttpConnectionParams;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -41,7 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-//import com.google.android.gms.vision.barcode.Barcode.UrlBookmark;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.BannerMessage;
 import com.growthbeat.message.model.BannerMessage.BannerType;
