@@ -11,7 +11,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
@@ -55,6 +54,10 @@ public class GrowthAnalytics {
     }
 
     public void initialize(final Context context, final String applicationId, final String credentialId) {
+        initialize(context, applicationId, credentialId, true);
+    }
+
+    public void initialize(final Context context, final String applicationId, final String credentialId, boolean adInfoEnabled) {
 
         if (initialized)
             return;
@@ -77,8 +80,8 @@ public class GrowthAnalytics {
             preference.removeAll();
         }
 
-        setBasicTags();
-
+        setBasicTags(adInfoEnabled);
+        track(DEFAULT_NAMESPACE, "Install", null, TrackOption.ONCE);
     }
 
     public void track(String name) {
@@ -102,7 +105,8 @@ public class GrowthAnalytics {
         final String eventId = generateEventId(namespace, name);
 
         final Handler handler = new Handler(Looper.getMainLooper());
-        new Thread(new Runnable() {
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -154,7 +158,7 @@ public class GrowthAnalytics {
                 });
 
             }
-        }).start();
+        });
 
     }
 
@@ -173,7 +177,7 @@ public class GrowthAnalytics {
     public void tag(final String namespace, final String name, final String value) {
 
         final String tagId = generateTagId(namespace, name);
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -203,14 +207,12 @@ public class GrowthAnalytics {
                 }
 
             }
-        }).start();
-
+        });
     }
 
     public void open() {
         openDate = new Date();
         track(DEFAULT_NAMESPACE, "Open", null, TrackOption.COUNTER);
-        track(DEFAULT_NAMESPACE, "Install", null, TrackOption.ONCE);
     }
 
     public void close() {
@@ -288,7 +290,7 @@ public class GrowthAnalytics {
     }
 
     public void setAdvertisingId() {
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             public void run() {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
@@ -298,11 +300,11 @@ public class GrowthAnalytics {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
             }
-        }).start();
+        });
     }
 
     public void setTrackingEnabled() {
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             public void run() {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
@@ -312,18 +314,24 @@ public class GrowthAnalytics {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }
             }
-        }).start();
+        });
     }
 
     public void setBasicTags() {
+        setBasicTags(true);
+    }
+
+    public void setBasicTags(boolean adInfoEnabled) {
         setDeviceModel();
         setOS();
         setLanguage();
         setTimeZone();
         setTimeZoneOffset();
         setAppVersion();
-        setAdvertisingId();
-        setTrackingEnabled();
+        if (adInfoEnabled) {
+            setAdvertisingId();
+            setTrackingEnabled();
+        }
     }
 
     public String getApplicationId() {
@@ -372,22 +380,4 @@ public class GrowthAnalytics {
         }
 
     }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            GrowthAnalytics.getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
-    }
-
 }

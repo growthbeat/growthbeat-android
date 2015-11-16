@@ -9,12 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.http.params.HttpConnectionParams;
-
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,7 +17,9 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.TextUtils.TruncateAt;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -38,7 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-//import com.google.android.gms.vision.barcode.Barcode.UrlBookmark;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.BannerMessage;
 import com.growthbeat.message.model.BannerMessage.BannerType;
@@ -112,6 +108,12 @@ public class BannerMessageView extends FrameLayout {
         if (message == null || !(message instanceof BannerMessage))
             return;
 
+        // For Android M or later
+        if (!checkOverlayPermission()) {
+            GrowthMessage.getInstance().getLogger().warning("Message can't draw overlays.");
+            return;
+        }
+
         this.bannerMessage = (BannerMessage) message;
 
         progressBar = new ProgressBar(context, null, android.R.attr.progressBarStyleLarge);
@@ -155,6 +157,14 @@ public class BannerMessageView extends FrameLayout {
 
     private WindowManager getWindowsManager() {
         return (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private boolean checkOverlayPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+        return Settings.canDrawOverlays(getContext());
     }
 
     private void showOnlyImage(FrameLayout innerLayout) {

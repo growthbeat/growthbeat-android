@@ -1,16 +1,17 @@
 package com.growthpush;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.growthbeat.CatchableThread;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
+import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -75,7 +76,7 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -89,8 +90,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     public void requestRegistrationId(final String senderId, final Environment environment) {
@@ -105,7 +105,7 @@ public class GrowthPush {
 
         this.environment = environment;
 
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(GrowthbeatCore.getInstance().getContext());
@@ -115,13 +115,11 @@ public class GrowthPush {
                 } catch (IOException e) {
                 }
             }
-        }).start();
-
+        });
     }
 
     public void registerClient(final String registrationId) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -152,8 +150,7 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
     private void createClient(final String growthbeatClientId, final String registrationId) {
@@ -193,13 +190,20 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#track(String)} instead.
+     */
+    @Deprecated
     public void trackEvent(final String name) {
         trackEvent(name, null);
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#track(String, Map)} instead.
+     */
+    @Deprecated
     public void trackEvent(final String name, final String value) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -222,17 +226,23 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#tag(String)} instead
+     */
+    @Deprecated
     public void setTag(final String name) {
         setTag(name, null);
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#tag(String, String)} instead.
+     */
+    @Deprecated
     public void setTag(final String name, final String value) {
-
-        new Thread(new Runnable() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -261,10 +271,13 @@ public class GrowthPush {
 
             }
 
-        }).start();
-
+        });
     }
 
+    /**
+     * @deprecated use {@link GrowthAnalytics#setBasicTags()} instead.
+     */
+    @Deprecated
     public void setDeviceTags() {
         setTag("Device", DeviceUtils.getModel());
         setTag("OS", "Android " + DeviceUtils.getOsVersion());
@@ -309,22 +322,4 @@ public class GrowthPush {
         Client.clear();
 
     }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            GrowthPush.getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
-    }
-
 }

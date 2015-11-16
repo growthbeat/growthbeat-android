@@ -25,6 +25,7 @@ public class GrowthbeatCore {
     private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
+    private final GrowthbeatThreadExecutor executor = new GrowthbeatThreadExecutor();
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
     private Context context = null;
@@ -81,7 +82,7 @@ public class GrowthbeatCore {
         preference.removeAll();
         client = null;
 
-        new Thread(new Runnable() {
+        executor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -118,7 +119,7 @@ public class GrowthbeatCore {
                 }
             }
 
-        }).start();
+        });
 
     }
 
@@ -156,6 +157,10 @@ public class GrowthbeatCore {
         return httpClient;
     }
 
+    public GrowthbeatThreadExecutor getExecutor() {
+        return executor;
+    }
+
     public Preference getPreference() {
         return preference;
     }
@@ -166,23 +171,6 @@ public class GrowthbeatCore {
 
     public void setIntentHandlers(List<? extends IntentHandler> intentHandlers) {
         this.intentHandlers = intentHandlers;
-    }
-
-    private static class Thread extends CatchableThread {
-
-        public Thread(Runnable runnable) {
-            super(runnable);
-        }
-
-        @Override
-        public void uncaughtException(java.lang.Thread thread, Throwable e) {
-            String message = "Uncaught Exception: " + e.getClass().getName();
-            if (e.getMessage() != null)
-                message += "; " + e.getMessage();
-            getInstance().getLogger().warning(message);
-            e.printStackTrace();
-        }
-
     }
 
 }
