@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.growthbeat.utils.PermissionUtils;
 import com.growthpush.GrowthPush;
@@ -101,8 +102,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
             builder.setSmallIcon(icon);
             builder.setContentTitle(title);
             if (applicationInfo.metaData != null
-                && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))
-                builder.setColor(Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)));
+                && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)) {
+                builder.setColor(ContextCompat.getColor(context, Integer.valueOf(
+                    applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))));
+
+            }
         } catch (NameNotFoundException e) {
         }
 
