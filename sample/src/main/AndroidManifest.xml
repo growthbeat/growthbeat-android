@@ -3,17 +3,21 @@
     package="com.growthbeat.sample" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- under API 15 -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!-- for Growth Push -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
     <uses-permission android:name="com.growthbeat.sample.permission.C2D_MESSAGE" />
-
     <permission
         android:name="com.growthbeat.sample.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
+
+    <!-- for Growth Message -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -21,14 +25,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
+
+        <!-- for Google Play Service -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
-        <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
-        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/white" />
-        <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />
-        <meta-data android:name="com.growthpush.senderid" android:value="id:1000565500410" />
 
         <activity
             android:name=".MainActivity"
@@ -47,15 +48,17 @@
                 <data android:scheme="growthbeat-sample" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.growthbeat.message.view.MessageActivity"
-            android:theme="@android:style/Theme.Translucent" />
+
+        <!-- for Growth Push -->
+        <meta-data android:name="com.growthpush.senderid" android:value="id:1000565500410" />
+        <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
+        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/white" />
+        <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />
         <activity
             android:name="com.growthpush.view.AlertActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent" />
-
         <service
             android:name="com.growthpush.TokenRefreshService"
             android:exported="false">
@@ -71,7 +74,6 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
@@ -85,6 +87,13 @@
                 <category android:name="com.growthbeat.sample" />
             </intent-filter>
         </receiver>
+
+        <!-- for Growth Message -->
+        <activity
+            android:name="com.growthbeat.message.view.MessageActivity"
+            android:theme="@android:style/Theme.Translucent" />
+
+        <!-- for Growth Link -->
         <receiver
             android:name="com.growthbeat.link.InstallReferrerReceiver"
             android:enabled="true"
