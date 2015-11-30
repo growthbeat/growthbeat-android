@@ -98,9 +98,6 @@ public class GrowthPush {
             return;
         }
 
-        if (client != null)
-            return;
-
         this.environment = environment;
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
