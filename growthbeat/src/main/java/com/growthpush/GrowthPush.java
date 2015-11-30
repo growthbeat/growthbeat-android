@@ -1,13 +1,11 @@
 package com.growthpush;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -93,7 +91,7 @@ public class GrowthPush {
         });
     }
 
-    public void requestRegistrationId(final String senderId, final Environment environment) {
+    public void requestRegistrationId(final Environment environment) {
 
         if (!initialized) {
             logger.warning("Growth Push must be initilaize.");
@@ -108,17 +106,16 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(GrowthbeatCore.getInstance().getContext());
-                try {
-                    String registrationId = gcm.register(senderId);
-                    registerClient(registrationId);
-                } catch (IOException e) {
+                String token = GCMRegister.registerSync(GrowthbeatCore.getInstance().getContext());
+                if (token != null) {
+                    logger.info("GCM registration token: " + token);
+                    registerClient(token);
                 }
             }
         });
     }
 
-    public void registerClient(final String registrationId) {
+    protected void registerClient(final String registrationId) {
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override

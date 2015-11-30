@@ -2,6 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.growthbeat.sample" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <uses-permission android:name="com.growthbeat.sample.permission.C2D_MESSAGE" />
+
+    <permission
+        android:name="com.growthbeat.sample.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,8 +26,9 @@
             android:value="@integer/google_play_services_version" />
 
         <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
-        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/black" />
+        <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/white" />
         <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />
+        <meta-data android:name="com.growthpush.senderid" android:value="id:1000565500410" />
 
         <activity
             android:name=".MainActivity"
@@ -42,16 +56,34 @@
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent" />
 
+        <service
+            android:name="com.growthpush.TokenRefreshService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+        <service android:name="com.growthpush.RegistrationIntentService"/>
+        <service
+            android:name="com.growthpush.ReceiverService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
         <receiver
-            android:name="com.growthpush.BroadcastReceiver"
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
                 <category android:name="com.growthbeat.sample" />
             </intent-filter>
-
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.growthbeat.sample" />
+            </intent-filter>
         </receiver>
         <receiver
             android:name="com.growthbeat.link.InstallReferrerReceiver"
@@ -62,18 +94,4 @@
             </intent-filter>
         </receiver>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <permission
-        android:name="com.growthbeat.sample.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.growthbeat.sample.permission.C2D_MESSAGE" />
-
 </manifest>
