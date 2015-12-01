@@ -10,7 +10,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo.State;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.Display;
 import android.view.WindowManager;
@@ -92,14 +92,11 @@ public final class DeviceUtils {
     }
 
     public static boolean connectedToWiFi(Context context) {
-        try {
-            ConnectivityManager connectivityManager = SystemServiceUtils.getConnectivityManager(context);
-            State wifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState();
-            if (wifi == State.CONNECTED || wifi == State.CONNECTING)
-                return true;
-        } catch (Exception e) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if (activeNetworkInfo != null && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            return true;
         }
-
         return false;
     }
 
