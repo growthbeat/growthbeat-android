@@ -6,6 +6,8 @@ import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -45,6 +47,7 @@ public class GrowthPush {
 
     private String applicationId;
     private String credentialId;
+    private String senderId;
     private Environment environment = null;
 
     private boolean initialized = false;
@@ -91,25 +94,44 @@ public class GrowthPush {
         });
     }
 
-    public void requestRegistrationId(final Environment environment) {
+    public void requestRegistrationId(final String senderId, final Environment environment) {
 
         if (!initialized) {
             logger.warning("Growth Push must be initilaize.");
             return;
         }
 
+        this.senderId = senderId;
         this.environment = environment;
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                String token = GCMRegister.registerSync(GrowthbeatCore.getInstance().getContext());
+                String token = registerGCM(GrowthbeatCore.getInstance().getContext());
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
                 }
             }
         });
+    }
+
+    protected String registerGCM(final Context context) {
+        if (this.senderId == null)
+            return null;
+
+        try {
+            InstanceID instanceID = InstanceID.getInstance(context);
+            String token = instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            return token;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void registerClient(final String registrationId, Environment environment) {
+        this.environment = environment;
+        registerClient(registrationId);
     }
 
     protected void registerClient(final String registrationId) {

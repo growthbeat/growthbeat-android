@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
         Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
         GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-        GrowthPush.getInstance().requestRegistrationId(BuildConfig.DEBUG ? Environment.development : Environment.production);
+        GrowthPush.getInstance().requestRegistrationId("1000565500410", BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
         Growthbeat.getInstance().getClient(new Growthbeat.ClientCallback() {
             @Override

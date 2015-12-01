@@ -50,7 +50,6 @@
         </activity>
 
         <!-- for Growth Push -->
-        <meta-data android:name="com.growthpush.senderid" android:value="id:1000565500410" />
         <meta-data android:name="com.growthpush.notification.icon" android:resource="@drawable/sample_notification_icon" />
         <meta-data android:name="com.growthpush.notification.icon.background.color" android:resource="@android:color/white" />
         <meta-data android:name="com.growthpush.dialog.icon" android:resource="@drawable/sample_notification_icon" />

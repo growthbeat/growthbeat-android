@@ -11,7 +11,7 @@ public class RegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String token = GCMRegister.registerSync(this);
+        String token = GrowthPush.getInstance().registerGCM(this);
         if (token != null) {
             GrowthPush.getInstance().getLogger().info("GCM registration token: " + token);
             GrowthPush.getInstance().registerClient(token);
