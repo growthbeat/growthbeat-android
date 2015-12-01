@@ -26,5 +26,12 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('../release/')
+    include('classes.jar')
+    rename('classes.jar', 'growthbeat-' + VERSION_NAME + '.jar')
+}
+
 apply from: 'android-artifacts.gradle'
 apply from: 'bintray-publish.gradle'
