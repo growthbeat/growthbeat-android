@@ -13,6 +13,7 @@ import android.os.Looper;
 
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.analytics.model.ClientEvent;
@@ -37,6 +38,7 @@ public class GrowthAnalytics {
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
 
     private String applicationId = null;
     private String credentialId = null;
@@ -106,7 +108,7 @@ public class GrowthAnalytics {
 
         final Handler handler = new Handler(Looper.getMainLooper());
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -177,7 +179,7 @@ public class GrowthAnalytics {
     public void tag(final String namespace, final String name, final String value) {
 
         final String tagId = generateTagId(namespace, name);
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -290,7 +292,7 @@ public class GrowthAnalytics {
     }
 
     public void setAdvertisingId() {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
             public void run() {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
@@ -304,7 +306,7 @@ public class GrowthAnalytics {
     }
 
     public void setTrackingEnabled() {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
             public void run() {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();

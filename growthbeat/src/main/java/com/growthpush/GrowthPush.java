@@ -1,6 +1,5 @@
 package com.growthpush;
 
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -9,9 +8,9 @@ import android.content.Context;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -39,6 +38,7 @@ public class GrowthPush {
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
 
     private Client client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -206,20 +206,12 @@ public class GrowthPush {
 
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#track(String)} instead.
-     */
-    @Deprecated
     public void trackEvent(final String name) {
         trackEvent(name, null);
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#track(String, Map)} instead.
-     */
-    @Deprecated
     public void trackEvent(final String name, final String value) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -245,20 +237,12 @@ public class GrowthPush {
         });
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#tag(String)} instead
-     */
-    @Deprecated
     public void setTag(final String name) {
         setTag(name, null);
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#tag(String, String)} instead.
-     */
-    @Deprecated
     public void setTag(final String name, final String value) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -290,10 +274,6 @@ public class GrowthPush {
         });
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#setBasicTags()} instead.
-     */
-    @Deprecated
     public void setDeviceTags() {
         setTag("Device", DeviceUtils.getModel());
         setTag("OS", "Android " + DeviceUtils.getOsVersion());

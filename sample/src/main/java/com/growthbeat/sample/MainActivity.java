@@ -24,7 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
         Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
         GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-        GrowthPush.getInstance().requestRegistrationId("1000565500410", BuildConfig.DEBUG ? Environment.development : Environment.production);
+        GrowthPush.getInstance().requestRegistrationId("1000565500410",
+            BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
         Growthbeat.getInstance().getClient(new Growthbeat.ClientCallback() {
             @Override
@@ -32,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("GrowthbeatSample", String.format("clientId is %s", client.getId()));
             }
         });
+
+        GrowthPush.getInstance().setTag("tag1", "TAG");
+        GrowthPush.getInstance().trackEvent("event1");
 
         findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
             @Override
