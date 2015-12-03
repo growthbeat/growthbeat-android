@@ -1,17 +1,16 @@
 package com.growthpush;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
@@ -39,6 +38,7 @@ public class GrowthPush {
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
 
     private Client client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -47,6 +47,7 @@ public class GrowthPush {
 
     private String applicationId;
     private String credentialId;
+    private String senderId;
     private Environment environment = null;
 
     private boolean initialized = false;
@@ -100,25 +101,40 @@ public class GrowthPush {
             return;
         }
 
-        if (client != null)
-            return;
-
+        this.senderId = senderId;
         this.environment = environment;
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(GrowthbeatCore.getInstance().getContext());
-                try {
-                    String registrationId = gcm.register(senderId);
-                    registerClient(registrationId);
-                } catch (IOException e) {
+                String token = registerGCM(GrowthbeatCore.getInstance().getContext());
+                if (token != null) {
+                    logger.info("GCM registration token: " + token);
+                    registerClient(token);
                 }
             }
         });
     }
 
-    public void registerClient(final String registrationId) {
+    protected String registerGCM(final Context context) {
+        if (this.senderId == null)
+            return null;
+
+        try {
+            InstanceID instanceID = InstanceID.getInstance(context);
+            String token = instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            return token;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void registerClient(final String registrationId, Environment environment) {
+        this.environment = environment;
+        registerClient(registrationId);
+    }
+
+    protected void registerClient(final String registrationId) {
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
@@ -190,20 +206,12 @@ public class GrowthPush {
 
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#track(String)} instead.
-     */
-    @Deprecated
     public void trackEvent(final String name) {
         trackEvent(name, null);
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#track(String, Map)} instead.
-     */
-    @Deprecated
     public void trackEvent(final String name, final String value) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -229,20 +237,12 @@ public class GrowthPush {
         });
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#tag(String)} instead
-     */
-    @Deprecated
     public void setTag(final String name) {
         setTag(name, null);
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#tag(String, String)} instead.
-     */
-    @Deprecated
     public void setTag(final String name, final String value) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        localExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -274,10 +274,6 @@ public class GrowthPush {
         });
     }
 
-    /**
-     * @deprecated use {@link GrowthAnalytics#setBasicTags()} instead.
-     */
-    @Deprecated
     public void setDeviceTags() {
         setTag("Device", DeviceUtils.getModel());
         setTag("OS", "Android " + DeviceUtils.getOsVersion());

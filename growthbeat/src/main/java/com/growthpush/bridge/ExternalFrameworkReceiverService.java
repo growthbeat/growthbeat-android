@@ -2,22 +2,22 @@ package com.growthpush.bridge;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
-import com.growthpush.BroadcastReceiver;
 import com.growthpush.GrowthPush;
+import com.growthpush.ReceiverService;
 import com.growthpush.handler.DefaultReceiveHandler;
 
-public abstract class ExternalFrameworkBroadcastReceiver extends BroadcastReceiver {
+public class ExternalFrameworkReceiverService extends ReceiverService {
 
     protected ExternalFrameworkBridge bridge = null;
 
-    public ExternalFrameworkBroadcastReceiver() {
+    public ExternalFrameworkReceiverService() {
         super();
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-
+    public void onMessageReceived(String from, Bundle data) {
         if (GrowthPush.getInstance().getReceiveHandler() != null
             && GrowthPush.getInstance().getReceiveHandler() instanceof DefaultReceiveHandler) {
             DefaultReceiveHandler receiveHandler = (DefaultReceiveHandler) GrowthPush.getInstance().getReceiveHandler();
@@ -32,7 +32,6 @@ public abstract class ExternalFrameworkBroadcastReceiver extends BroadcastReceiv
             });
         }
 
-        super.onReceive(context, intent);
+        super.onMessageReceived(from, data);
     }
-
 }

@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        GrowthPush.getInstance().setTag("tag1", "TAG");
+        GrowthPush.getInstance().trackEvent("event1");
+
         findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

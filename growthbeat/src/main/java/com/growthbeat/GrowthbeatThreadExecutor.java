@@ -13,9 +13,10 @@ import java.util.concurrent.TimeUnit;
 public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
     private static final String TAG = "Growthbeat";
     private static final String THREAD_NAME = "growthbeat-thread";
+    private static final int DEFAULT_THREAD_COUNT = 3;
 
     public GrowthbeatThreadExecutor() {
-        this(Math.max(1, Runtime.getRuntime().availableProcessors()));
+        this(DEFAULT_THREAD_COUNT);
     }
 
     public GrowthbeatThreadExecutor(int poolSize) {
