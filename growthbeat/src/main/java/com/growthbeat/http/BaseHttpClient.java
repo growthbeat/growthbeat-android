@@ -65,8 +65,7 @@ public class BaseHttpClient {
         this.readTimeout = readTimeout;
     }
 
-    public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters) {
-
+    public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters, String userAgent) {
         String query = (requestMethod == RequestMethod.GET) ? "?" : "";
         for (Entry<String, Object> parameter : parameters.entrySet()) {
             try {
@@ -78,14 +77,22 @@ public class BaseHttpClient {
 
         String url = String.format("%s%s", baseUrl, path);
 
-        return request(requestMethod, url, query);
+        return request(requestMethod, url, query, userAgent);
+    }
 
+
+    public String request(RequestMethod requestMethod, String path, Map<String, Object> parameters) {
+        return this.request(requestMethod, path, parameters, null);
     }
 
     protected String request(RequestMethod requestMethod, String urlString, String query) {
+        return this.request(requestMethod, urlString, query, null);
+    }
+
+    protected String request(RequestMethod requestMethod, String urlString, String query, String userAgent) {
 
         String response = null;
-        HttpURLConnection httpURLConnection = generateHttpURLConnection(requestMethod, urlString, query);
+        HttpURLConnection httpURLConnection = generateHttpURLConnection(requestMethod, urlString, query, userAgent);
         InputStream inputStream = null;
 
         try {
@@ -122,7 +129,7 @@ public class BaseHttpClient {
 
     }
 
-    private HttpURLConnection generateHttpURLConnection(RequestMethod requestMethod, String urlString, String query) {
+    private HttpURLConnection generateHttpURLConnection(RequestMethod requestMethod, String urlString, String query, String userAgent) {
 
         try {
 
@@ -146,6 +153,9 @@ public class BaseHttpClient {
             httpURLConnection.setRequestMethod(requestMethod.toString());
             httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=" + CONTENT_CHARSET);
             httpURLConnection.setRequestProperty("Accept", "application/json");
+            if (userAgent != null) {
+                httpURLConnection.setRequestProperty("User-Agent", userAgent);
+            }
 
             if (requestMethod != RequestMethod.GET) {
                 httpURLConnection.setDoOutput(true);
