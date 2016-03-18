@@ -21,20 +21,41 @@ public class GrowthbeatHttpClient extends BaseHttpClient {
         return request("GET", api, params);
     }
 
+    public JSONObject get(String api, Map<String, Object> params, String userAgent) {
+        return request("GET", api, params, userAgent);
+    }
+
     public JSONObject post(String api, Map<String, Object> params) {
         return request("POST", api, params);
+    }
+
+    public JSONObject post(String api, Map<String, Object> params, String userAgent) {
+        return request("POST", api, params, userAgent);
     }
 
     public JSONObject put(String api, Map<String, Object> params) {
         return request("PUT", api, params);
     }
 
+    public JSONObject put(String api, Map<String, Object> params, String userAgent) {
+        return request("PUT", api, params, userAgent);
+    }
+
     public JSONObject delete(String api, Map<String, Object> params) {
         return request("DELETE", api, params);
     }
 
+    public JSONObject delete(String api, Map<String, Object> params, String userAgent) {
+        return request("DELETE", api, params, userAgent);
+    }
+
     protected JSONObject request(String method, String api, Map<String, Object> params) {
         String response = super.request(RequestMethod.valueOf(method), api, params);
+        return fetchJSONObject(response);
+    }
+
+    protected JSONObject request(String method, String api, Map<String, Object> params, String userAgent) {
+        String response = super.request(RequestMethod.valueOf(method), api, params, userAgent);
         return fetchJSONObject(response);
     }
 
