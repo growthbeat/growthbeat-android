@@ -21,7 +21,6 @@ public class SynchronizationHandler {
             @Override
             public void run() {
                 String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);
-                Synchronization.save(synchronization);
 
                 if (installReferrer == null || installReferrer.length() == 0)
                     return;
@@ -52,7 +51,6 @@ public class SynchronizationHandler {
 
         final String urlString = tmpUrlString;
 
-        Synchronization.save(synchronization);
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
 
@@ -70,8 +68,6 @@ public class SynchronizationHandler {
     }
 
     public void synchronizeWithDeviceFingerprint(final Synchronization synchronization) {
-
-        Synchronization.save(synchronization);
 
         if (synchronization.getClickId() == null)
             return;
