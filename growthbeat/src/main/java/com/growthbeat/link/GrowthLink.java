@@ -178,6 +178,10 @@ public class GrowthLink {
                         GrowthLink.this.synchronizationCallback.onComplete(synchronization);
                     }
 
+                    if (synchronization != null) {
+                        Synchronization.save(synchronization);
+                    }
+
                 } catch (GrowthbeatException e) {
                     logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
                 }
