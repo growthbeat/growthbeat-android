@@ -4,14 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.WebView;
 
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.link.FingerprintReceiver.Callback;
 import com.growthbeat.link.callback.DefaultSynchronizationCallback;
 import com.growthbeat.link.callback.SynchronizationCallback;
 import com.growthbeat.link.handler.DefaultInstallReferrerReceiveHandler;
@@ -30,7 +29,6 @@ public class GrowthLink {
     private static final String LOGGER_DEFAULT_TAG = "GrowthLink";
     private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.link.growthbeat.com/";
     private static final String DEFAULT_SYNCRONIZATION_URL = "https://gbt.io/l/synchronize";
-    private static final String DEFAULT_FINGERPRINT_URL = "https://gbt.io/l/fingerprints";
     private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
     private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
     private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
@@ -48,7 +46,7 @@ public class GrowthLink {
     private String credentialId = null;
 
     private String syncronizationUrl = DEFAULT_SYNCRONIZATION_URL;
-    private String fingerprintUrl = DEFAULT_FINGERPRINT_URL;
+    private String webViewUserAgent = null;
 
     private boolean initialized = false;
     private boolean firstSession = false;
@@ -87,8 +85,16 @@ public class GrowthLink {
             preference.removeAll();
         }
 
-        GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
-        synchronize();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                WebView webView = new WebView(GrowthLink.getInstance().getContext());
+                GrowthLink.this.webViewUserAgent = webView.getSettings().getUserAgentString();
+                GrowthLink.getInstance().logger.debug(GrowthLink.this.webViewUserAgent);
+                synchronize();
+            }
+        });
+
     }
 
     public void handleOpenUrl(Uri uri) {
@@ -100,11 +106,6 @@ public class GrowthLink {
         if (clickId == null) {
             logger.info("Unabled to get clickId from url.");
             return;
-        }
-
-        final String uuid = uri.getQueryParameter("uuid");
-        if (uuid != null) {
-            GrowthAnalytics.getInstance().setUUID(uuid);
         }
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
@@ -133,17 +134,6 @@ public class GrowthLink {
                             properties.put("patternId", click.getPattern().getId());
                             if (click.getPattern().getIntent() != null)
                                 properties.put("intentId", click.getPattern().getIntent().getId());
-
-                            if (firstSession) {
-                                GrowthAnalytics.getInstance().track("GrowthLink", "Install", properties, null);
-                                if (click.getPattern().getLink() != null && click.getPattern().getLink().getId() != null) {
-                                    GrowthAnalytics.getInstance().tag("GrowthLink", "InstallLink", click.getPattern().getLink().getId());
-                                }
-                            }
-
-
-                            GrowthAnalytics.getInstance().track("GrowthLink", "Open", properties, null);
-
                             firstSession = false;
 
                             if (click.getPattern().getIntent() != null) {
@@ -171,39 +161,40 @@ public class GrowthLink {
         }
         firstSession = true;
 
-        FingerprintReceiver.getFingerprintParameters(context, fingerprintUrl, new Callback() {
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
-            public void onComplete(final String fingerprintParameters) {
-                GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        logger.info("Synchronizing...");
-                        try {
-                            String version = AppUtils.getaAppVersion(context);
-                            final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
-                                fingerprintParameters, credentialId);
-                            if (synchronization == null) {
-                                logger.error("Failed to Synchronize.");
-                                return;
-                            }
+            public void run() {
+                logger.info("Synchronizing...");
 
-                            logger.info(String.format(
-                                "Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
-                                synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
-                                synchronization.getDeviceFingerprint(), synchronization.getClickId()));
-
-                            if (GrowthLink.this.synchronizationCallback != null) {
-                                GrowthLink.this.synchronizationCallback.onComplete(synchronization);
-                            }
-
-                        } catch (GrowthbeatException e) {
-                            logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
-                        }
-
+                try {
+                    String version = AppUtils.getaAppVersion(context);
+                    final Synchronization synchronization = Synchronization.synchronize(applicationId, version,
+                        GrowthLink.getInstance().webViewUserAgent, credentialId);
+                    if (synchronization == null) {
+                        logger.error("Failed to Synchronize.");
+                        return;
                     }
 
-                });
+                    logger.info(String.format(
+                        "Synchronize success. (installReferrer: %s, cookieTracking: %s, deviceFingerprint: %s, clickId: %s)",
+                        synchronization.getInstallReferrer(), synchronization.getCookieTracking(),
+                        synchronization.getDeviceFingerprint(), synchronization.getClickId()));
+
+                    if (GrowthLink.this.synchronizationCallback != null) {
+                        GrowthLink.this.synchronizationCallback.onComplete(synchronization);
+                    }
+
+                    if (synchronization != null) {
+                        Synchronization.save(synchronization);
+                    }
+
+                } catch (GrowthbeatException e) {
+                    logger.info(String.format("Synchronization is not found. %s", e.getMessage()));
+                }
+
             }
+
         });
 
     }
@@ -238,14 +229,6 @@ public class GrowthLink {
 
     public void setSyncronizationUrl(String syncronizationUrl) {
         this.syncronizationUrl = syncronizationUrl;
-    }
-
-    public String getFingerprintUrl() {
-        return fingerprintUrl;
-    }
-
-    public void setFingerprintUrl(String fingerprintUrl) {
-        this.fingerprintUrl = fingerprintUrl;
     }
 
     public String getInstallReferrer() {

@@ -29,7 +29,7 @@ public class Synchronization extends Model {
 
     }
 
-    public static Synchronization synchronize(String applicationId, String version, String fingerprintParameters, String credentialId) {
+    public static Synchronization synchronize(String applicationId, String version, String userAgent, String credentialId) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         if (applicationId != null)
@@ -37,11 +37,9 @@ public class Synchronization extends Model {
         params.put("os", "android");
         if (version != null)
             params.put("version", version);
-        if (fingerprintParameters != null)
-            params.put("fingerprintParameters", fingerprintParameters);
         if (credentialId != null)
             params.put("credentialId", credentialId);
-        JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("2/synchronize", params);
+        JSONObject jsonObject = GrowthLink.getInstance().getHttpClient().post("2.1/synchronize", params, userAgent);
 
         if (jsonObject == null)
             return null;

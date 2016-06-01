@@ -116,7 +116,7 @@ public class GrowthPush {
         });
     }
 
-    protected String registerGCM(final Context context) {
+    public String registerGCM(final Context context) {
         if (this.senderId == null)
             return null;
 
