@@ -77,8 +77,6 @@ public class GrowthLink {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
 
-        this.webViewUserAgent = new WebView(GrowthLink.getInstance().getContext()).getSettings().getUserAgentString();
-
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
         if (GrowthbeatCore.getInstance().getClient() == null
@@ -87,7 +85,16 @@ public class GrowthLink {
             preference.removeAll();
         }
 
-        synchronize();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                WebView webView = new WebView(GrowthLink.getInstance().getContext());
+                GrowthLink.this.webViewUserAgent = webView.getSettings().getUserAgentString();
+                GrowthLink.getInstance().logger.debug(GrowthLink.this.webViewUserAgent);
+                synchronize();
+            }
+        });
+
     }
 
     public void handleOpenUrl(Uri uri) {
