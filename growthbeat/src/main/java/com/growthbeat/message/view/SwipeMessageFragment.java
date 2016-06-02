@@ -32,9 +32,8 @@ import com.growthbeat.message.model.Picture;
 import com.growthbeat.message.model.SwipeMessage;
 import com.growthbeat.message.model.SwipeMessage.SwipeType;
 
-public class SwipeMessageFragment extends Fragment {
+public class SwipeMessageFragment extends BaseImageMessageFragment {
 
-    private FrameLayout baseLayout = null;
     private SwipeMessage swipeMessage = null;
 
     private ProgressBar progressBar = null;
@@ -101,8 +100,7 @@ public class SwipeMessageFragment extends Fragment {
 
             @Override
             public void failure() {
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         };
 
@@ -171,6 +169,8 @@ public class SwipeMessageFragment extends Fragment {
         innerLayout.addView(swipePagerIndicator);
     }
 
+
+
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
         List<Button> buttons = extractButtons(EnumSet.of(Button.Type.close));
 
@@ -189,8 +189,7 @@ public class SwipeMessageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 GrowthMessage.getInstance().selectButton(closeButton, swipeMessage);
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
@@ -225,8 +224,7 @@ public class SwipeMessageFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
-                        if (!getActivity().isFinishing())
-                            getActivity().finish();
+                        finishActivity();
                     }
                 });
                 touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
