@@ -3,6 +3,7 @@ android:
   components:
     - android-23
     - build-tools-23.0.1
+    - extra-google-google_play_services
   licenses:
     - android-sdk-license-[0-9a-f]{8}
     - '.*intel.+'
