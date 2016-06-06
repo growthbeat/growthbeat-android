@@ -8,7 +8,7 @@ import com.growthbeat.utils.BitmapUtilis;
 /**
  * Created by tabatakatsutoshi on 2016/06/02.
  */
-public class BaseImageMessageFragment extends Fragment {
+public class BaseMessageFragment extends Fragment {
 
     protected FrameLayout baseLayout = null;
 

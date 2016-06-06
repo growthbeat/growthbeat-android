@@ -9,7 +9,6 @@ import java.util.Map;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -27,7 +26,7 @@ import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.ImageMessage;
 import com.growthbeat.message.model.ScreenButton;
 
-public class ImageMessageFragment extends BaseImageMessageFragment {
+public class ImageMessageFragment extends BaseMessageFragment {
 
     private ImageMessage imageMessage = null;
 
