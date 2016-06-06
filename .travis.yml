@@ -1,7 +1,7 @@
 language: android
 android:
   components:
-    - android-22
+    - build-tools-22.0.0
   licenses:
     - android-sdk-license-[0-9a-f]{8}
     - '.*intel.+'
