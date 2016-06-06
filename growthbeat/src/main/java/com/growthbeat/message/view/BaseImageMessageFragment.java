@@ -17,5 +17,6 @@ public class BaseImageMessageFragment extends Fragment {
             return;
         }
         BitmapUtilis.unbindRecursively(baseLayout);
+        getActivity().finish();
     }
 }
