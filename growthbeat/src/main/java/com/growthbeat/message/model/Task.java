@@ -11,10 +11,15 @@ import com.growthbeat.utils.JSONObjectUtils;
 
 public class Task extends Model {
 
+    public static enum Orientation {
+        vertical, horizontal
+    }
+
     private String id;
     private String applicationId;
     private String name;
     private String description;
+    private Orientation orientation;
     private Date availableFrom;
     private Date availableTo;
     private boolean disabled;
@@ -59,6 +64,14 @@ public class Task extends Model {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 
     public Date getAvailableFrom() {
@@ -115,6 +128,8 @@ public class Task extends Model {
                 jsonObject.put("name", name);
             if (description != null)
                 jsonObject.put("description", description);
+            if (orientation != null)
+                jsonObject.put("orientation", orientation.toString());
             if (availableFrom != null)
                 jsonObject.put("availableFrom", DateUtils.formatToDateTimeString(availableFrom));
             if (availableTo != null)
@@ -147,6 +162,8 @@ public class Task extends Model {
                 setName(jsonObject.getString("name"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "description"))
                 setDescription(jsonObject.getString("description"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "orientation"))
+                setOrientation(Orientation.valueOf(jsonObject.getString("orientation")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "availableFrom"))
                 setAvailableFrom(DateUtils.parseFromDateTimeString(jsonObject.getString("availableFrom")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "availableTo"))

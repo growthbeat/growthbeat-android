@@ -26,6 +26,7 @@ import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.ImageMessage;
 import com.growthbeat.message.model.ScreenButton;
+import com.growthbeat.message.model.Task;
 
 public class ImageMessageFragment extends Fragment {
 
@@ -33,6 +34,11 @@ public class ImageMessageFragment extends Fragment {
     private ImageMessage imageMessage = null;
 
     private ProgressBar progressBar = null;
+    private int defaultWidth = 280;
+    private int defaultHeight = 448;
+    private int imageButtonWidthMax = 280;
+    private int imageButtonHeightMax = 48;
+    private int closeButtonSizeMax = 64;
 
     Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
@@ -45,11 +51,17 @@ public class ImageMessageFragment extends Fragment {
 
         this.imageMessage = (ImageMessage) message;
 
+        if (imageMessage.getTask().getOrientation() == Task.Orientation.horizontal) {
+            defaultWidth = 448;
+            defaultHeight = 280;
+            imageButtonWidthMax = 448;
+        }
+
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 
-        double availableWidth = Math.min(imageMessage.getPicture().getWidth() * displayMetrics.density, displayMetrics.widthPixels * 0.85);
+        double availableWidth = Math.min(imageMessage.getPicture().getWidth() * displayMetrics.density, defaultWidth * displayMetrics.density);
         double availableHeight = Math.min(imageMessage.getPicture().getHeight() * displayMetrics.density,
-            displayMetrics.heightPixels * 0.85);
+            defaultHeight * displayMetrics.density);
 
         final double ratio = Math.min(availableWidth / imageMessage.getPicture().getWidth(), availableHeight
             / imageMessage.getPicture().getHeight());
@@ -138,9 +150,12 @@ public class ImageMessageFragment extends Fragment {
         for (Button button : buttons) {
 
             final ImageButton imageButton = (ImageButton) button;
-
-            int width = (int) (imageButton.getPicture().getWidth() * ratio);
-            int height = (int) (imageButton.getPicture().getHeight() * ratio);
+            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            double availableWidth = Math.min(imageButton.getPicture().getWidth() * ratio, imageButtonWidthMax * displayMetrics.density);
+            double availableHeight = Math.min(imageButton.getPicture().getHeight() * ratio,
+                imageButtonHeightMax * displayMetrics.density);
+            int width = (int) availableWidth;
+            int height = (int) availableHeight;
             int left = rect.getLeft() + (rect.getWidth() - width) / 2;
             top -= height;
 
@@ -171,10 +186,14 @@ public class ImageMessageFragment extends Fragment {
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
 
-        int width = (int) (closeButton.getPicture().getWidth() * ratio);
-        int height = (int) (closeButton.getPicture().getHeight() * ratio);
-        int left = rect.getLeft() + rect.getWidth() - width / 2;
-        int top = rect.getTop() - height / 2;
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        double availableWidth = Math.min(closeButton.getPicture().getWidth() * ratio, closeButtonSizeMax * displayMetrics.density);
+        double availableHeight = Math.min(closeButton.getPicture().getHeight() * ratio,
+            closeButtonSizeMax * displayMetrics.density);
+        int width = (int) availableWidth;
+        int height = (int) availableHeight;
+        int left = rect.getLeft() + rect.getWidth() - width - 8 * (int)displayMetrics.density;
+        int top = rect.getTop() + 8 * (int)displayMetrics.density;
 
         TouchableImageView touchableImageView = new TouchableImageView(getActivity());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);
