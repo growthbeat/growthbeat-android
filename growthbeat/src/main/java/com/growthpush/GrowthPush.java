@@ -3,7 +3,9 @@ package com.growthpush;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 
@@ -46,6 +48,7 @@ public class GrowthPush {
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
     private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
 
     private Client client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -56,6 +59,7 @@ public class GrowthPush {
     private String applicationId;
     private String credentialId;
     private String senderId;
+    public long messageInterval;
     private Environment environment = null;
     private long lastMessageOpenedTimeMills;
     private boolean showingMessage;
@@ -143,6 +147,14 @@ public class GrowthPush {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public long getMessageInterval() {
+        return messageInterval;
+    }
+
+    public void setMessageInterval(long messageInterval) {
+        this.messageInterval = messageInterval;
     }
 
     public void registerClient(final String registrationId, Environment environment) {
@@ -349,7 +361,13 @@ public class GrowthPush {
     }
 
     public void notifyClose() {
-        showingMessage = false;
+        scheduledThreadPoolExecutor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                showingMessage = false;
+                openMessageIfExists();
+            }
+        }, this.messageInterval, TimeUnit.MILLISECONDS);
     }
 
     public void setReceiveHandler(ReceiveHandler receiveHandler) {
