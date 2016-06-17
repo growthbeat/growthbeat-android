@@ -18,15 +18,21 @@ import com.growthpush.model.Event;
 
 public class Task extends Model {
 
+    public static enum MessageOrientation {
+        vertical, horizontal
+    }
+
     private String id;
     private String applicationId;
-    private String name;
-    private String description;
-    private Date availableFrom;
-    private Date availableTo;
-    private boolean disabled;
+    private String goalId;
+    private String segmentId;
+    private MessageOrientation orientation;
+    private Date begin;
+    private Date end;
+    private int capacity;
     private Date created;
-    private Date updated;
+
+
 
     public Task() {
         super();
@@ -84,43 +90,60 @@ public class Task extends Model {
     }
 
     public String getName() {
-        return name;
+        return goalId;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.goalId = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getGoalId() {
+        return goalId;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setGoalId(String goalId) {
+        this.goalId = goalId;
     }
 
-    public Date getAvailableFrom() {
-        return availableFrom;
+    public String getSegmentId() {
+        return segmentId;
     }
 
-    public void setAvailableFrom(Date availableFrom) {
-        this.availableFrom = availableFrom;
+    public void setSegmentId(String segmentId) {
+        this.segmentId = segmentId;
     }
 
-    public Date getAvailableTo() {
-        return availableTo;
+    public MessageOrientation getOrientation() {
+        return orientation;
     }
 
-    public void setAvailableTo(Date availableTo) {
-        this.availableTo = availableTo;
+    public void setOrientation(MessageOrientation orientation) {
+        this.orientation = orientation;
     }
 
-    public boolean getDisabled() {
-        return disabled;
+
+    public Date getBegin() {
+        return begin;
     }
 
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
+    public void setBegin(Date begin) {
+        this.begin = begin;
+    }
+
+    public Date getEnd() {
+        return end;
+    }
+
+    public void setEnd(Date end) {
+        this.end = end;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Date getCreated() {
@@ -131,13 +154,6 @@ public class Task extends Model {
         this.created = created;
     }
 
-    public Date getUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(Date updated) {
-        this.updated = updated;
-    }
 
     @Override
     public JSONObject getJsonObject() {
@@ -149,19 +165,20 @@ public class Task extends Model {
                 jsonObject.put("id", id);
             if (applicationId != null)
                 jsonObject.put("applicationId", applicationId);
-            if (name != null)
-                jsonObject.put("name", name);
-            if (description != null)
-                jsonObject.put("description", description);
-            if (availableFrom != null)
-                jsonObject.put("availableFrom", DateUtils.formatToDateTimeString(availableFrom));
-            if (availableTo != null)
-                jsonObject.put("availableTo", DateUtils.formatToDateTimeString(availableTo));
-            jsonObject.put("disabled", getDisabled());
+            if (goalId != null)
+                jsonObject.put("goalId", goalId);
+            if (segmentId != null)
+                jsonObject.put("segmentId", segmentId);
+            if (orientation != null) {
+                jsonObject.put("orientation", orientation.toString());
+            }
+            if (begin != null)
+                jsonObject.put("begin", DateUtils.formatToDateTimeString(begin));
+            if (end != null)
+                jsonObject.put("end", DateUtils.formatToDateTimeString(end));
+            jsonObject.put("capacity", capacity);
             if (created != null)
                 jsonObject.put("created", DateUtils.formatToDateTimeString(created));
-            if (updated != null)
-                jsonObject.put("updated", DateUtils.formatToDateTimeString(updated));
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to get JSON.");
         }
@@ -181,20 +198,20 @@ public class Task extends Model {
                 setId(jsonObject.getString("id"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "applicationId"))
                 setApplicationId(jsonObject.getString("applicationId"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "name"))
-                setName(jsonObject.getString("name"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "description"))
-                setDescription(jsonObject.getString("description"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "availableFrom"))
-                setAvailableFrom(DateUtils.parseFromDateTimeString(jsonObject.getString("availableFrom")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "availableTo"))
-                setAvailableTo(DateUtils.parseFromDateTimeString(jsonObject.getString("availableTo")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "disabled"))
-                setDisabled(jsonObject.getBoolean("disabled"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "goalId"))
+                setName(jsonObject.getString("goalId"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "segmentId"))
+                setSegmentId(jsonObject.getString("segmentId"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "orientation"))
+                setOrientation(MessageOrientation.valueOf(jsonObject.getString("orientation")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "begin"))
+                setBegin(DateUtils.parseFromDateTimeString(jsonObject.getString("begin")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "end"))
+                setEnd(DateUtils.parseFromDateTimeString(jsonObject.getString("end")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "capacity"))
+                setCapacity(jsonObject.getInt("capacity"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
                 setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "updated"))
-                setUpdated(DateUtils.parseFromDateTimeString(jsonObject.getString("updated")));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }

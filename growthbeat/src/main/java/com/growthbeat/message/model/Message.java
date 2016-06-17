@@ -23,13 +23,8 @@ import com.growthpush.GrowthPush;
 public class Message extends Model implements Parcelable {
 
     private String id;
-    private int version;
     private Type type;
-    private String eventId;
-    private int frequency;
-    private String segmentId;
-    private int cap;
-    private Animation animation;
+    private Background background;
     private Date created;
     private Task task;
     private List<Button> buttons;
@@ -50,8 +45,6 @@ public class Message extends Model implements Parcelable {
                 return new PlainMessage(jsonObject);
             case image:
                 return new ImageMessage(jsonObject);
-            case banner:
-                return new BannerMessage(jsonObject);
             case swipe:
                 return new SwipeMessage(jsonObject);
             default:
@@ -103,14 +96,6 @@ public class Message extends Model implements Parcelable {
         this.id = id;
     }
 
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
     public Type getType() {
         return type;
     }
@@ -119,44 +104,12 @@ public class Message extends Model implements Parcelable {
         this.type = type;
     }
 
-    public String getEventId() {
-        return eventId;
+    public Background getBackground() {
+        return background;
     }
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
-
-    public int getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(int frequency) {
-        this.frequency = frequency;
-    }
-
-    public String getSegmentId() {
-        return segmentId;
-    }
-
-    public void setSegmentId(String segmentId) {
-        this.segmentId = segmentId;
-    }
-
-    public Animation getAnimation() {
-        return animation;
-    }
-
-    public void setAnimation(Animation animation) {
-        this.animation = animation;
-    }
-
-    public int getCap() {
-        return cap;
-    }
-
-    public void setCap(int cap) {
-        this.cap = cap;
+    public void setBackground(Background background) {
+        this.background = background;
     }
 
     public Date getCreated() {
@@ -191,15 +144,10 @@ public class Message extends Model implements Parcelable {
         try {
             if (id != null)
                 jsonObject.put("id", id);
-            jsonObject.put("version", version);
             if (type != null)
                 jsonObject.put("type", type.toString());
-            if (eventId != null)
-                jsonObject.put("eventId", eventId);
-            jsonObject.put("frequency", frequency);
-            if (segmentId != null)
-                jsonObject.put("segmentId", segmentId);
-            jsonObject.put("cap", cap);
+            if (background != null)
+                jsonObject.put("background", background.getJsonObject());
             if (created != null)
                 jsonObject.put("created", DateUtils.formatToDateTimeString(created));
             if (task != null)
@@ -227,20 +175,10 @@ public class Message extends Model implements Parcelable {
         try {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
                 setId(jsonObject.getString("id"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "version"))
-                setVersion(jsonObject.getInt("version"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
                 setType(Type.valueOf(jsonObject.getString("type")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "eventId"))
-                setEventId(jsonObject.getString("eventId"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "frequency"))
-                setFrequency(jsonObject.getInt("frequency"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "segmentId"))
-                setSegmentId(jsonObject.getString("segmentId"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "cap"))
-                setCap(jsonObject.getInt("cap"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "animation"))
-                setAnimation(Animation.valueOf(jsonObject.getString("animation")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
+                setBackground(new Background(jsonObject.getJSONObject("background")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
                 setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
@@ -260,10 +198,6 @@ public class Message extends Model implements Parcelable {
 
     public static enum Type {
         plain, image, banner, swipe
-    }
-
-    public static enum Animation {
-        none, defaults
     }
 
     @Override

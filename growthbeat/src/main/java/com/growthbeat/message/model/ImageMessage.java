@@ -8,6 +8,8 @@ import com.growthbeat.utils.JSONObjectUtils;
 public class ImageMessage extends Message {
 
     private Picture picture;
+    private int baseWidth;
+    private int baseHeight;
 
     public ImageMessage() {
         super();
@@ -23,6 +25,22 @@ public class ImageMessage extends Message {
 
     public void setPicture(Picture picture) {
         this.picture = picture;
+    }
+
+    public int getBaseWidth() {
+        return baseWidth;
+    }
+
+    public void setBaseWidth(int baseWidth) {
+        this.baseWidth = baseWidth;
+    }
+
+    public int getBaseHeight() {
+        return baseHeight;
+    }
+
+    public void setBaseHeight(int baseHeight) {
+        this.baseHeight = baseHeight;
     }
 
     @Override

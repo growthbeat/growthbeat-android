@@ -129,12 +129,6 @@ public class SwipeMessageFragment extends Fragment {
 
             frameLayout.addView(createImage(picture, imageRect));
 
-            if (swipeMessage.getSwipeType().equals(SwipeType.buttons) && buttons.size() > i) {
-                View buttonView = createButton(buttons.get(i), buttonRect);
-                if (buttonView != null)
-                    frameLayout.addView(buttonView);
-            }
-
             adapter.add(frameLayout);
             i++;
         }

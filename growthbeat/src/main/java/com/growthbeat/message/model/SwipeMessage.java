@@ -9,6 +9,8 @@ public class SwipeMessage extends Message {
 
     private SwipeType swipeType;
     private SwipeImages swipeImages;
+    private int baseWidth;
+    private int baseHeight;
 
     public SwipeMessage() {
         super();
@@ -32,6 +34,22 @@ public class SwipeMessage extends Message {
 
     public void setSwipeType(SwipeType swipeType) {
         this.swipeType = swipeType;
+    }
+
+    public int getBaseWidth() {
+        return baseWidth;
+    }
+
+    public void setBaseWidth(int baseWidth) {
+        this.baseWidth = baseWidth;
+    }
+
+    public int getBaseHeight() {
+        return baseHeight;
+    }
+
+    public void setBaseHeight(int baseHeight) {
+        this.baseHeight = baseHeight;
     }
 
     @Override
@@ -72,6 +90,6 @@ public class SwipeMessage extends Message {
     }
 
     public static enum SwipeType {
-        imageOnly, oneButton, buttons
+        imageOnly, oneButton
     }
 }
