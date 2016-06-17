@@ -8,6 +8,8 @@ import com.growthbeat.utils.JSONObjectUtils;
 public class CloseButton extends Button {
 
     private Picture picture;
+    private int baseWidth;
+    private int baseHeight;
 
     public CloseButton() {
         super();
@@ -25,6 +27,22 @@ public class CloseButton extends Button {
         this.picture = picture;
     }
 
+    public int getBaseWidth() {
+        return baseWidth;
+    }
+
+    public void setBaseWidth(int baseWidth) {
+        this.baseWidth = baseWidth;
+    }
+
+    public int getBaseHeight() {
+        return baseHeight;
+    }
+
+    public void setBaseHeight(int baseHeight) {
+        this.baseHeight = baseHeight;
+    }
+
     @Override
     public JSONObject getJsonObject() {
 
@@ -33,6 +51,8 @@ public class CloseButton extends Button {
         try {
             if (picture != null)
                 jsonObject.put("picture", picture.getJsonObject());
+            jsonObject.put("baseWidth", baseWidth);
+            jsonObject.put("baseHeight", baseHeight);
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to get JSON.");
         }
@@ -52,6 +72,10 @@ public class CloseButton extends Button {
         try {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "picture"))
                 setPicture(new Picture(jsonObject.getJSONObject("picture")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
+                setBaseWidth(jsonObject.getInt("baseWidth"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
+                setBaseHeight(jsonObject.getInt("baseHeight"));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }

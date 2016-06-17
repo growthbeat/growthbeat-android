@@ -63,6 +63,8 @@ public class SwipeMessage extends Message {
             if (swipeImages != null) {
                 jsonObject.put("swipeImages", swipeImages.getJsonObject());
             }
+            jsonObject.put("baseWidth", baseWidth);
+            jsonObject.put("baseHeight", baseHeight);
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to get JSON.");
         }
@@ -84,6 +86,10 @@ public class SwipeMessage extends Message {
                 setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
                 setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
+                setBaseWidth(jsonObject.getInt("baseWidth"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
+                setBaseHeight(jsonObject.getInt("baseHeight"));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }

@@ -51,6 +51,9 @@ public class ImageMessage extends Message {
         try {
             if (picture != null)
                 jsonObject.put("picture", picture.getJsonObject());
+            jsonObject.put("baseWidth", baseWidth);
+            jsonObject.put("baseHeight", baseHeight);
+
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to get JSON.");
         }
@@ -70,6 +73,10 @@ public class ImageMessage extends Message {
         try {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "picture"))
                 setPicture(new Picture(jsonObject.getJSONObject("picture")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
+                setBaseWidth(jsonObject.getInt("baseWidth"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
+                setBaseHeight(jsonObject.getInt("baseHeight"));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }

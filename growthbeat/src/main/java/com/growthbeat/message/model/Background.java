@@ -13,8 +13,12 @@ import org.json.JSONObject;
 public class Background extends Model {
 
     private int color;
-    float opacity;
+    double opacity;
     boolean outsideClose;
+
+    public Background() {
+        super();
+    }
 
     public Background(JSONObject jsonObject) {
         super(jsonObject);
@@ -28,11 +32,11 @@ public class Background extends Model {
         this.color = color;
     }
 
-    public float getOpacity() {
+    public double getOpacity() {
         return opacity;
     }
 
-    public void setOpacity(float opacity) {
+    public void setOpacity(double opacity) {
         this.opacity = opacity;
     }
 
@@ -68,7 +72,7 @@ public class Background extends Model {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "color"))
                 setColor(jsonObject.getInt("color"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "opacity"))
-                setOpacity(jsonObject.getLong("opacity"));
+                setOpacity(jsonObject.getDouble("opacity"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "outsideClose"))
                 setOutsideClose(jsonObject.getBoolean("outsideClose"));
         } catch (JSONException e) {

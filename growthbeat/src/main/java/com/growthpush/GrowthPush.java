@@ -8,6 +8,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -55,14 +56,19 @@ public class GrowthPush {
     private Semaphore messageSemaphore = new Semaphore(1);
     private CountDownLatch latch = new CountDownLatch(1);
     private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
+    private Handler handler = new Handler();
 
     private String applicationId;
     private String credentialId;
     private String senderId;
-    public long messageInterval;
+    private long messageIntervalMills;
     private Environment environment = null;
     private long lastMessageOpenedTimeMills;
     private boolean showingMessage;
+
+    public ConcurrentLinkedQueue<Message> getMessageQueue() {
+        return messageQueue;
+    }
 
     private ConcurrentLinkedQueue<Message> messageQueue;
 
@@ -149,12 +155,12 @@ public class GrowthPush {
         }
     }
 
-    public long getMessageInterval() {
-        return messageInterval;
+    public long getMessageIntervalMills() {
+        return messageIntervalMills;
     }
 
-    public void setMessageInterval(long messageInterval) {
-        this.messageInterval = messageInterval;
+    public void setMessageIntervalMills(long messageInterval) {
+        this.messageIntervalMills = messageInterval;
     }
 
     public void registerClient(final String registrationId, Environment environment) {
@@ -344,10 +350,15 @@ public class GrowthPush {
                     if (showingMessage &&  diff < MIN_TIME_FOR_OVERRIDE_MESSAGE) {
                         return;
                     }
-                    Message message = messageQueue.poll();
+                    final Message message = messageQueue.poll();
                     if (message != null) {
                         showingMessage = true;
-                        GrowthMessage.getInstance().openMessage(message);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                GrowthMessage.getInstance().openMessage(message);
+                            }
+                        });
                         lastMessageOpenedTimeMills = System.currentTimeMillis();
                     }
                 } catch (InterruptedException e) {
@@ -367,7 +378,7 @@ public class GrowthPush {
                 showingMessage = false;
                 openMessageIfExists();
             }
-        }, this.messageInterval, TimeUnit.MILLISECONDS);
+        }, this.messageIntervalMills, TimeUnit.MILLISECONDS);
     }
 
     public void setReceiveHandler(ReceiveHandler receiveHandler) {
