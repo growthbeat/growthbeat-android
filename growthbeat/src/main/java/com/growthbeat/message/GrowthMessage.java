@@ -124,7 +124,7 @@ public class GrowthMessage {
         });
     }
 
-    private void openMessage(Message message) {
+    public void openMessage(Message message) {
 
         for (MessageHandler messageHandler : messageHandlers) {
             if (!messageHandler.handle(message))

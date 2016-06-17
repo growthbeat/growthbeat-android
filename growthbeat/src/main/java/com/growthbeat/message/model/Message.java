@@ -18,6 +18,7 @@ import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
+import com.growthpush.GrowthPush;
 
 public class Message extends Model implements Parcelable {
 
@@ -75,6 +76,23 @@ public class Message extends Model implements Parcelable {
 
         return Message.getFromJsonObject(jsonObject);
 
+    }
+
+    public static Message getMessage(String taskId, String clientId, String credentialId){
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        if (taskId != null)
+            params.put("taskId", taskId);
+        if (clientId != null)
+            params.put("clientId", clientId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("1/messages", params);
+        if (jsonObject == null)
+            return null;
+
+        return Message.getFromJsonObject(jsonObject);
     }
 
     public String getId() {

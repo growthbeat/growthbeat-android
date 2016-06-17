@@ -1,13 +1,20 @@
 package com.growthbeat.message.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
+import com.growthpush.GrowthPush;
+import com.growthpush.model.Event;
 
 public class Task extends Model {
 
@@ -28,6 +35,37 @@ public class Task extends Model {
     public Task(JSONObject jsonObject) {
         super(jsonObject);
     }
+
+    public static List<Task> getTasks(String applicationId, String credentialId, int goalId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (applicationId != null)
+            params.put("applicationId", applicationId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+
+        params.put("goalId", goalId);
+
+        JSONArray jsonArray = GrowthPush.getInstance().getHttpClient().postForArray("/1/tasks", params);
+        return createList(jsonArray);
+    }
+
+    public static List<Task> createList(JSONArray jsonArray) {
+        List<Task> tasks = new ArrayList<Task>();
+        if (jsonArray == null) {
+            return tasks;
+        }
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject row = null;
+            try {
+                row = jsonArray.getJSONObject(i);
+                tasks.add(new Task(row));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return tasks;
+    }
+
 
     public String getId() {
         return id;
