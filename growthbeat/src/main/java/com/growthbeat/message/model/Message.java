@@ -197,7 +197,7 @@ public class Message extends Model implements Parcelable {
     }
 
     public static enum Type {
-        plain, image, banner, swipe
+        plain, image, swipe
     }
 
     @Override

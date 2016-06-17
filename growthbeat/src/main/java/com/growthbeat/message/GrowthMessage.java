@@ -23,6 +23,7 @@ import com.growthbeat.message.handler.PlainMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthpush.GrowthPush;
 
 public class GrowthMessage {
 
