@@ -2,6 +2,7 @@ package com.growthbeat.http;
 
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,6 +70,61 @@ public class GrowthbeatHttpClient extends BaseHttpClient {
         }
 
         return jsonObject;
+
+    }
+
+    public JSONArray getForArray(String api, Map<String, Object> params) {
+        return requestForArray("GET", api, params);
+    }
+
+    public JSONArray getForArray(String api, Map<String, Object> params, String userAgent) {
+        return requestForArray("GET", api, params, userAgent);
+    }
+
+    public JSONArray postForArray(String api, Map<String, Object> params) {
+        return requestForArray("POST", api, params);
+    }
+
+    public JSONArray postForArray(String api, Map<String, Object> params, String userAgent) {
+        return requestForArray("POST", api, params, userAgent);
+    }
+
+    public JSONArray putForArray(String api, Map<String, Object> params) {
+        return requestForArray("PUT", api, params);
+    }
+
+    public JSONArray putForArray(String api, Map<String, Object> params, String userAgent) {
+        return requestForArray("PUT", api, params, userAgent);
+    }
+
+    public JSONArray deleteForArray(String api, Map<String, Object> params) {
+        return requestForArray("DELETE", api, params);
+    }
+
+    public JSONArray deleteForArray(String api, Map<String, Object> params, String userAgent) {
+        return requestForArray("DELETE", api, params, userAgent);
+    }
+
+    protected JSONArray requestForArray(String method, String api, Map<String, Object> params) {
+        String response = super.request(RequestMethod.valueOf(method), api, params);
+        return fetchJSONArray(response);
+    }
+
+    protected JSONArray requestForArray(String method, String api, Map<String, Object> params, String userAgent) {
+        String response = super.request(RequestMethod.valueOf(method), api, params, userAgent);
+        return fetchJSONArray(response);
+    }
+
+    private JSONArray fetchJSONArray(String response) {
+
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = new JSONArray(response);
+        } catch (JSONException e) {
+            throw new GrowthbeatException("Failed to parse response JSON. " + e.getMessage(), e);
+        }
+
+        return jsonArray;
 
     }
 

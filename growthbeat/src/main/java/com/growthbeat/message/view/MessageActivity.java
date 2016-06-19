@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 
 import com.growthbeat.message.model.Message;
+import com.growthpush.GrowthPush;
 
 public class MessageActivity extends FragmentActivity {
 
@@ -38,8 +39,6 @@ public class MessageActivity extends FragmentActivity {
                 ImageMessageFragment imageMessageFragment = new ImageMessageFragment();
                 imageMessageFragment.setArguments(bundle);
                 getSupportFragmentManager().beginTransaction().replace(android.R.id.content, imageMessageFragment).commitAllowingStateLoss();
-                break;
-            case banner:
                 break;
             case swipe:
                 SwipeMessageFragment swipeMessageFragment = new SwipeMessageFragment();
@@ -71,6 +70,7 @@ public class MessageActivity extends FragmentActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        GrowthPush.getInstance().notifyClose();
         if (receiver != null)
             this.unregisterReceiver(receiver);
     }

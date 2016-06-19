@@ -1,9 +1,14 @@
 package com.growthpush;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
+import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -12,6 +17,10 @@ import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.handler.ShowMessageHandler;
+import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.Task;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
@@ -32,6 +41,7 @@ public class GrowthPush {
     public static final String NOTIFICATION_ICON_META_KEY = "com.growthpush.notification.icon";
     public static final String NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY = "com.growthpush.notification.icon.background.color";
     public static final String DIALOG_ICON_META_KEY = "com.growthpush.dialog.icon";
+    private static final long MIN_TIME_FOR_OVERRIDE_MESSAGE =  30 * 1000;
 
     private static final GrowthPush instance = new GrowthPush();
     private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -39,16 +49,28 @@ public class GrowthPush {
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
     private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
 
     private Client client = null;
     private Semaphore semaphore = new Semaphore(1);
+    private Semaphore messageSemaphore = new Semaphore(1);
     private CountDownLatch latch = new CountDownLatch(1);
     private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
+    private Handler handler = new Handler();
 
     private String applicationId;
     private String credentialId;
     private String senderId;
+    private long messageIntervalMills;
     private Environment environment = null;
+    private long lastMessageOpenedTimeMills;
+    private boolean showingMessage;
+
+    public ConcurrentLinkedQueue<Message> getMessageQueue() {
+        return messageQueue;
+    }
+
+    private ConcurrentLinkedQueue<Message> messageQueue;
 
     private boolean initialized = false;
 
@@ -73,6 +95,10 @@ public class GrowthPush {
 
         this.applicationId = applicationId;
         this.credentialId = credentialId;
+
+        this.messageQueue = new ConcurrentLinkedQueue<Message>();
+        this.showingMessage = false;
+        this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -127,6 +153,14 @@ public class GrowthPush {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public long getMessageIntervalMills() {
+        return messageIntervalMills;
+    }
+
+    public void setMessageIntervalMills(long messageInterval) {
+        this.messageIntervalMills = messageInterval;
     }
 
     public void registerClient(final String registrationId, Environment environment) {
@@ -211,6 +245,10 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value) {
+        trackEvent(name, null, null);
+    }
+
+    public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
         localExecutor.execute(new Runnable() {
 
             @Override
@@ -228,6 +266,14 @@ public class GrowthPush {
                     Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(),
                         GrowthPush.getInstance().credentialId, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
+                    if (handler != null) {
+                        List<Task> tasks = Task.getTasks(applicationId, credentialId, event.getGoalId());
+                        for (Task task : tasks) {
+                            Message message = Message.getMessage(task.getId(), client.getGrowthbeatClientId(), credentialId);
+                            messageQueue.add(message);
+                        }
+                    }
+                    openMessageIfExists();
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));
                 }
@@ -290,6 +336,49 @@ public class GrowthPush {
             } catch (InterruptedException e) {
             }
         }
+    }
+
+    public void openMessageIfExists() {
+        localExecutor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    messageSemaphore.acquire();
+
+                    long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
+                    if (showingMessage &&  diff < MIN_TIME_FOR_OVERRIDE_MESSAGE) {
+                        return;
+                    }
+                    final Message message = messageQueue.poll();
+                    if (message != null) {
+                        showingMessage = true;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                GrowthMessage.getInstance().openMessage(message);
+                            }
+                        });
+                        lastMessageOpenedTimeMills = System.currentTimeMillis();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    messageSemaphore.release();
+                }
+
+            }
+        });
+    }
+
+    public void notifyClose() {
+        scheduledThreadPoolExecutor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                showingMessage = false;
+                openMessageIfExists();
+            }
+        }, this.messageIntervalMills, TimeUnit.MILLISECONDS);
     }
 
     public void setReceiveHandler(ReceiveHandler receiveHandler) {

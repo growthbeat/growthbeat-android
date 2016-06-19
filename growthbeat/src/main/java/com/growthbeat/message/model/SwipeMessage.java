@@ -9,6 +9,8 @@ public class SwipeMessage extends Message {
 
     private SwipeType swipeType;
     private SwipeImages swipeImages;
+    private int baseWidth;
+    private int baseHeight;
 
     public SwipeMessage() {
         super();
@@ -34,6 +36,22 @@ public class SwipeMessage extends Message {
         this.swipeType = swipeType;
     }
 
+    public int getBaseWidth() {
+        return baseWidth;
+    }
+
+    public void setBaseWidth(int baseWidth) {
+        this.baseWidth = baseWidth;
+    }
+
+    public int getBaseHeight() {
+        return baseHeight;
+    }
+
+    public void setBaseHeight(int baseHeight) {
+        this.baseHeight = baseHeight;
+    }
+
     @Override
     public JSONObject getJsonObject() {
 
@@ -45,6 +63,8 @@ public class SwipeMessage extends Message {
             if (swipeImages != null) {
                 jsonObject.put("swipeImages", swipeImages.getJsonObject());
             }
+            jsonObject.put("baseWidth", baseWidth);
+            jsonObject.put("baseHeight", baseHeight);
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to get JSON.");
         }
@@ -66,12 +86,16 @@ public class SwipeMessage extends Message {
                 setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
                 setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
+                setBaseWidth(jsonObject.getInt("baseWidth"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
+                setBaseHeight(jsonObject.getInt("baseHeight"));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }
     }
 
     public static enum SwipeType {
-        imageOnly, oneButton, buttons
+        imageOnly, oneButton
     }
 }

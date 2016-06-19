@@ -17,13 +17,13 @@ import com.growthbeat.Preference;
 import com.growthbeat.analytics.EventHandler;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.message.handler.BannerMessageHandler;
 import com.growthbeat.message.handler.ImageMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;
 import com.growthbeat.message.handler.PlainMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthpush.GrowthPush;
 
 public class GrowthMessage {
 
@@ -85,8 +85,7 @@ public class GrowthMessage {
             }
         });
 
-        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new BannerMessageHandler(
-            context), new SwipeMessageHandler(context)));
+        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new SwipeMessageHandler(context)));
 
     }
 
@@ -124,7 +123,7 @@ public class GrowthMessage {
         });
     }
 
-    private void openMessage(Message message) {
+    public void openMessage(Message message) {
 
         for (MessageHandler messageHandler : messageHandlers) {
             if (!messageHandler.handle(message))
