@@ -18,7 +18,7 @@ public class ImageMessageHandler implements MessageHandler {
     @Override
     public boolean handle(final Message message) {
 
-        if (message.getType() != Message.Type.image)
+        if (message.getType() != Message.MessageType.image)
             return false;
         if (!(message instanceof ImageMessage))
             return false;

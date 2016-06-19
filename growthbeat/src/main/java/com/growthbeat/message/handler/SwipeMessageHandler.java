@@ -18,7 +18,7 @@ public class SwipeMessageHandler implements MessageHandler {
     @Override
     public boolean handle(final Message message) {
 
-        if (message.getType() != Message.Type.swipe)
+        if (message.getType() != Message.MessageType.swipe)
             return false;
         if (!(message instanceof SwipeMessage))
             return false;

@@ -119,7 +119,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showScreenButton(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.screen);
+        List<Button> buttons = extractButtons(Button.ButtonType.screen);
 
         if (buttons.size() < 1)
             return;
@@ -143,7 +143,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showImageButtons(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.image);
+        List<Button> buttons = extractButtons(Button.ButtonType.image);
         Collections.reverse(buttons);
 
         int top = rect.getTop() + rect.getHeight();
@@ -175,7 +175,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.close);
+        List<Button> buttons = extractButtons(Button.ButtonType.close);
 
         if (buttons.size() < 1)
             return;
@@ -206,7 +206,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     }
 
-    private List<Button> extractButtons(Button.Type type) {
+    private List<Button> extractButtons(Button.ButtonType type) {
 
         List<Button> buttons = new ArrayList<Button>();
 

@@ -1,6 +1,7 @@
 package com.growthpush;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 import android.content.Context;
 
@@ -17,6 +18,7 @@ import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
+import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 
@@ -29,6 +31,7 @@ public class GrowthPush {
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
 
     private Client client = null;
+    private Semaphore semaphore = new Semaphore(1);
     private CountDownLatch latch = new CountDownLatch(1);
     private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
 
@@ -65,30 +68,6 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
-
-            @Override
-            public void run() {
-
-                try {
-                    com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-                    client = Client.load();
-
-                    if (client != null && client.getGrowthbeatClientId() != null
-                        && !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
-                        GrowthPush.this.clearClient();
-
-                    if (client == null) {
-                        createClient(growthbeatClient.getId(), null);
-                        return;
-                    }
-                } finally {
-                    latch.countDown();
-                }
-
-            }
-
-        });
     }
 
     public void requestRegistrationId(final String senderId, final Environment environment) {
@@ -104,11 +83,20 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
+
+                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                client = Client.load();
+
+                if (client != null && client.getGrowthbeatClientId() != null
+                    && !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
+                    GrowthPush.this.clearClient();
+
                 String token = registerGCM(GrowthbeatCore.getInstance().getContext());
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
                 }
+                
             }
         });
     }
@@ -136,23 +124,28 @@ public class GrowthPush {
             @Override
             public void run() {
 
-                waitClientRegistration();
+                try {
 
-                if (client == null) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
+                    semaphore.acquire();
+
+                    if (client == null) {
+                        com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                        createClient(growthbeatClient.getId(), registrationId);
+                        return;
                     }
-                    registerClient(registrationId);
-                    return;
-                }
 
-                if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
-                    updateClient(registrationId);
-                    return;
-                }
+                    if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
+                        updateClient(registrationId);
+                        return;
+                    }
 
-                logger.info("Client already registered.");
+                    logger.info("Client already registered.");
+
+                } catch (InterruptedException e){
+                } finally {
+                    semaphore.release();
+                    latch.countDown();
+                }
 
             }
 
@@ -184,7 +177,7 @@ public class GrowthPush {
                 client.getGrowthbeatClientId(), registrationId, environment));
             client.setToken(registrationId);
             client.setEnvironment(environment);
-            client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
+            client = Client.update(client.getGrowthbeatClientId(), applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
             Client.save(client);
@@ -226,7 +219,7 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending event ... (name: %s)", name));
                 try {
-                    Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(),
+                    Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId,
                         GrowthPush.getInstance().credentialId, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
@@ -272,7 +265,7 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
                 try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), credentialId, name, value);
+                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, name, value);
                     logger.info(String.format("Sending tag success"));
                     Tag.save(createdTag, name);
                 } catch (GrowthPushException e) {

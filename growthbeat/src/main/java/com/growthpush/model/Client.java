@@ -22,9 +22,6 @@ public class Client extends Model {
     private String code;
     private String token;
     private Environment environment;
-    public enum Environment {
-        production, development
-    }
     private Status status;
     private Date created;
 
