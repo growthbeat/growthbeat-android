@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 import android.os.Handler;
@@ -23,6 +27,7 @@ import com.growthbeat.message.handler.PlainMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.Task;
 import com.growthpush.GrowthPush;
 
 public class GrowthMessage {
@@ -32,6 +37,7 @@ public class GrowthMessage {
     private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 10 * 1000;
     private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 10 * 1000;
     public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthmessage-preferences";
+    private static final long MIN_TIME_FOR_OVERRIDE_MESSAGE =  30 * 1000;
 
     private static final GrowthMessage instance = new GrowthMessage();
     private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
@@ -44,6 +50,12 @@ public class GrowthMessage {
 
     private boolean initialized = false;
     private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
+
+    private Semaphore messageSemaphore = new Semaphore(1);
+    private long lastMessageOpenedTimeMills;
+    private boolean showingMessage;
+    private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
+    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
 
     private GrowthMessage() {
         super();
@@ -66,6 +78,8 @@ public class GrowthMessage {
 
         this.applicationId = applicationId;
         this.credentialId = credentialId;
+        this.showingMessage = false;
+        this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
@@ -75,21 +89,21 @@ public class GrowthMessage {
             preference.removeAll();
         }
 
-        GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
-        GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
-            @Override
-            public void callback(String eventId, Map<String, String> properties) {
-                if (eventId != null && eventId.startsWith("Event:" + applicationId + ":GrowthMessage"))
-                    return;
-                recevieMessage(eventId);
-            }
-        });
+//        GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
+//        GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
+//            @Override
+//            public void callback(String eventId, Map<String, String> properties) {
+//                if (eventId != null && eventId.startsWith("Event:" + applicationId + ":GrowthMessage"))
+//                    return;
+//                recevieMessage(eventId);
+//            }
+//        });
 
         setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new SwipeMessageHandler(context)));
 
     }
 
-    private void recevieMessage(final String eventId) {
+    public void recevieMessage(final int goalId, final String clientId) {
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
@@ -99,23 +113,18 @@ public class GrowthMessage {
 
                 try {
 
-                    final Message message = Message.receive(GrowthbeatCore.getInstance().waitClient().getId(), eventId, credentialId);
-                    if (message == null) {
-                        logger.warning("Message response is null.");
-                        return;
+                    List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
+                    logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
+                    for (Task task : tasks) {
+                        Message message = Message.receive(task.getId(), clientId, credentialId);
+                        if(message != null)
+                            messageQueue.add(message);
                     }
 
-                    logger.info(String.format("Message is received. (id: %s)", message.getId()));
-
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            openMessage(message);
-                        }
-                    });
+                    openMessageIfExists();
 
                 } catch (GrowthbeatException e) {
-                    logger.info(String.format("Message is not found. %s", e.getMessage()));
+                    logger.info(String.format("Failed to get message. %s", e.getMessage()));
                 }
 
             }
@@ -123,7 +132,7 @@ public class GrowthMessage {
         });
     }
 
-    public void openMessage(Message message) {
+    private void openMessage(Message message) {
 
         for (MessageHandler messageHandler : messageHandlers) {
             if (!messageHandler.handle(message))
@@ -156,6 +165,50 @@ public class GrowthMessage {
 
         GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
 
+    }
+
+    public void openMessageIfExists() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    messageSemaphore.acquire();
+
+                    long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
+                    if (showingMessage &&  diff < MIN_TIME_FOR_OVERRIDE_MESSAGE) {
+                        return;
+                    }
+                    final Message message = messageQueue.poll();
+                    showingMessage = true;
+
+                    logger.info(String.format("Show Message for %s", message.getId()));
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            GrowthMessage.getInstance().openMessage(message);
+                        }
+                    });
+                    lastMessageOpenedTimeMills = System.currentTimeMillis();
+
+                } catch (InterruptedException e) {
+                } finally {
+                    messageSemaphore.release();
+                }
+
+            }
+        });
+    }
+
+    public void notifyPopNextMessage() {
+        scheduledThreadPoolExecutor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                showingMessage = false;
+                openMessageIfExists();
+            }
+        }, 0, TimeUnit.MILLISECONDS);
     }
 
     public String getApplicationId() {

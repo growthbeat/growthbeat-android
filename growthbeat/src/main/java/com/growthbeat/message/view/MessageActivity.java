@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 
+import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.Message;
 import com.growthpush.GrowthPush;
 
@@ -71,7 +71,7 @@ public class MessageActivity extends FragmentActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        GrowthPush.getInstance().notifyClose();
+        GrowthMessage.getInstance().notifyPopNextMessage();
         if (receiver != null)
             this.unregisterReceiver(receiver);
     }
