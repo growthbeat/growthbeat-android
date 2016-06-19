@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -28,11 +29,17 @@ import com.growthbeat.message.model.ScreenButton;
 
 public class ImageMessageFragment extends BaseMessageFragment {
 
+    private  static final int CLOSE_BUTTON_SIZE_MAX =  64;
+
+    private FrameLayout baseLayout = null;
     private ImageMessage imageMessage = null;
 
     private ProgressBar progressBar = null;
+    private DisplayMetrics displayMetrics;
 
-    Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
+    private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,40 +49,46 @@ public class ImageMessageFragment extends BaseMessageFragment {
             return null;
 
         this.imageMessage = (ImageMessage) message;
+        displayMetrics = getResources().getDisplayMetrics();
 
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-
-        double availableWidth = Math.min(imageMessage.getPicture().getWidth() * displayMetrics.density, displayMetrics.widthPixels * 0.85);
-        double availableHeight = Math.min(imageMessage.getPicture().getHeight() * displayMetrics.density,
-            displayMetrics.heightPixels * 0.85);
-
-        final double ratio = Math.min(availableWidth / imageMessage.getPicture().getWidth(), availableHeight
-            / imageMessage.getPicture().getHeight());
-
-        int width = (int) (imageMessage.getPicture().getWidth() * ratio);
-        int height = (int) (imageMessage.getPicture().getHeight() * ratio);
+        int width = (int) (imageMessage.getBaseWidth() * displayMetrics.density);
+        int height = (int) (imageMessage.getBaseHeight() * displayMetrics.density);
         int left = (int) ((displayMetrics.widthPixels - width) / 2);
         int top = (int) ((displayMetrics.heightPixels - height) / 2);
 
         final Rect rect = new Rect(left, top, width, height);
 
         baseLayout = new FrameLayout(getActivity());
-        baseLayout.setBackgroundColor(Color.argb(128, 0, 0, 0));
+        int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & imageMessage.getBackground().getColor())));
+        baseLayout.setBackgroundColor(Color.argb((int)(imageMessage.getBackground().getOpacity() * 255), Color.red(color), Color.green(color), Color.blue(color)));
 
         progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleLarge);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
         layoutParams.gravity = Gravity.CENTER;
+
+        if (imageMessage.getBackground().isOutsideClose()) {
+            baseLayout.setClickable(true);
+            baseLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!getActivity().isFinishing())
+                        getActivity().finish();
+                }
+            });
+        }
         baseLayout.addView(progressBar, layoutParams);
+
 
         MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
             @Override
             public void success(Map<String, Bitmap> images) {
                 cachedImages = images;
                 progressBar.setVisibility(View.GONE);
+                baseLayout.removeView(progressBar);
                 showImage(baseLayout, rect);
                 showScreenButton(baseLayout, rect);
-                showImageButtons(baseLayout, rect, ratio);
-                showCloseButton(baseLayout, rect, ratio);
+                showImageButtons(baseLayout, rect);
+                showCloseButton(baseLayout, rect);
             }
 
             @Override
@@ -96,6 +109,16 @@ public class ImageMessageFragment extends BaseMessageFragment {
         ImageView imageView = new ImageView(getActivity());
         imageView.setScaleType(ScaleType.FIT_CENTER);
         imageView.setImageBitmap(cachedImages.get(imageMessage.getPicture().getUrl()));
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View arg0, MotionEvent arg1) {
+                // this will make sure event is not propagated to others, nesting same view area
+                return true;
+            }
+
+        });
+
 
         innerLayout.addView(wrapViewWithAbsoluteLayout(imageView, rect));
 
@@ -125,7 +148,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     }
 
-    private void showImageButtons(FrameLayout innerLayout, Rect rect, double ratio) {
+    private void showImageButtons(FrameLayout innerLayout, Rect rect) {
 
         List<Button> buttons = extractButtons(Button.Type.image);
         Collections.reverse(buttons);
@@ -135,8 +158,8 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
             final ImageButton imageButton = (ImageButton) button;
 
-            int width = (int) (imageButton.getPicture().getWidth() * ratio);
-            int height = (int) (imageButton.getPicture().getHeight() * ratio);
+            int width = (int) (imageButton.getBaseWidth() * displayMetrics.density);
+            int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
             int left = rect.getLeft() + (rect.getWidth() - width) / 2;
             top -= height;
 
@@ -157,7 +180,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     }
 
-    private void showCloseButton(FrameLayout innerLayout, Rect rect, double ratio) {
+    private void showCloseButton(FrameLayout innerLayout, Rect rect) {
 
         List<Button> buttons = extractButtons(Button.Type.close);
 
@@ -165,11 +188,15 @@ public class ImageMessageFragment extends BaseMessageFragment {
             return;
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
+        double availableWidth = Math.min(closeButton.getBaseWidth(), CLOSE_BUTTON_SIZE_MAX);
+        double availableHeight  = Math.min(closeButton.getBaseHeight(), CLOSE_BUTTON_SIZE_MAX);
+        double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
+
 
         int width = (int) (closeButton.getPicture().getWidth() * ratio);
         int height = (int) (closeButton.getPicture().getHeight() * ratio);
-        int left = rect.getLeft() + rect.getWidth() - width / 2;
-        int top = rect.getTop() - height / 2;
+        int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
+        int top = rect.getTop() + 8 * (int)displayMetrics.density;
 
         TouchableImageView touchableImageView = new TouchableImageView(getActivity());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);

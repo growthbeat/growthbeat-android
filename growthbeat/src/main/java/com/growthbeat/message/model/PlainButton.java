@@ -9,11 +9,11 @@ public class PlainButton extends Button {
 
     private String label;
 
-    protected PlainButton() {
+    public PlainButton() {
         super();
     }
 
-    protected PlainButton(JSONObject jsonObject) {
+    public PlainButton(JSONObject jsonObject) {
         super(jsonObject);
     }
 

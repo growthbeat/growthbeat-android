@@ -12,8 +12,6 @@ import com.growthbeat.utils.JSONObjectUtils;
 
 public class SwipeImages extends Model {
 
-    private float widthRatio;
-    private float topMargin;
     private List<Picture> pictures;
 
     public SwipeImages() {
@@ -24,21 +22,6 @@ public class SwipeImages extends Model {
         super(jsonObject);
     }
 
-    public float getWidthRatio() {
-        return this.widthRatio;
-    }
-
-    public void setWidthRatio(float widthRatio) {
-        this.widthRatio = widthRatio;
-    }
-
-    public float getTopMargin() {
-        return this.topMargin;
-    }
-
-    public void setTopMargin(float topMargin) {
-        this.topMargin = topMargin;
-    }
 
     public List<Picture> getPictures() {
         return pictures;
@@ -53,8 +36,6 @@ public class SwipeImages extends Model {
         JSONObject jsonObject = new JSONObject();
 
         try {
-            jsonObject.put("widthRatio", widthRatio);
-            jsonObject.put("topMargin", topMargin);
             if (pictures != null) {
                 JSONArray picturesJsonArray = new JSONArray();
                 for (Picture picture : pictures) {
@@ -75,10 +56,6 @@ public class SwipeImages extends Model {
             return;
 
         try {
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "widthRatio"))
-                setWidthRatio(jsonObject.getInt("widthRatio"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "topMargin"))
-                setTopMargin(jsonObject.getInt("topMargin"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "pictures")) {
                 JSONArray picturesJsonArray = jsonObject.getJSONArray("pictures");
                 List<Picture> pictures = new ArrayList<Picture>(picturesJsonArray.length());
