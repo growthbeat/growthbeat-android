@@ -29,11 +29,13 @@ public class Tag extends Model {
         setJsonObject(jsonObject);
     }
 
-    public static Tag create(String growthbeatClientId, String credentialId, String name, String value) {
+    public static Tag create(String clientId, String applicationId, String credentialId, String name, String value) {
 
         Map<String, Object> params = new HashMap<String, Object>();
-        if (growthbeatClientId != null)
-            params.put("clientId", growthbeatClientId);
+        if (clientId != null)
+            params.put("clientId", clientId);
+        if(applicationId != null);
+            params.put("applicationId", applicationId);
         if (credentialId != null)
             params.put("credentialId", credentialId);
         if (name != null)

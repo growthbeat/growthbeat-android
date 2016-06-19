@@ -1,32 +1,22 @@
 package com.growthpush;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
-import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.GrowthbeatCore;
-import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.message.model.Message;
-import com.growthbeat.message.model.Task;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
-import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 

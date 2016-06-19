@@ -22,6 +22,9 @@ public class Client extends Model {
     private String code;
     private String token;
     private Environment environment;
+    public enum Environment {
+        production, development
+    }
     private Status status;
     private Date created;
 
@@ -63,25 +66,36 @@ public class Client extends Model {
     public static Client create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("clientId", clientId);
-        params.put("credentialId", credentialId);
-        params.put("token", token);
-        params.put("environment", environment.toString());
+        if(clientId != null)
+            params.put("clientId", clientId);
+        if(applicationId != null)
+            params.put("applicationId", applicationId);
+        if(credentialId != null)
+            params.put("credentialId", credentialId);
+        if(token != null)
+            params.put("token", token);
+        if(environment != null)
+            params.put("environment", environment.toString());
         params.put("os", "android");
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/clients", params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/clients", params);
 
         return new Client(jsonObject);
 
     }
 
-    public static Client update(String clientId, String credentialId, String token, Environment environment) {
+    public static Client update(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("credentialId", credentialId);
-        params.put("token", token);
+        if(applicationId != null)
+            params.put("applicationId", applicationId);
+        if(credentialId != null)
+            params.put("credentialId", credentialId);
+        if(token != null)
+            params.put("token", token);
+        if(environment != null)
         params.put("environment", environment.toString());
 
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("3/clients/" + clientId, params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("4/clients/" + clientId, params);
 
         return new Client(jsonObject);
     }

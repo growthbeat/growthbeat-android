@@ -13,7 +13,6 @@ import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
-import com.growthpush.model.Environment;
 
 public class MainActivity extends AppCompatActivity {
 
