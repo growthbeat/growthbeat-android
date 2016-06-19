@@ -66,11 +66,7 @@ public class GrowthPush {
     private long lastMessageOpenedTimeMills;
     private boolean showingMessage;
 
-    public ConcurrentLinkedQueue<Message> getMessageQueue() {
-        return messageQueue;
-    }
-
-    private ConcurrentLinkedQueue<Message> messageQueue;
+    private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
 
     private boolean initialized = false;
 
@@ -96,7 +92,6 @@ public class GrowthPush {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
 
-        this.messageQueue = new ConcurrentLinkedQueue<Message>();
         this.showingMessage = false;
         this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
@@ -153,14 +148,6 @@ public class GrowthPush {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public long getMessageIntervalMills() {
-        return messageIntervalMills;
-    }
-
-    public void setMessageIntervalMills(long messageInterval) {
-        this.messageIntervalMills = messageInterval;
     }
 
     public void registerClient(final String registrationId, Environment environment) {
@@ -269,8 +256,9 @@ public class GrowthPush {
                     if (handler != null) {
                         List<Task> tasks = Task.getTasks(applicationId, credentialId, event.getGoalId());
                         for (Task task : tasks) {
-                            Message message = Message.getMessage(task.getId(), client.getGrowthbeatClientId(), credentialId);
-                            messageQueue.add(message);
+                            Message message = Message.receive(task.getId(), client.getGrowthbeatClientId(), credentialId);
+                            if(message != null)
+                                messageQueue.add(message);
                         }
                     }
                     openMessageIfExists();

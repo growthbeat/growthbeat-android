@@ -23,10 +23,13 @@ import com.growthpush.GrowthPush;
 public class Message extends Model implements Parcelable {
 
     private String id;
-    private Type type;
+    private Task task;
+    public enum MessageType {
+        plain, image, swipe
+    }
+    private MessageType type;
     private Background background;
     private Date created;
-    private Task task;
     private List<Button> buttons;
 
     protected Message() {
@@ -53,25 +56,7 @@ public class Message extends Model implements Parcelable {
 
     }
 
-    public static Message receive(String clientId, String eventId, String credentialId) {
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        if (clientId != null)
-            params.put("clientId", clientId);
-        if (eventId != null)
-            params.put("eventId", eventId);
-        if (credentialId != null)
-            params.put("credentialId", credentialId);
-
-        JSONObject jsonObject = GrowthMessage.getInstance().getHttpClient().post("1/receive", params);
-        if (jsonObject == null)
-            return null;
-
-        return Message.getFromJsonObject(jsonObject);
-
-    }
-
-    public static Message getMessage(String taskId, String clientId, String credentialId){
+    public static Message receive(String taskId, String clientId, String credentialId){
         Map<String, Object> params = new HashMap<String, Object>();
 
         if (taskId != null)
@@ -81,7 +66,7 @@ public class Message extends Model implements Parcelable {
         if (credentialId != null)
             params.put("credentialId", credentialId);
 
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("1/messages", params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive", params);
         if (jsonObject == null)
             return null;
 
@@ -96,11 +81,19 @@ public class Message extends Model implements Parcelable {
         this.id = id;
     }
 
-    public Type getType() {
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
+    }
+
+    public MessageType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(MessageType type) {
         this.type = type;
     }
 
@@ -118,14 +111,6 @@ public class Message extends Model implements Parcelable {
 
     public void setCreated(Date created) {
         this.created = created;
-    }
-
-    public Task getTask() {
-        return task;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
     }
 
     public List<Button> getButtons() {
@@ -176,7 +161,7 @@ public class Message extends Model implements Parcelable {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
                 setId(jsonObject.getString("id"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
-                setType(Type.valueOf(jsonObject.getString("type")));
+                setType(MessageType.valueOf(jsonObject.getString("type")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
                 setBackground(new Background(jsonObject.getJSONObject("background")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
@@ -194,10 +179,6 @@ public class Message extends Model implements Parcelable {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }
 
-    }
-
-    public static enum Type {
-        plain, image, swipe
     }
 
     @Override
