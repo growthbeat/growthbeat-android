@@ -66,14 +66,11 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             baseLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!getActivity().isFinishing())
-                        getActivity().finish();
+                    finishActivity();
                 }
             });
         }
         baseLayout.addView(progressBar, layoutParams);
-
-        double imageHeightRate = swipeMessage.getSwipeType().equals(SwipeType.imageOnly) ? 0.90 : 0.80;
 
         final Rect imageRect = new Rect();
         imageRect.setLeft((int) ((displayMetrics.widthPixels - swipeMessage.getBaseWidth() * displayMetrics.density) * 0.5));

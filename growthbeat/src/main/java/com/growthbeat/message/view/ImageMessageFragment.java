@@ -65,8 +65,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
             baseLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!getActivity().isFinishing())
-                        getActivity().finish();
+                    finishActivity();
                 }
             });
         }
@@ -91,7 +90,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
             }
         };
         MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            imageMessage, callback);
+            imageMessage, displayMetrics.density, callback);
         messageImageDonwloader.download();
 
         return baseLayout;
