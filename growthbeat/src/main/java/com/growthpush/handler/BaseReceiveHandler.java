@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 
 import com.growthbeat.utils.PermissionUtils;
 import com.growthpush.GrowthPush;
+import com.growthpush.GrowthPushConstants;
 import com.growthpush.view.AlertActivity;
 import com.growthpush.view.DialogType;
 
@@ -94,17 +95,17 @@ public class BaseReceiveHandler implements ReceiveHandler {
             ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
 
             int icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
-            if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_META_KEY))
-                icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_META_KEY));
+            if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPushConstants.NOTIFICATION_ICON_META_KEY))
+                icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_META_KEY));
             String title = packageManager.getApplicationLabel(applicationInfo).toString();
 
             builder.setTicker(title);
             builder.setSmallIcon(icon);
             builder.setContentTitle(title);
             if (applicationInfo.metaData != null
-                && applicationInfo.metaData.containsKey(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)) {
+                && applicationInfo.metaData.containsKey(GrowthPushConstants.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)) {
                 builder.setColor(ContextCompat.getColor(context, Integer.valueOf(
-                    applicationInfo.metaData.getInt(GrowthPush.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))));
+                    applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))));
 
             }
         } catch (NameNotFoundException e) {
