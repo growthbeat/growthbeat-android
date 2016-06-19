@@ -29,16 +29,18 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
     private LoaderManager loaderManager;
     private Context context;
     private Message message;
+    private float density;
     private Callback callback;
 
     private List<String> urlStrings = new ArrayList<String>();
     private Map<String, Bitmap> images = new HashMap<String, Bitmap>();
 
-    public MessageImageDownloader(LoaderManager loaderManager, Context context, Message message, Callback callback) {
+    public MessageImageDownloader(LoaderManager loaderManager, Context context, Message message, float density, Callback callback) {
         super();
         this.loaderManager = loaderManager;
         this.context = context;
         this.message = message;
+        this.density = density;
         this.callback = callback;
     }
 
@@ -64,16 +66,16 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
     private void download(ImageMessage imageMessage) {
 
         if (imageMessage.getPicture().getUrl() != null) {
-            urlStrings.add(imageMessage.getPicture().getUrl());
+            urlStrings.add(addDensityByPictureUrl(imageMessage.getPicture().getUrl()));
         }
 
         for (Button button : imageMessage.getButtons()) {
             switch (button.getType()) {
                 case image:
-                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl()));
                     break;
                 case close:
-                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
                     break;
                 default:
                     continue;
@@ -114,6 +116,15 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
             loaderManager.initLoader(loaderId++, bundle, this);
         }
 
+    }
+
+    private String addDensityByPictureUrl(String originUrl) {
+        String url = originUrl;
+        String[] paths = url.split("/");
+
+        String[] extension = paths[paths.length - 1].split(".");
+
+        return String.format("%s@%d.%s", extension[0], (int) density, extension[1]);
     }
 
     @Override

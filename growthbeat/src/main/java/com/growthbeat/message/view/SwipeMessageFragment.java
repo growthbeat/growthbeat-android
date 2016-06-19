@@ -37,11 +37,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
     private static final int CLOSE_BUTTON_SIZE_MAX =  64;
     private static final int PAGING_HEIGHT = 16;
 
-    private FrameLayout baseLayout = null;
     private SwipeMessage swipeMessage = null;
-
-    private ProgressBar progressBar = null;
-    private DisplayMetrics displayMetrics;
     private ViewPager viewPager = null;
 
     private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
@@ -85,8 +81,6 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         imageRect.setWidth((int) (swipeMessage.getBaseWidth() * displayMetrics.density));
         imageRect.setHeight((int) (swipeMessage.getBaseHeight() * displayMetrics.density));
 
-
-
         final Rect indicatorRect = new Rect();
         indicatorRect.setLeft(imageRect.getLeft());
         indicatorRect.setTop(imageRect.getTop() + imageRect.getHeight());
@@ -119,7 +113,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         };
 
         MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            swipeMessage, callback);
+            swipeMessage, displayMetrics.density, callback);
         messageImageDonwloader.download();
 
         return baseLayout;
@@ -200,22 +194,11 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             return;
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
-        double availableWidth = Math.min(closeButton.getBaseWidth(), CLOSE_BUTTON_SIZE_MAX);
-        double availableHeight  = Math.min(closeButton.getBaseHeight(), CLOSE_BUTTON_SIZE_MAX);
+        double availableWidth = closeButton.getBaseWidth();
+        double availableHeight  = closeButton.getBaseHeight();
         double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
 
-
-        int width = (int) (closeButton.getPicture().getWidth() * ratio);
-        int height = (int) (closeButton.getPicture().getHeight() * ratio);
-        int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
-        int top = rect.getTop() + 8 * (int)displayMetrics.density;
-
         TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-        layoutParams.leftMargin = left;
-        layoutParams.topMargin = top;
-        touchableImageView.setLayoutParams(layoutParams);
-        touchableImageView.setScaleType(ScaleType.FIT_CENTER);
         touchableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -223,7 +206,20 @@ public class SwipeMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+
+        Bitmap bitmap = cachedImages.get(closeButton.getPicture().getUrl());
+        touchableImageView.setImageBitmap(bitmap);
+
+        int width = (int) (bitmap.getWidth() * ratio);
+        int height = (int) (bitmap.getHeight() * ratio);
+        int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
+        int top = rect.getTop() + 8 * (int)displayMetrics.density;
+
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+        layoutParams.leftMargin = left;
+        layoutParams.topMargin = top;
+        touchableImageView.setLayoutParams(layoutParams);
+        touchableImageView.setScaleType(ScaleType.FIT_CENTER);
 
         innerLayout.addView(touchableImageView);
     }

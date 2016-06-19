@@ -31,15 +31,9 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private  static final int CLOSE_BUTTON_SIZE_MAX =  64;
 
-    private FrameLayout baseLayout = null;
     private ImageMessage imageMessage = null;
 
-    private ProgressBar progressBar = null;
-    private DisplayMetrics displayMetrics;
-
     private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
