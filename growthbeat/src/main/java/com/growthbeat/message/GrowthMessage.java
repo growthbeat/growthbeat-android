@@ -32,18 +32,11 @@ import com.growthpush.GrowthPush;
 
 public class GrowthMessage {
 
-    public static final String LOGGER_DEFAULT_TAG = "GrowthMessage";
-    public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.message.growthbeat.com/";
-    private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 10 * 1000;
-    private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 10 * 1000;
-    public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthmessage-preferences";
-    private static final long MIN_TIME_FOR_OVERRIDE_MESSAGE =  30 * 1000;
-
     private static final GrowthMessage instance = new GrowthMessage();
-    private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
-    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-        HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
-    private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private final Logger logger = new Logger(GrowthMessageConstants.LOGGER_DEFAULT_TAG);
+    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(GrowthMessageConstants.HTTP_CLIENT_DEFAULT_BASE_URL,
+        GrowthMessageConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthMessageConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
+    private final Preference preference = new Preference(GrowthMessageConstants.PREFERENCE_DEFAULT_FILE_NAME);
 
     private String applicationId = null;
     private String credentialId = null;
@@ -177,7 +170,7 @@ public class GrowthMessage {
                     messageSemaphore.acquire();
 
                     long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
-                    if (showingMessage &&  diff < MIN_TIME_FOR_OVERRIDE_MESSAGE) {
+                    if (showingMessage &&  diff < GrowthMessageConstants.MIN_TIME_FOR_OVERRIDE_MESSAGE) {
                         return;
                     }
                     final Message message = messageQueue.poll();
@@ -208,7 +201,7 @@ public class GrowthMessage {
                 showingMessage = false;
                 openMessageIfExists();
             }
-        }, 0, TimeUnit.MILLISECONDS);
+        }, GrowthMessageConstants.POP_NEX_MESSAGE_DELAY, TimeUnit.MILLISECONDS);
     }
 
     public String getApplicationId() {

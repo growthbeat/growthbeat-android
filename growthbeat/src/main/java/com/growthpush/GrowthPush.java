@@ -198,10 +198,11 @@ public class GrowthPush {
             logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
             Client.save(client);
-            latch.countDown();
 
         } catch (GrowthPushException e) {
             logger.error(String.format("Update client fail. %s", e.getMessage()));
+        } finally {
+            latch.countDown();
         }
 
     }
