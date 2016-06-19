@@ -11,7 +11,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
@@ -33,7 +32,7 @@ import com.growthbeat.message.model.Picture;
 import com.growthbeat.message.model.SwipeMessage;
 import com.growthbeat.message.model.SwipeMessage.SwipeType;
 
-public class SwipeMessageFragment extends Fragment {
+public class SwipeMessageFragment extends BaseMessageFragment {
 
     private static final int CLOSE_BUTTON_SIZE_MAX =  64;
     private static final int PAGING_HEIGHT = 16;
@@ -115,8 +114,7 @@ public class SwipeMessageFragment extends Fragment {
 
             @Override
             public void failure() {
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         };
 
@@ -193,6 +191,8 @@ public class SwipeMessageFragment extends Fragment {
         innerLayout.addView(swipePagerIndicator);
     }
 
+
+
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
         List<Button> buttons = extractButtons(EnumSet.of(Button.Type.close));
 
@@ -220,8 +220,7 @@ public class SwipeMessageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 GrowthMessage.getInstance().selectButton(closeButton, swipeMessage);
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
@@ -256,8 +255,7 @@ public class SwipeMessageFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
-                        if (!getActivity().isFinishing())
-                            getActivity().finish();
+                        finishActivity();
                     }
                 });
                 touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));

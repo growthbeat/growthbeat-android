@@ -9,7 +9,6 @@ import java.util.Map;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,7 +27,7 @@ import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.ImageMessage;
 import com.growthbeat.message.model.ScreenButton;
 
-public class ImageMessageFragment extends Fragment {
+public class ImageMessageFragment extends BaseMessageFragment {
 
     private  static final int CLOSE_BUTTON_SIZE_MAX =  64;
 
@@ -94,8 +93,7 @@ public class ImageMessageFragment extends Fragment {
 
             @Override
             public void failure() {
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         };
         MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
@@ -141,8 +139,7 @@ public class ImageMessageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 GrowthMessage.getInstance().selectButton(screenButton, imageMessage);
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(imageMessage.getPicture().getUrl()));
@@ -172,8 +169,7 @@ public class ImageMessageFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     GrowthMessage.getInstance().selectButton(imageButton, imageMessage);
-                    if (!getActivity().isFinishing())
-                        getActivity().finish();
+                    finishActivity();
                 }
             });
             touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
@@ -208,8 +204,7 @@ public class ImageMessageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 GrowthMessage.getInstance().selectButton(closeButton, imageMessage);
-                if (!getActivity().isFinishing())
-                    getActivity().finish();
+                finishActivity();
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
