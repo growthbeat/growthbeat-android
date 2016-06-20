@@ -57,109 +57,50 @@ public class PlainMessageFragment extends DialogFragment {
             return null;
 
         final PlainButton positiveButton;
-        final PlainButton neutralButton;
         final PlainButton negativeButton;
 
         switch (plainMessage.getButtons().size()) {
             case 1:
                 positiveButton = (PlainButton) plainMessage.getButtons().get(0);
-                neutralButton = null;
                 negativeButton = null;
                 break;
             case 2:
                 positiveButton = (PlainButton) plainMessage.getButtons().get(0);
-                neutralButton = null;
                 negativeButton = (PlainButton) plainMessage.getButtons().get(1);
-                break;
-            case 3:
-                positiveButton = (PlainButton) plainMessage.getButtons().get(0);
-                neutralButton = (PlainButton) plainMessage.getButtons().get(1);
-                negativeButton = (PlainButton) plainMessage.getButtons().get(2);
                 break;
             default:
                 return null;
         }
 
-        if (plainMessage.getButtons().size() < 3) {
-            dialogBuilder.setMessage(plainMessage.getText());
-            if (positiveButton != null) {
-                dialogBuilder.setPositiveButton(positiveButton.getLabel(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
-                        if (!getActivity().isFinishing())
-                            getActivity().finish();
-                    }
-                });
-            }
-
-            if (negativeButton != null) {
-                dialogBuilder.setNegativeButton(negativeButton.getLabel(), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
-                        if (!getActivity().isFinishing())
-                            getActivity().finish();
-                    }
-                });
-            }
-        } else {
-            String[] items = {positiveButton.getLabel(), neutralButton.getLabel(), negativeButton.getLabel()};
-
-            LinearLayout layout = new LinearLayout(getActivity());
-            layout.setOrientation(LinearLayout.VERTICAL);
-
-            ScrollView scrollView = new ScrollView(getActivity());
-            TextView textView = new TextView(getActivity());
-            textView.setText(plainMessage.getText());
-            scrollView.addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-
-            layout.addView(scrollView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT, 1.0f));
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
-            final ListView listView = new ListView(getActivity());
-            listView.setAdapter(adapter);
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        dialogBuilder.setMessage(plainMessage.getText());
+        if (positiveButton != null) {
+            dialogBuilder.setPositiveButton(positiveButton.getLabel(), new DialogInterface.OnClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-                    switch (position) {
-                        case 0:
-                            GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
-                            break;
-                        case 1:
-                            GrowthMessage.getInstance().selectButton(neutralButton, plainMessage);
-                            break;
-                        case 2:
-                            GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
-                            break;
-                        default:
-                            break;
-                    }
+                public void onClick(DialogInterface dialog, int which) {
+                    GrowthMessage.getInstance().selectButton(positiveButton, plainMessage);
                     if (!getActivity().isFinishing())
                         getActivity().finish();
                 }
             });
-            layout.addView(listView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
 
-            dialogBuilder.setView(layout);
+        if (negativeButton != null) {
+            dialogBuilder.setNegativeButton(negativeButton.getLabel(), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    GrowthMessage.getInstance().selectButton(negativeButton, plainMessage);
+                    if (!getActivity().isFinishing())
+                        getActivity().finish();
+                }
+            });
         }
 
         AlertDialog dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCanceledOnTouchOutside(this.plainMessage.getBackground().isOutsideClose());
 
         return dialog;
 
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getDialog().setCanceledOnTouchOutside(this.plainMessage.getBackground().isOutsideClose());
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
 }

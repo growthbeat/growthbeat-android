@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 
 import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Message;
 
 public class MessageActivity extends FragmentActivity {
@@ -30,10 +31,21 @@ public class MessageActivity extends FragmentActivity {
 
         switch (message.getType()) {
             case plain:
-                PlainMessageFragment plainMessageFragment = new PlainMessageFragment();
+                final PlainMessageFragment plainMessageFragment = new PlainMessageFragment();
                 plainMessageFragment.setCancelable(false);
                 plainMessageFragment.setArguments(bundle);
-                plainMessageFragment.show(getSupportFragmentManager(), getClass().getName());
+
+                ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message);
+                if(showMessageHandler != null) {
+                    showMessageHandler.complete(new ShowMessageHandler.MessageRenderHandler() {
+                        @Override
+                        public void render() {
+                            plainMessageFragment.show(getSupportFragmentManager(), getClass().getName());
+                        }
+                    });
+                } else {
+                    plainMessageFragment.show(getSupportFragmentManager(), getClass().getName());
+                }
                 break;
             case image:
                 CardMessageFragment cardMessageFragment = new CardMessageFragment();
