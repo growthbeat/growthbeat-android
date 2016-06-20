@@ -43,7 +43,7 @@ public class Event extends Model {
         if (value != null)
             params.put("value", value);
 
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/events", params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/events", params);
         if (jsonObject == null)
             return null;
 

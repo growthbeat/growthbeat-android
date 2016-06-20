@@ -2,12 +2,8 @@ package com.growthbeat.message.view;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,10 +13,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ProgressBar;
 
 import com.growthbeat.message.GrowthMessage;
-import com.growthbeat.message.MessageImageDownloader;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
@@ -145,14 +139,13 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
         double availableWidth = closeButton.getBaseWidth();
-        double availableHeight  = closeButton.getBaseHeight();
+        double availableHeight = closeButton.getBaseHeight();
         double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
-
 
         int width = (int) (closeButton.getPicture().getWidth() * ratio);
         int height = (int) (closeButton.getPicture().getHeight() * ratio);
         int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
-        int top = rect.getTop() + 8 * (int)displayMetrics.density;
+        int top = rect.getTop() + 8 * (int) displayMetrics.density;
 
         TouchableImageView touchableImageView = new TouchableImageView(getActivity());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);

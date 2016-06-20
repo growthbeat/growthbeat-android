@@ -43,7 +43,7 @@ public class Tag extends Model {
         if (value != null)
             params.put("value", value);
 
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("3/tags", params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/tags", params);
         if (jsonObject == null)
             return null;
 

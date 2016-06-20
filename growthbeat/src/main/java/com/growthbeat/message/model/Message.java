@@ -55,11 +55,13 @@ public class Message extends Model implements Parcelable {
 
     }
 
-    public static Message receive(String taskId, String clientId, String credentialId){
+    public static Message receive(String taskId, String applicationId, String clientId, String credentialId){
         Map<String, Object> params = new HashMap<String, Object>();
 
         if (taskId != null)
             params.put("taskId", taskId);
+        if(applicationId != null)
+            params.put("applicationId", applicationId);
         if (clientId != null)
             params.put("clientId", clientId);
         if (credentialId != null)

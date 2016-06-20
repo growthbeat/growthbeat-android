@@ -109,9 +109,7 @@ public class Client extends Model {
         return growthbeatClientId;
     }
 
-    public void setGrowthbeatClientId(String growthbeatClientId) {
-        this.growthbeatClientId = growthbeatClientId;
-    }
+    public void setGrowthbeatClientId(String growthbeatClientId) { this.growthbeatClientId = growthbeatClientId; }
 
     public int getApplicationId() {
         return applicationId;

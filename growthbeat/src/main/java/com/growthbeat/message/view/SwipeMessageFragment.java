@@ -2,9 +2,7 @@ package com.growthbeat.message.view;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,10 +18,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ProgressBar;
 
 import com.growthbeat.message.GrowthMessage;
-import com.growthbeat.message.MessageImageDownloader;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
@@ -34,13 +30,10 @@ import com.growthbeat.message.model.SwipeMessage.SwipeType;
 
 public class SwipeMessageFragment extends BaseMessageFragment {
 
-    private static final int CLOSE_BUTTON_SIZE_MAX =  64;
     private static final int PAGING_HEIGHT = 16;
 
     private SwipeMessage swipeMessage = null;
     private ViewPager viewPager = null;
-
-    private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -137,9 +130,9 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         buttonRect.setHeight(height);
 
         View buttonView = createButton(imageButton, buttonRect);
-        if (buttonView != null) {
+        if (buttonView != null)
             innerLayout.addView(buttonView);
-        }
+
     }
 
     private void showIndicator(FrameLayout innerLayout, Rect rect) {
@@ -338,6 +331,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
                 float cy = shortOffset;
                 canvas.drawCircle(cx, cy, RADIUS* displayMetrics.density, paint);
             }
+
         }
     }
 }
