@@ -14,6 +14,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
@@ -28,6 +29,11 @@ import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.Task;
+import com.growthbeat.model.Client;
+import com.growthpush.GrowthPush;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GrowthMessage {
 
@@ -82,16 +88,6 @@ public class GrowthMessage {
             preference.removeAll();
         }
 
-//        GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId);
-//        GrowthAnalytics.getInstance().addEventHandler(new EventHandler() {
-//            @Override
-//            public void callback(String eventId, Map<String, String> properties) {
-//                if (eventId != null && eventId.startsWith("Event:" + applicationId + ":GrowthMessage"))
-//                    return;
-//                recevieMessage(eventId);
-//            }
-//        });
-
         setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
     }
@@ -109,7 +105,7 @@ public class GrowthMessage {
                     List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
                     logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
                     for (Task task : tasks) {
-                        Message message = Message.receive(task.getId(), clientId, credentialId);
+                        Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
                         if(message != null) {
                             messageQueue.add(message);
                             if(handler != null)
@@ -128,19 +124,20 @@ public class GrowthMessage {
         });
     }
 
-    private void openMessage(Message message) {
+    private void openMessage(final Message message) {
 
         for (MessageHandler messageHandler : messageHandlers) {
             if (!messageHandler.handle(message))
                 continue;
 
-            Map<String, String> properties = new HashMap<String, String>();
-            if (message != null && message.getTask() != null)
-                properties.put("taskId", message.getTask().getId());
-            if (message != null)
-                properties.put("messageId", message.getId());
-
-            GrowthAnalytics.getInstance().track("GrowthMessage", "ShowMessage", properties, null);
+            GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    Client client = GrowthbeatCore.getInstance().waitClient();
+                    int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, message.getTask().getId(), message.getId());
+                    logger.info(String.format("Success show message (count : %d)", incrementCount));
+                }
+            });
 
             break;
         }
@@ -151,15 +148,19 @@ public class GrowthMessage {
 
         GrowthbeatCore.getInstance().handleIntent(button.getIntent());
 
-        Map<String, String> properties = new HashMap<String, String>();
-        if (message != null && message.getTask() != null)
-            properties.put("taskId", message.getTask().getId());
-        if (message != null)
-            properties.put("messageId", message.getId());
-        if (button != null && button.getIntent() != null)
-            properties.put("intentId", button.getIntent().getId());
+        JSONObject jsonObject = new JSONObject();
 
-        GrowthAnalytics.getInstance().track("GrowthMessage", "SelectButton", properties, null);
+        try {
+            if (message != null && message.getTask() != null)
+                jsonObject.put("taskId", message.getTask().getId());
+            if (message != null)
+                jsonObject.put("messageId", message.getId());
+            if (button != null && button.getIntent() != null)
+                jsonObject.put("intentId", button.getIntent().getId());
+        } catch (JSONException e) {
+        }
+
+        GrowthPush.getInstance().trackEvent("selectButton", jsonObject.toString());
 
     }
 

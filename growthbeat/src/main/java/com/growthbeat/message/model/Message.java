@@ -67,11 +67,33 @@ public class Message extends Model implements Parcelable {
         if (credentialId != null)
             params.put("credentialId", credentialId);
 
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive", params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().get("4/receive", params);
         if (jsonObject == null)
             return null;
 
         return Message.getFromJsonObject(jsonObject);
+    }
+
+    public static int receiveCount(String clientId, String applicationId, String credentialId, String taskId, String messageId) {
+
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        if (clientId != null)
+            params.put("clientId", clientId);
+        if(applicationId != null)
+            params.put("applicationId", applicationId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+        if (taskId != null)
+            params.put("taskId", taskId);
+        if (messageId != null)
+            params.put("messageId", messageId);
+
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive/count", params);
+        if (jsonObject == null)
+            throw new GrowthbeatException("Failed to count up message.");
+
+        return 0;
     }
 
     public String getId() {
