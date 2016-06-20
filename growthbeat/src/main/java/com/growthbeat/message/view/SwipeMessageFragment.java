@@ -119,8 +119,8 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
     private void showPager(FrameLayout innerLayout, Rect imageRect) {
         SwipePagerAdapter adapter = new SwipePagerAdapter();
-        List<Picture> pictures = swipeMessage.getSwipeImages().getPictures();
-        List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
+        List<Picture> pictures = swipeMessage.getPictures();
+        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.image));
 
         int i = 0;
         for (Picture picture : pictures) {
@@ -147,7 +147,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
     }
 
     private void showOneButton(FrameLayout innerLayout, Rect rect) {
-        List<Button> buttons = extractButtons(EnumSet.of(Button.Type.image));
+        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.image));
 
         if (buttons.size() != 1)
             return;
@@ -185,7 +185,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
 
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
-        List<Button> buttons = extractButtons(EnumSet.of(Button.Type.close));
+        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.close));
 
         if (buttons.size() < 1)
             return;
@@ -258,7 +258,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         }
     }
 
-    private List<Button> extractButtons(EnumSet<Button.Type> types) {
+    private List<Button> extractButtons(EnumSet<Button.ButtonType> types) {
 
         List<Button> buttons = new ArrayList<Button>();
 
