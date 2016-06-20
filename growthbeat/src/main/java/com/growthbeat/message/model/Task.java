@@ -14,25 +14,22 @@ import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 import com.growthpush.GrowthPush;
-import com.growthpush.model.Event;
 
 public class Task extends Model {
 
-    public static enum MessageOrientation {
+    public enum Orientation {
         vertical, horizontal
     }
 
     private String id;
     private String applicationId;
-    private String goalId;
-    private String segmentId;
-    private MessageOrientation orientation;
+    private int goalId;
+    private Integer segmentId;
+    private Orientation orientation;
     private Date begin;
     private Date end;
-    private int capacity;
+    private Integer capacity;
     private Date created;
-
-
 
     public Task() {
         super();
@@ -51,7 +48,7 @@ public class Task extends Model {
 
         params.put("goalId", goalId);
 
-        JSONArray jsonArray = GrowthPush.getInstance().getHttpClient().postForArray("/1/tasks", params);
+        JSONArray jsonArray = GrowthPush.getInstance().getHttpClient().postForArray("/4/tasks", params);
         return createList(jsonArray);
     }
 
@@ -60,11 +57,11 @@ public class Task extends Model {
         if (jsonArray == null) {
             return tasks;
         }
+
         for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject row = null;
             try {
-                row = jsonArray.getJSONObject(i);
-                tasks.add(new Task(row));
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                tasks.add(new Task(jsonObject));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -89,38 +86,29 @@ public class Task extends Model {
         this.applicationId = applicationId;
     }
 
-    public String getName() {
+    public int getGoalId() {
         return goalId;
     }
 
-    public void setName(String name) {
-        this.goalId = name;
-    }
-
-    public String getGoalId() {
-        return goalId;
-    }
-
-    public void setGoalId(String goalId) {
+    public void setGoalId(int goalId) {
         this.goalId = goalId;
     }
 
-    public String getSegmentId() {
+    public Integer getSegmentId() {
         return segmentId;
     }
 
-    public void setSegmentId(String segmentId) {
+    public void setSegmentId(Integer segmentId) {
         this.segmentId = segmentId;
     }
 
-    public MessageOrientation getOrientation() {
+    public Orientation getOrientation() {
         return orientation;
     }
 
-    public void setOrientation(MessageOrientation orientation) {
+    public void setOrientation(Orientation orientation) {
         this.orientation = orientation;
     }
-
 
     public Date getBegin() {
         return begin;
@@ -138,11 +126,11 @@ public class Task extends Model {
         this.end = end;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
@@ -165,18 +153,18 @@ public class Task extends Model {
                 jsonObject.put("id", id);
             if (applicationId != null)
                 jsonObject.put("applicationId", applicationId);
-            if (goalId != null)
+            if (goalId > 0)
                 jsonObject.put("goalId", goalId);
             if (segmentId != null)
                 jsonObject.put("segmentId", segmentId);
-            if (orientation != null) {
+            if (orientation != null)
                 jsonObject.put("orientation", orientation.toString());
-            }
             if (begin != null)
                 jsonObject.put("begin", DateUtils.formatToDateTimeString(begin));
             if (end != null)
                 jsonObject.put("end", DateUtils.formatToDateTimeString(end));
-            jsonObject.put("capacity", capacity);
+            if(capacity != null)
+                jsonObject.put("capacity", capacity);
             if (created != null)
                 jsonObject.put("created", DateUtils.formatToDateTimeString(created));
         } catch (Exception e) {
@@ -199,11 +187,11 @@ public class Task extends Model {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "applicationId"))
                 setApplicationId(jsonObject.getString("applicationId"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "goalId"))
-                setName(jsonObject.getString("goalId"));
+                setGoalId(jsonObject.getInt("goalId"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "segmentId"))
-                setSegmentId(jsonObject.getString("segmentId"));
+                setSegmentId(jsonObject.getInt("segmentId"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "orientation"))
-                setOrientation(MessageOrientation.valueOf(jsonObject.getString("orientation")));
+                setOrientation(Orientation.valueOf(jsonObject.getString("orientation")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "begin"))
                 setBegin(DateUtils.parseFromDateTimeString(jsonObject.getString("begin")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "end"))

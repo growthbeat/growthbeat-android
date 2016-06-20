@@ -31,15 +31,9 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private  static final int CLOSE_BUTTON_SIZE_MAX =  64;
 
-    private FrameLayout baseLayout = null;
     private ImageMessage imageMessage = null;
 
-    private ProgressBar progressBar = null;
-    private DisplayMetrics displayMetrics;
-
     private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,8 +65,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
             baseLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!getActivity().isFinishing())
-                        getActivity().finish();
+                    finishActivity();
                 }
             });
         }
@@ -97,7 +90,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
             }
         };
         MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            imageMessage, callback);
+            imageMessage, displayMetrics.density, callback);
         messageImageDonwloader.download();
 
         return baseLayout;
@@ -126,7 +119,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showScreenButton(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.screen);
+        List<Button> buttons = extractButtons(Button.ButtonType.screen);
 
         if (buttons.size() < 1)
             return;
@@ -150,7 +143,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showImageButtons(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.image);
+        List<Button> buttons = extractButtons(Button.ButtonType.image);
         Collections.reverse(buttons);
 
         int top = rect.getTop() + rect.getHeight();
@@ -182,7 +175,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
 
-        List<Button> buttons = extractButtons(Button.Type.close);
+        List<Button> buttons = extractButtons(Button.ButtonType.close);
 
         if (buttons.size() < 1)
             return;
@@ -213,7 +206,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
     }
 
-    private List<Button> extractButtons(Button.Type type) {
+    private List<Button> extractButtons(Button.ButtonType type) {
 
         List<Button> buttons = new ArrayList<Button>();
 

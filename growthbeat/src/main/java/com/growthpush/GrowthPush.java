@@ -1,26 +1,18 @@
 package com.growthpush;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
-import android.os.Handler;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.GrowthbeatCore;
-import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.message.model.Message;
-import com.growthbeat.message.model.Task;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
@@ -32,45 +24,21 @@ import com.growthpush.model.Tag;
 
 public class GrowthPush {
 
-    public static final String LOGGER_DEFAULT_TAG = "GrowthPush";
-    public static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
-    private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 60 * 1000;
-    private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 60 * 1000;
-    public static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
-
-    public static final String NOTIFICATION_ICON_META_KEY = "com.growthpush.notification.icon";
-    public static final String NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY = "com.growthpush.notification.icon.background.color";
-    public static final String DIALOG_ICON_META_KEY = "com.growthpush.dialog.icon";
-    private static final long MIN_TIME_FOR_OVERRIDE_MESSAGE =  30 * 1000;
-
     private static final GrowthPush instance = new GrowthPush();
-    private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
-    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-        HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
-    private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
-    private final GrowthbeatThreadExecutor localExecutor = new GrowthbeatThreadExecutor();
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+    private final Logger logger = new Logger(GrowthPushConstants.LOGGER_DEFAULT_TAG);
+    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(GrowthPushConstants.HTTP_CLIENT_DEFAULT_BASE_URL,
+        GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
+    private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
 
     private Client client = null;
     private Semaphore semaphore = new Semaphore(1);
-    private Semaphore messageSemaphore = new Semaphore(1);
     private CountDownLatch latch = new CountDownLatch(1);
     private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
-    private Handler handler = new Handler();
 
     private String applicationId;
     private String credentialId;
     private String senderId;
-    private long messageIntervalMills;
     private Environment environment = null;
-    private long lastMessageOpenedTimeMills;
-    private boolean showingMessage;
-
-    public ConcurrentLinkedQueue<Message> getMessageQueue() {
-        return messageQueue;
-    }
-
-    private ConcurrentLinkedQueue<Message> messageQueue;
 
     private boolean initialized = false;
 
@@ -86,6 +54,7 @@ public class GrowthPush {
 
         if (initialized)
             return;
+
         initialized = true;
 
         if (context == null) {
@@ -96,28 +65,9 @@ public class GrowthPush {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
 
-        this.messageQueue = new ConcurrentLinkedQueue<Message>();
-        this.showingMessage = false;
-        this.lastMessageOpenedTimeMills = System.currentTimeMillis();
-
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
-
-            @Override
-            public void run() {
-
-                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-                client = Client.load();
-
-                if (client != null && client.getGrowthbeatClientId() != null
-                    && !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
-                    GrowthPush.this.clearClient();
-
-            }
-
-        });
     }
 
     public void requestRegistrationId(final String senderId, final Environment environment) {
@@ -133,11 +83,20 @@ public class GrowthPush {
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
+
+                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                client = Client.load();
+
+                if (client != null && client.getGrowthbeatClientId() != null
+                    && !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
+                    GrowthPush.this.clearClient();
+
                 String token = registerGCM(GrowthbeatCore.getInstance().getContext());
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
                 }
+                
             }
         });
     }
@@ -148,19 +107,10 @@ public class GrowthPush {
 
         try {
             InstanceID instanceID = InstanceID.getInstance(context);
-            String token = instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            return token;
+            return instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public long getMessageIntervalMills() {
-        return messageIntervalMills;
-    }
-
-    public void setMessageIntervalMills(long messageInterval) {
-        this.messageIntervalMills = messageInterval;
     }
 
     public void registerClient(final String registrationId, Environment environment) {
@@ -178,9 +128,8 @@ public class GrowthPush {
 
                     semaphore.acquire();
 
-                    com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-                    client = Client.load();
                     if (client == null) {
+                        com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
                         createClient(growthbeatClient.getId(), registrationId);
                         return;
                     }
@@ -191,11 +140,11 @@ public class GrowthPush {
                     }
 
                     logger.info("Client already registered.");
-                    latch.countDown();
 
-                } catch (InterruptedException e) {
+                } catch (InterruptedException e){
                 } finally {
                     semaphore.release();
+                    latch.countDown();
                 }
 
             }
@@ -228,14 +177,15 @@ public class GrowthPush {
                 client.getGrowthbeatClientId(), registrationId, environment));
             client.setToken(registrationId);
             client.setEnvironment(environment);
-            client = Client.update(client.getGrowthbeatClientId(), credentialId, registrationId, environment);
+            client = Client.update(client.getGrowthbeatClientId(), applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
             Client.save(client);
-            latch.countDown();
 
         } catch (GrowthPushException e) {
             logger.error(String.format("Update client fail. %s", e.getMessage()));
+        } finally {
+            latch.countDown();
         }
 
     }
@@ -249,7 +199,13 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
-        localExecutor.execute(new Runnable() {
+
+        if(!initialized) {
+            logger.info("call after initialized.");
+            return;
+        }
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -263,17 +219,12 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending event ... (name: %s)", name));
                 try {
-                    Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(),
+                    Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId,
                         GrowthPush.getInstance().credentialId, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
-                    if (handler != null) {
-                        List<Task> tasks = Task.getTasks(applicationId, credentialId, event.getGoalId());
-                        for (Task task : tasks) {
-                            Message message = Message.getMessage(task.getId(), client.getGrowthbeatClientId(), credentialId);
-                            messageQueue.add(message);
-                        }
-                    }
-                    openMessageIfExists();
+
+                    GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId());
+
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));
                 }
@@ -288,7 +239,13 @@ public class GrowthPush {
     }
 
     public void setTag(final String name, final String value) {
-        localExecutor.execute(new Runnable() {
+
+        if(!initialized) {
+            logger.info("call after initialized.");
+            return;
+        }
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -308,7 +265,7 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
                 try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), credentialId, name, value);
+                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, name, value);
                     logger.info(String.format("Sending tag success"));
                     Tag.save(createdTag, name);
                 } catch (GrowthPushException e) {
@@ -336,49 +293,6 @@ public class GrowthPush {
             } catch (InterruptedException e) {
             }
         }
-    }
-
-    public void openMessageIfExists() {
-        localExecutor.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    messageSemaphore.acquire();
-
-                    long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
-                    if (showingMessage &&  diff < MIN_TIME_FOR_OVERRIDE_MESSAGE) {
-                        return;
-                    }
-                    final Message message = messageQueue.poll();
-                    if (message != null) {
-                        showingMessage = true;
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                GrowthMessage.getInstance().openMessage(message);
-                            }
-                        });
-                        lastMessageOpenedTimeMills = System.currentTimeMillis();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                    messageSemaphore.release();
-                }
-
-            }
-        });
-    }
-
-    public void notifyClose() {
-        scheduledThreadPoolExecutor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                showingMessage = false;
-                openMessageIfExists();
-            }
-        }, this.messageIntervalMills, TimeUnit.MILLISECONDS);
     }
 
     public void setReceiveHandler(ReceiveHandler receiveHandler) {

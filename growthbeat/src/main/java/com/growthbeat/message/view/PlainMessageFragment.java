@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -20,6 +22,8 @@ import com.growthbeat.message.model.PlainButton;
 import com.growthbeat.message.model.PlainMessage;
 
 public class PlainMessageFragment extends DialogFragment {
+
+    private PlainMessage plainMessage = null;
 
     public PlainMessageFragment() {
         super();
@@ -43,7 +47,7 @@ public class PlainMessageFragment extends DialogFragment {
         if (!(message instanceof PlainMessage))
             return null;
 
-        final PlainMessage plainMessage = (PlainMessage) message;
+        this.plainMessage = (PlainMessage) message;
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
@@ -150,6 +154,12 @@ public class PlainMessageFragment extends DialogFragment {
 
         return dialog;
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        getDialog().setCanceledOnTouchOutside(this.plainMessage.getBackground().isOutsideClose());
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
 }

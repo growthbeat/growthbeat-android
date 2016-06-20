@@ -12,7 +12,10 @@ import com.growthbeat.utils.JSONObjectUtils;
 
 public class Button extends Model {
 
-    private Type type;
+    public enum ButtonType {
+        plain, image, screen, close
+    }
+    private ButtonType type;
     private Date created;
     private Message message;
     private Intent intent;
@@ -43,11 +46,11 @@ public class Button extends Model {
 
     }
 
-    public Type getType() {
+    public ButtonType getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(ButtonType type) {
         this.type = type;
     }
 
@@ -83,12 +86,12 @@ public class Button extends Model {
         try {
             if (type != null)
                 jsonObject.put("type", type.toString());
-            if (created != null)
-                jsonObject.put("created", DateUtils.formatToDateTimeString(created));
             if (message != null)
                 jsonObject.put("message", message.getJsonObject());
             if (intent != null)
                 jsonObject.put("intent", intent.getJsonObject());
+            if (created != null)
+                jsonObject.put("created", DateUtils.formatToDateTimeString(created));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to get JSON.", e);
         }
@@ -105,21 +108,17 @@ public class Button extends Model {
 
         try {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
-                setType(Type.valueOf(jsonObject.getString("type")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
-                setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+                setType(ButtonType.valueOf(jsonObject.getString("type")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "message"))
                 setMessage(Message.getFromJsonObject(jsonObject.getJSONObject("message")));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "intent"))
                 setIntent(Intent.getFromJsonObject(jsonObject.getJSONObject("intent")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
+                setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }
 
-    }
-
-    public static enum Type {
-        plain, image, close, screen
     }
 
 }

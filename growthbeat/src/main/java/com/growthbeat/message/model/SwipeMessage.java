@@ -1,14 +1,21 @@
 package com.growthbeat.message.model;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.growthbeat.utils.JSONObjectUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SwipeMessage extends Message {
 
+    public enum SwipeType {
+        imageOnly, oneButton
+    }
     private SwipeType swipeType;
-    private SwipeImages swipeImages;
+    private List<Picture> pictures;
     private int baseWidth;
     private int baseHeight;
 
@@ -20,20 +27,20 @@ public class SwipeMessage extends Message {
         super(jsonObject);
     }
 
-    public SwipeImages getSwipeImages() {
-        return swipeImages;
-    }
-
-    public void setSwipeImages(SwipeImages swipeImages) {
-        this.swipeImages = swipeImages;
-    }
-
     public SwipeType getSwipeType() {
         return swipeType;
     }
 
     public void setSwipeType(SwipeType swipeType) {
         this.swipeType = swipeType;
+    }
+
+    public List<Picture> getPictures() {
+        return pictures;
+    }
+
+    public void setPictures(List<Picture> pictures) {
+        this.pictures = pictures;
     }
 
     public int getBaseWidth() {
@@ -60,8 +67,8 @@ public class SwipeMessage extends Message {
         try {
             if (swipeType != null)
                 jsonObject.put("swipeType", swipeType.toString());
-            if (swipeImages != null) {
-                jsonObject.put("swipeImages", swipeImages.getJsonObject());
+            if (pictures != null) {
+                jsonObject.put("pictures", pictures);
             }
             jsonObject.put("baseWidth", baseWidth);
             jsonObject.put("baseHeight", baseHeight);
@@ -84,8 +91,15 @@ public class SwipeMessage extends Message {
         try {
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeType"))
                 setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages"))
-                setSwipeImages(new SwipeImages(jsonObject.getJSONObject("swipeImages")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages")) {
+                List<Picture> pictures = new ArrayList<>();
+                JSONArray jsonArray = new JSONArray(jsonObject.getString("pictures"));
+                for(int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject pictureJson = jsonArray.getJSONObject(i);
+                    pictures.add(new Picture(pictureJson));
+                }
+                setPictures(pictures);
+            }
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
                 setBaseWidth(jsonObject.getInt("baseWidth"));
             if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
@@ -95,7 +109,4 @@ public class SwipeMessage extends Message {
         }
     }
 
-    public static enum SwipeType {
-        imageOnly, oneButton
-    }
 }

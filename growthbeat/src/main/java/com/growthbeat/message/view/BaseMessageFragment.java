@@ -1,7 +1,9 @@
 package com.growthbeat.message.view;
 
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import com.growthbeat.utils.BitmapUtilis;
 
@@ -11,6 +13,8 @@ import com.growthbeat.utils.BitmapUtilis;
 public class BaseMessageFragment extends Fragment {
 
     protected FrameLayout baseLayout = null;
+    protected ProgressBar progressBar = null;
+    protected DisplayMetrics displayMetrics;
 
     protected void finishActivity() {
         if (getActivity().isFinishing() || baseLayout == null) {
@@ -19,4 +23,6 @@ public class BaseMessageFragment extends Fragment {
         BitmapUtilis.unbindRecursively(baseLayout);
         getActivity().finish();
     }
+
+
 }

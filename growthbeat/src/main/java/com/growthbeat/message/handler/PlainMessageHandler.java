@@ -18,7 +18,7 @@ public class PlainMessageHandler implements MessageHandler {
     @Override
     public boolean handle(final Message message) {
 
-        if (message.getType() != Message.Type.plain)
+        if (message.getType() != Message.MessageType.plain)
             return false;
         if (!(message instanceof PlainMessage))
             return false;
