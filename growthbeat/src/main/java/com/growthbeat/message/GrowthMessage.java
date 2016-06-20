@@ -14,12 +14,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.handler.CardMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;

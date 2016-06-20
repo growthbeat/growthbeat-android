@@ -3,7 +3,6 @@ package com.growthbeat;
 import android.content.Context;
 import android.os.Build;
 
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -29,22 +28,20 @@ public class Growthbeat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
             GrowthPush.getInstance().initialize(context, applicationId, credentialId);
-            GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId, adInfoEnabled);
             GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
         }
     }
 
     public void start() {
-        GrowthAnalytics.getInstance().open();
+        // TODO: Growth Push default open event
     }
 
     public void stop() {
-        GrowthAnalytics.getInstance().close();
+
     }
 
     public void setLoggerSilent(boolean silent) {
         GrowthbeatCore.getInstance().getLogger().setSilent(silent);
-        GrowthAnalytics.getInstance().getLogger().setSilent(silent);
         GrowthMessage.getInstance().getLogger().setSilent(silent);
         GrowthPush.getInstance().getLogger().setSilent(silent);
     }
