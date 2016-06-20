@@ -18,17 +18,16 @@ import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
-import com.growthbeat.analytics.EventHandler;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.http.GrowthbeatHttpClient;
-import com.growthbeat.message.handler.ImageMessageHandler;
+import com.growthbeat.message.handler.CardMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;
 import com.growthbeat.message.handler.PlainMessageHandler;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.Task;
-import com.growthpush.GrowthPush;
 
 public class GrowthMessage {
 
@@ -49,6 +48,7 @@ public class GrowthMessage {
     private boolean showingMessage;
     private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
     private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+    private Map<Message, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
     private GrowthMessage() {
         super();
@@ -92,11 +92,11 @@ public class GrowthMessage {
 //            }
 //        });
 
-        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new ImageMessageHandler(context), new SwipeMessageHandler(context)));
+        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
     }
 
-    public void recevieMessage(final int goalId, final String clientId) {
+    public void recevieMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
@@ -110,8 +110,11 @@ public class GrowthMessage {
                     logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
                     for (Task task : tasks) {
                         Message message = Message.receive(task.getId(), clientId, credentialId);
-                        if(message != null)
+                        if(message != null) {
                             messageQueue.add(message);
+                            if(handler != null)
+                            showMessageHandlers.put(message, handler);
+                        }
                     }
 
                     openMessageIfExists();
@@ -192,6 +195,10 @@ public class GrowthMessage {
 
             }
         });
+    }
+
+    public ShowMessageHandler findShowMessageHandler(Message message) {
+        return showMessageHandlers.get(message);
     }
 
     public void notifyPopNextMessage() {

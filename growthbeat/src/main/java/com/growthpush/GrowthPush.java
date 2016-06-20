@@ -1,5 +1,8 @@
 package com.growthpush;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -96,7 +99,7 @@ public class GrowthPush {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
                 }
-                
+
             }
         });
     }

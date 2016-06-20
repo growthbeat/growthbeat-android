@@ -14,7 +14,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.growthbeat.GrowthbeatException;
-import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
@@ -47,7 +46,7 @@ public class Message extends Model implements Parcelable {
             case plain:
                 return new PlainMessage(jsonObject);
             case image:
-                return new ImageMessage(jsonObject);
+                return new CardMessage(jsonObject);
             case swipe:
                 return new SwipeMessage(jsonObject);
             default:

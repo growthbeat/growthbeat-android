@@ -1,4 +1,4 @@
-package com.growthbeat.message.view;
+package com.growthbeat.message;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -19,7 +19,7 @@ import android.support.v4.content.Loader;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
-import com.growthbeat.message.model.ImageMessage;
+import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.Picture;
 import com.growthbeat.message.model.SwipeMessage;
@@ -48,7 +48,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
         switch (message.getType()) {
             case image:
-                download((ImageMessage) message);
+                download((CardMessage) message);
                 break;
             case swipe:
                 download((SwipeMessage) message);
@@ -63,13 +63,13 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
     }
 
-    private void download(ImageMessage imageMessage) {
+    private void download(CardMessage cardMessage) {
 
-        if (imageMessage.getPicture().getUrl() != null) {
-            urlStrings.add(addDensityByPictureUrl(imageMessage.getPicture().getUrl()));
+        if (cardMessage.getPicture().getUrl() != null) {
+            urlStrings.add(addDensityByPictureUrl(cardMessage.getPicture().getUrl()));
         }
 
-        for (Button button : imageMessage.getButtons()) {
+        for (Button button : cardMessage.getButtons()) {
             switch (button.getType()) {
                 case image:
                     urlStrings.add(addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl()));
@@ -119,6 +119,10 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
     }
 
     private String addDensityByPictureUrl(String originUrl) {
+
+        if((int) density <= 1)
+            return originUrl;
+
         String url = originUrl;
         String[] paths = url.split("/");
 

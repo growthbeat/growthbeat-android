@@ -7,7 +7,15 @@ import com.growthbeat.message.model.Message;
  * Created by tabatakatsutoshi on 2016/06/17.
  */
 public interface ShowMessageHandler {
-    void onComplete(Message message);
+
+    void complete(MessageRenderHandler run);
 
     void onError();
+
+    public static interface MessageRenderHandler {
+
+        abstract void render();
+
+    }
+
 }

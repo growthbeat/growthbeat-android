@@ -5,17 +5,17 @@ import org.json.JSONObject;
 
 import com.growthbeat.utils.JSONObjectUtils;
 
-public class ImageMessage extends Message {
+public class CardMessage extends Message {
 
     private Picture picture;
     private int baseWidth;
     private int baseHeight;
 
-    public ImageMessage() {
+    public CardMessage() {
         super();
     }
 
-    public ImageMessage(JSONObject jsonObject) {
+    public CardMessage(JSONObject jsonObject) {
         super(jsonObject);
     }
 

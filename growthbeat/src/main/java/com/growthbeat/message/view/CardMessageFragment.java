@@ -9,7 +9,6 @@ import java.util.Map;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,87 +20,51 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
 import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.MessageImageDownloader;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
-import com.growthbeat.message.model.ImageMessage;
+import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.ScreenButton;
 
-public class ImageMessageFragment extends BaseMessageFragment {
+public class CardMessageFragment extends BaseMessageFragment {
 
-    private  static final int CLOSE_BUTTON_SIZE_MAX =  64;
-
-    private ImageMessage imageMessage = null;
-
-    private Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
+    private CardMessage cardMessage = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        Object message = getArguments().get("message");
-        if (message == null || !(message instanceof ImageMessage))
+        final Object message = getArguments().get("message");
+        if (message == null || !(message instanceof CardMessage))
             return null;
 
-        this.imageMessage = (ImageMessage) message;
-        displayMetrics = getResources().getDisplayMetrics();
+        this.cardMessage = (CardMessage) message;
+        this.baseLayout = generateBaselayout(cardMessage.getBaseWidth(), cardMessage.getBaseHeight(), cardMessage.getBackground());
 
-        int width = (int) (imageMessage.getBaseWidth() * displayMetrics.density);
-        int height = (int) (imageMessage.getBaseHeight() * displayMetrics.density);
-        int left = (int) ((displayMetrics.widthPixels - width) / 2);
-        int top = (int) ((displayMetrics.heightPixels - height) / 2);
-
-        final Rect rect = new Rect(left, top, width, height);
-
-        baseLayout = new FrameLayout(getActivity());
-        int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & imageMessage.getBackground().getColor())));
-        baseLayout.setBackgroundColor(Color.argb((int)(imageMessage.getBackground().getOpacity() * 255), Color.red(color), Color.green(color), Color.blue(color)));
-
-        progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleLarge);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
-        layoutParams.gravity = Gravity.CENTER;
-
-        if (imageMessage.getBackground().isOutsideClose()) {
-            baseLayout.setClickable(true);
-            baseLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finishActivity();
-                }
-            });
-        }
-        baseLayout.addView(progressBar, layoutParams);
-
-
-        MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
+        layoutMessage(cardMessage, new ShowMessageHandler.MessageRenderHandler() {
             @Override
-            public void success(Map<String, Bitmap> images) {
-                cachedImages = images;
-                progressBar.setVisibility(View.GONE);
-                baseLayout.removeView(progressBar);
-                showImage(baseLayout, rect);
-                showScreenButton(baseLayout, rect);
-                showImageButtons(baseLayout, rect);
-                showCloseButton(baseLayout, rect);
+            public void render() {
+                renderMessage();
             }
-
-            @Override
-            public void failure() {
-                finishActivity();
-            }
-        };
-        MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            imageMessage, displayMetrics.density, callback);
-        messageImageDonwloader.download();
+        });
 
         return baseLayout;
 
+    }
+
+    private void renderMessage() {
+        showImage(baseLayout, rect);
+        showScreenButton(baseLayout, rect);
+        showImageButtons(baseLayout, rect);
+        showCloseButton(baseLayout, rect);
     }
 
     private void showImage(FrameLayout innerLayout, Rect rect) {
 
         ImageView imageView = new ImageView(getActivity());
         imageView.setScaleType(ScaleType.FIT_CENTER);
-        imageView.setImageBitmap(cachedImages.get(imageMessage.getPicture().getUrl()));
+        imageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
         imageView.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
@@ -131,11 +94,11 @@ public class ImageMessageFragment extends BaseMessageFragment {
         touchableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GrowthMessage.getInstance().selectButton(screenButton, imageMessage);
+                GrowthMessage.getInstance().selectButton(screenButton, cardMessage);
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(imageMessage.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
 
         innerLayout.addView(wrapViewWithAbsoluteLayout(touchableImageView, rect));
 
@@ -161,7 +124,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
             touchableImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GrowthMessage.getInstance().selectButton(imageButton, imageMessage);
+                    GrowthMessage.getInstance().selectButton(imageButton, cardMessage);
                     finishActivity();
                 }
             });
@@ -181,8 +144,8 @@ public class ImageMessageFragment extends BaseMessageFragment {
             return;
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
-        double availableWidth = Math.min(closeButton.getBaseWidth(), CLOSE_BUTTON_SIZE_MAX);
-        double availableHeight  = Math.min(closeButton.getBaseHeight(), CLOSE_BUTTON_SIZE_MAX);
+        double availableWidth = closeButton.getBaseWidth();
+        double availableHeight  = closeButton.getBaseHeight();
         double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
 
 
@@ -196,7 +159,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
         touchableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GrowthMessage.getInstance().selectButton(closeButton, imageMessage);
+                GrowthMessage.getInstance().selectButton(closeButton, cardMessage);
                 finishActivity();
             }
         });
@@ -210,7 +173,7 @@ public class ImageMessageFragment extends BaseMessageFragment {
 
         List<Button> buttons = new ArrayList<Button>();
 
-        for (Button button : imageMessage.getButtons()) {
+        for (Button button : cardMessage.getButtons()) {
             if (button.getType() == type) {
                 buttons.add(button);
             }

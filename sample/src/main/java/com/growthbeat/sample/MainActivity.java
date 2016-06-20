@@ -11,6 +11,7 @@ import android.widget.EditText;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 
@@ -32,6 +33,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("GrowthbeatSample", String.format("clientId is %s", client.getId()));
             }
         });
+
+
+//        GrowthPush.getInstance().trackEvent("event", null, new ShowMessageHandler() {
+//            @Override
+//            public void complete(MessageRenderHandler run) {
+//                run.render();
+//            }
+//
+//            @Override
+//            public void onError() {
+//
+//            }
+//        });
 
         GrowthPush.getInstance().setTag("tag1", "TAG");
         GrowthPush.getInstance().trackEvent("event1");

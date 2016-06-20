@@ -13,7 +13,6 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +23,11 @@ import android.widget.ImageView.ScaleType;
 import android.widget.ProgressBar;
 
 import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.MessageImageDownloader;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
-import com.growthbeat.message.model.ImageMessage;
 import com.growthbeat.message.model.Picture;
 import com.growthbeat.message.model.SwipeMessage;
 import com.growthbeat.message.model.SwipeMessage.SwipeType;
@@ -49,80 +49,52 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         if (message == null || !(message instanceof SwipeMessage))
             return null;
 
-        displayMetrics = getResources().getDisplayMetrics();
-
         this.swipeMessage = (SwipeMessage) message;
+        this.baseLayout = generateBaselayout(swipeMessage.getBaseWidth(), swipeMessage.getBaseHeight(), swipeMessage.getBackground());
 
-        baseLayout = new FrameLayout(getActivity());
+        layoutMessage(swipeMessage, new ShowMessageHandler.MessageRenderHandler() {
+            @Override
+            public void render() {
+                renderMessage();
+            }
+        });
 
-        int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & swipeMessage.getBackground().getColor())));
-        baseLayout.setBackgroundColor(Color.argb((int)(swipeMessage.getBackground().getOpacity() * 255), Color.red(color), Color.green(color), Color.blue(color)));
+        return baseLayout;
 
-        progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleLarge);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
-        layoutParams.gravity = Gravity.CENTER;
-        if (swipeMessage.getBackground().isOutsideClose()) {
-            baseLayout.setClickable(true);
-            baseLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    finishActivity();
-                }
-            });
-        }
-        baseLayout.addView(progressBar, layoutParams);
+    }
+
+    private void renderMessage() {
 
         final Rect imageRect = new Rect();
         imageRect.setLeft((int) ((displayMetrics.widthPixels - swipeMessage.getBaseWidth() * displayMetrics.density) * 0.5));
         imageRect.setTop((int) ((displayMetrics.heightPixels - swipeMessage.getBaseHeight() * displayMetrics.density) * 0.5));
         imageRect.setWidth((int) (swipeMessage.getBaseWidth() * displayMetrics.density));
         imageRect.setHeight((int) (swipeMessage.getBaseHeight() * displayMetrics.density));
+        showPager(baseLayout, imageRect);
+
+        if (swipeMessage.getSwipeType().equals(SwipeType.oneButton))
+            showOneButton(baseLayout, imageRect);
 
         final Rect indicatorRect = new Rect();
         indicatorRect.setLeft(imageRect.getLeft());
         indicatorRect.setTop(imageRect.getTop() + imageRect.getHeight());
         indicatorRect.setWidth(imageRect.getWidth());
         indicatorRect.setHeight((int)(PAGING_HEIGHT * displayMetrics.density));
+        showIndicator(baseLayout, indicatorRect);
 
         final Rect closeRect = new Rect();
         closeRect.setLeft(imageRect.getLeft() + imageRect.getWidth() - (int) (displayMetrics.density * 20 * 0.5));
         closeRect.setTop(imageRect.getTop() - (int) (displayMetrics.density * 20 * 0.5));
         closeRect.setWidth((int) (displayMetrics.density * 20));
         closeRect.setHeight((int) (displayMetrics.density * 20));
-
-        MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
-            @Override
-            public void success(Map<String, Bitmap> images) {
-                cachedImages = images;
-                progressBar.setVisibility(View.GONE);
-
-                showPager(baseLayout, imageRect);
-                if (swipeMessage.getSwipeType().equals(SwipeType.oneButton))
-                    showOneButton(baseLayout, imageRect);
-                showIndicator(baseLayout, indicatorRect);
-                showCloseButton(baseLayout, imageRect);
-            }
-
-            @Override
-            public void failure() {
-                finishActivity();
-            }
-        };
-
-        MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            swipeMessage, displayMetrics.density, callback);
-        messageImageDonwloader.download();
-
-        return baseLayout;
+        showCloseButton(baseLayout, closeRect);
 
     }
 
     private void showPager(FrameLayout innerLayout, Rect imageRect) {
         SwipePagerAdapter adapter = new SwipePagerAdapter();
         List<Picture> pictures = swipeMessage.getPictures();
-        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.image));
 
-        int i = 0;
         for (Picture picture : pictures) {
             FrameLayout frameLayout = new FrameLayout(getActivity());
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -133,7 +105,6 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             frameLayout.addView(createImage(picture, imageRect));
 
             adapter.add(frameLayout);
-            i++;
         }
 
         viewPager = new ViewPager(getActivity());
@@ -155,11 +126,10 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         double availableWidth = Math.min(imageButton.getBaseWidth() * displayMetrics.density, rect.getWidth());
         double ratio =  Math.min(availableWidth / imageButton.getBaseWidth(), 1);
 
-
         int width = (int) (imageButton.getBaseWidth() * displayMetrics.density * ratio);
         int height = (int) (imageButton.getBaseHeight() * displayMetrics.density * ratio);
         int left = rect.getLeft() + (rect.getWidth() - width) / 2;
-        int top = rect.getTop() + rect.getHeight() - (int) (PAGING_HEIGHT * displayMetrics.density ) - height;
+        int top = rect.getTop() + rect.getHeight() - (int) (PAGING_HEIGHT * displayMetrics.density) - height;
         final Rect buttonRect = new Rect();
         buttonRect.setLeft(left);
         buttonRect.setTop(top);
@@ -175,14 +145,12 @@ public class SwipeMessageFragment extends BaseMessageFragment {
     private void showIndicator(FrameLayout innerLayout, Rect rect) {
         SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator();
         swipePagerIndicator.setViewPager(viewPager);
-        FrameLayout.LayoutParams layoutParams2 = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-        layoutParams2.leftMargin = rect.getLeft();
-        layoutParams2.topMargin = rect.getTop();
-        swipePagerIndicator.setLayoutParams(layoutParams2);
+        FrameLayout.LayoutParams indicatorLayoutparams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
+        indicatorLayoutparams.leftMargin = rect.getLeft();
+        indicatorLayoutparams.topMargin = rect.getTop();
+        swipePagerIndicator.setLayoutParams(indicatorLayoutparams);
         innerLayout.addView(swipePagerIndicator);
     }
-
-
 
     private void showCloseButton(FrameLayout innerLayout, Rect rect) {
         List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.close));

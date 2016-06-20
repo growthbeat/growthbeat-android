@@ -11,7 +11,6 @@ import android.view.Window;
 
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.Message;
-import com.growthpush.GrowthPush;
 
 public class MessageActivity extends FragmentActivity {
 
@@ -37,9 +36,9 @@ public class MessageActivity extends FragmentActivity {
                 plainMessageFragment.show(getSupportFragmentManager(), getClass().getName());
                 break;
             case image:
-                ImageMessageFragment imageMessageFragment = new ImageMessageFragment();
-                imageMessageFragment.setArguments(bundle);
-                getSupportFragmentManager().beginTransaction().replace(android.R.id.content, imageMessageFragment).commitAllowingStateLoss();
+                CardMessageFragment cardMessageFragment = new CardMessageFragment();
+                cardMessageFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(android.R.id.content, cardMessageFragment).commitAllowingStateLoss();
                 break;
             case swipe:
                 SwipeMessageFragment swipeMessageFragment = new SwipeMessageFragment();
