@@ -9,11 +9,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
+import com.growthpush.model.Environment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.random_tag_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                GrowthAnalytics.getInstance().setRandom();
+                //TODO: add message2.0 event
+                //GrowthAnalytics.getInstance().setRandom();
             }
         });
 
@@ -61,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 CheckBox checkBox = (CheckBox) v;
-                GrowthAnalytics.getInstance().setDevelopment(checkBox.isChecked());
+                //TODO: add message2.0 event
+                //GrowthAnalytics.getInstance().setDevelopment(checkBox.isChecked());
             }
         });
 
@@ -70,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     EditText editText = (EditText) findViewById(R.id.level_edit_text);
-                    GrowthAnalytics.getInstance().setLevel(Integer.valueOf(editText.getText().toString()));
+                    //TODO: add message2.0 event
+                    //GrowthAnalytics.getInstance().setLevel(Integer.valueOf(editText.getText().toString()));
                 } catch (NumberFormatException e) {
                     Log.w("Grwothbeat Sample", "Input value error :" + e.getMessage());
                 }
@@ -83,8 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     EditText priceEditText = (EditText) findViewById(R.id.price_edit_text);
                     EditText productEditText = (EditText) findViewById(R.id.product_edit_text);
-                    GrowthAnalytics.getInstance().purchase(Integer.valueOf(priceEditText.getText().toString()), "item",
-                            productEditText.getText().toString());
+                    //TODO: add message2.0 event
+                    //GrowthAnalytics.getInstance().purchase(Integer.valueOf(priceEditText.getText().toString()), "item",
+                    //        productEditText.getText().toString());
                 } catch (NumberFormatException e) {
                     Log.w("Grwothbeat Sample", "Input value error :" + e.getMessage());
                 }
