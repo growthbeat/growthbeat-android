@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -54,12 +55,21 @@ public class GrowthPush {
         return instance;
     }
 
-    public void initialize(final Context context, final String applicationId, final String credentialId) {
+    public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
+        this.initialize(context, applicationId, credentialId, environment, true);
+    }
+
+    public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment, final boolean adInfoEnabled) {
 
         if (initialized)
             return;
 
         initialized = true;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+            logger.warning("This SDK not supported this os.");
+            return;
+        }
 
         if (context == null) {
             logger.warning("The context parameter cannot be null.");
@@ -68,25 +78,12 @@ public class GrowthPush {
 
         this.applicationId = applicationId;
         this.credentialId = credentialId;
+        this.environment = environment;
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+        GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
+
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
-
-        setAdvertisingId();
-        setTrackingEnabled();
-        trackEvent(Event.EventType.Default, "Install", null, null);
-
-    }
-
-    public void requestRegistrationId(final String senderId, final Environment environment) {
-
-        if (!initialized) {
-            logger.warning("Growth Push must be initilaize.");
-            return;
-        }
-
-        this.senderId = senderId;
-        this.environment = environment;
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
             @Override
@@ -99,14 +96,41 @@ public class GrowthPush {
                     && !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
                     GrowthPush.this.clearClient();
 
+                createClient(growthbeatClient.getId(), null);
+
+                if(adInfoEnabled) {
+                    setAdvertisingId();
+                    setTrackingEnabled();
+                }
+
+                trackEvent(Event.EventType.Default, "Install", null, null);
+
+            }
+        });
+
+
+    }
+
+    public void requestRegistrationId(final String senderId) {
+
+        if (!initialized) {
+            logger.warning("Growth Push must be initilaize.");
+            return;
+        }
+
+        this.senderId = senderId;
+
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
                 String token = registerGCM(GrowthbeatCore.getInstance().getContext());
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
                 }
-
             }
         });
+
     }
 
     public String registerGCM(final Context context) {
@@ -132,28 +156,15 @@ public class GrowthPush {
             @Override
             public void run() {
 
-                try {
+                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                createClient(growthbeatClient.getId(), registrationId);
 
-                    semaphore.acquire();
-
-                    if (client == null) {
-                        com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
-                        createClient(growthbeatClient.getId(), registrationId);
-                        return;
-                    }
-
-                    if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
-                        updateClient(registrationId);
-                        return;
-                    }
-
-                    logger.info("Client already registered.");
-
-                } catch (InterruptedException e){
-                } finally {
-                    semaphore.release();
-                    latch.countDown();
+                if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
+                    updateClient(registrationId);
+                    return;
                 }
+
+                logger.info("Client already registered.");
 
             }
 
@@ -164,15 +175,26 @@ public class GrowthPush {
 
         try {
 
+            semaphore.acquire();
+
+            Client loadClient = Client.load();
+            if(loadClient != null) {
+                this.client = loadClient;
+                return;
+            }
+
             logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
                 registrationId, environment));
             client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Create client success (clientId: %d)", client.getId()));
             Client.save(client);
-            latch.countDown();
 
+        } catch (InterruptedException e){
         } catch (GrowthPushException e) {
             logger.error(String.format("Create client fail. %s", e.getMessage()));
+        } finally {
+            semaphore.release();
+            latch.countDown();
         }
 
     }

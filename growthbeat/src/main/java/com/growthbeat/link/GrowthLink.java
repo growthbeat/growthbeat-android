@@ -2,6 +2,7 @@ package com.growthbeat.link;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
@@ -67,6 +68,11 @@ public class GrowthLink {
         if (initialized)
             return;
         initialized = true;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+            logger.warning("This SDK not supported this os.");
+            return;
+        }
 
         if (context == null) {
             logger.warning("The context parameter cannot be null.");
