@@ -309,7 +309,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.Default, "AdvertisingId", advertisingId);
+                        setTag(Tag.TagType.Default, "AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
