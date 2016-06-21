@@ -74,7 +74,7 @@ public class GrowthPush {
 
         setAdvertisingId();
         setTrackingEnabled();
-        trackEvent(Event.EventType.Default, "Open", null, null);
+        trackEvent(Event.EventType.Default, "Install", null, null);
 
     }
 
