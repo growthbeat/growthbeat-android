@@ -10,6 +10,7 @@ import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -70,6 +71,10 @@ public class GrowthPush {
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
+
+        setAdvertisingId();
+        setTrackingEnabled();
+        trackEvent(Event.EventType.Default, "Install", null, null);
 
     }
 
@@ -202,6 +207,10 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
+        trackEvent(Event.EventType.Custom, name, value, handler);
+    }
+
+    public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
 
         if(!initialized) {
             logger.info("call after initialized.");
@@ -223,10 +232,11 @@ public class GrowthPush {
                 logger.info(String.format("Sending event ... (name: %s)", name));
                 try {
                     Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId,
-                        GrowthPush.getInstance().credentialId, name, value);
+                        GrowthPush.getInstance().credentialId, type, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
-                    GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
+                    if(type != Event.EventType.Message)
+                        GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
 
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));
@@ -242,6 +252,10 @@ public class GrowthPush {
     }
 
     public void setTag(final String name, final String value) {
+        setTag(Tag.TagType.Custom, name, value);
+    }
+
+    private void setTag(final Tag.TagType type, final String name, final String value) {
 
         if(!initialized) {
             logger.info("call after initialized.");
@@ -258,7 +272,7 @@ public class GrowthPush {
                     return;
                 }
 
-                Tag tag = Tag.load(name);
+                Tag tag = Tag.load(type, name);
                 if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
                     logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
                     return;
@@ -268,9 +282,9 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
                 try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, name, value);
+                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, type, name, value);
                     logger.info(String.format("Sending tag success"));
-                    Tag.save(createdTag, name);
+                    Tag.save(createdTag, type, name);
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending tag fail. %s", e.getMessage()));
                 }
@@ -287,6 +301,37 @@ public class GrowthPush {
         setTag("Time Zone", DeviceUtils.getTimeZone());
         setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
         setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
+    }
+
+    private void setAdvertisingId() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String advertisingId = DeviceUtils.getAdvertisingId().get();
+                    if (advertisingId != null)
+                        setTag(Tag.TagType.Default, "AdvertisingID", advertisingId);
+                } catch (Exception e) {
+                    logger.warning("Failed to get advertisingId: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void setTrackingEnabled() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
+                    if (trackingEnabled != null)
+                        setTag(Tag.TagType.Default, "TrackingEnabled", String.valueOf(trackingEnabled));
+                } catch (Exception e) {
+                    logger.warning("Failed to get trackingEnabled: " + e.getMessage());
+                }
+
+            }
+        });
     }
 
     private void waitClientRegistration() {

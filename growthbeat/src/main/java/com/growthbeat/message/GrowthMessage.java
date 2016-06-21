@@ -29,6 +29,7 @@ import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.Task;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
+import com.growthpush.model.Event;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -158,7 +159,7 @@ public class GrowthMessage {
         } catch (JSONException e) {
         }
 
-        GrowthPush.getInstance().trackEvent("selectButton", jsonObject.toString());
+        GrowthPush.getInstance().trackEvent(Event.EventType.Message, "selectButton", jsonObject.toString(), null);
 
     }
 
