@@ -70,6 +70,7 @@ public class Synchronization extends Model {
                 return null;
 
             GrowthLink.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, new Synchronization(jsonObject).getJsonObject());
+            GrowthLink.getInstance().getContext().getFileStreamPath("growthanalytics-preferences").delete();
 
         }
         return new Synchronization(jsonObject);
