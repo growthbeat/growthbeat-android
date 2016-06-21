@@ -20,6 +20,21 @@ public class Tag extends Model {
 
     private String value;
 
+    public enum TagType {
+
+        Default("default"), Custom("custom"), Message("message");
+
+        private String typeName;
+
+        TagType(String typeName) {
+            this.typeName = typeName;
+        }
+
+        public String getTypeName() {
+            return typeName;
+        }
+    };
+
     public Tag() {
         super();
     }
@@ -29,7 +44,7 @@ public class Tag extends Model {
         setJsonObject(jsonObject);
     }
 
-    public static Tag create(String clientId, String applicationId, String credentialId, String name, String value) {
+    public static Tag create(String clientId, String applicationId, String credentialId, TagType type, String name, String value) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         if (clientId != null)
@@ -38,6 +53,8 @@ public class Tag extends Model {
             params.put("applicationId", applicationId);
         if (credentialId != null)
             params.put("credentialId", credentialId);
+        if(type != null)
+            params.put("type", type.getTypeName());
         if (name != null)
             params.put("name", name);
         if (value != null)

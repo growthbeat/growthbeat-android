@@ -10,6 +10,7 @@ import android.content.Context;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -70,6 +71,9 @@ public class GrowthPush {
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
+
+        setAdvertisingId();
+        setTrackingEnabled();
 
     }
 
@@ -242,6 +246,10 @@ public class GrowthPush {
     }
 
     public void setTag(final String name, final String value) {
+        setTag(Tag.TagType.Custom, name, value);
+    }
+
+    private void setTag(final Tag.TagType type, final String name, final String value) {
 
         if(!initialized) {
             logger.info("call after initialized.");
@@ -268,7 +276,7 @@ public class GrowthPush {
 
                 logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
                 try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, name, value);
+                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, type, name, value);
                     logger.info(String.format("Sending tag success"));
                     Tag.save(createdTag, name);
                 } catch (GrowthPushException e) {
@@ -287,6 +295,37 @@ public class GrowthPush {
         setTag("Time Zone", DeviceUtils.getTimeZone());
         setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
         setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
+    }
+
+    private void setAdvertisingId() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String advertisingId = DeviceUtils.getAdvertisingId().get();
+                    if (advertisingId != null)
+                        setTag(Tag.TagType.Default, "AdvertisingId", advertisingId);
+                } catch (Exception e) {
+                    logger.warning("Failed to get advertisingId: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void setTrackingEnabled() {
+        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
+                    if (trackingEnabled != null)
+                        setTag(Tag.TagType.Default, "TrackingEnabled", String.valueOf(trackingEnabled));
+                } catch (Exception e) {
+                    logger.warning("Failed to get trackingEnabled: " + e.getMessage());
+                }
+
+            }
+        });
     }
 
     private void waitClientRegistration() {
