@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -55,11 +56,20 @@ public class GrowthPush {
     }
 
     public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
+        this.initialize(context, applicationId, credentialId, environment, true);
+    }
+
+    public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment, final boolean adInfoEnabled) {
 
         if (initialized)
             return;
 
         initialized = true;
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+            logger.warning("This SDK not supported this os.");
+            return;
+        }
 
         if (context == null) {
             logger.warning("The context parameter cannot be null.");
@@ -71,6 +81,8 @@ public class GrowthPush {
         this.environment = environment;
 
         GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+        GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
+
         this.preference.setContext(GrowthbeatCore.getInstance().getContext());
 
         GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
@@ -86,8 +98,11 @@ public class GrowthPush {
 
                 createClient(growthbeatClient.getId(), null);
 
-                setAdvertisingId();
-                setTrackingEnabled();
+                if(adInfoEnabled) {
+                    setAdvertisingId();
+                    setTrackingEnabled();
+                }
+
                 trackEvent(Event.EventType.Default, "Install", null, null);
 
             }

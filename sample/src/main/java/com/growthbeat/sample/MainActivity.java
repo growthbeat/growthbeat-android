@@ -22,10 +22,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Growthbeat.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
+        GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo", BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-        GrowthPush.getInstance().requestRegistrationId("186415479559",
-            BuildConfig.DEBUG ? Environment.development : Environment.production);
+        GrowthPush.getInstance().requestRegistrationId("186415479559");
         GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
         Growthbeat.getInstance().getClient(new Growthbeat.ClientCallback() {
             @Override
@@ -35,17 +34,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-//        GrowthPush.getInstance().trackEvent("event", null, new ShowMessageHandler() {
-//            @Override
-//            public void complete(MessageRenderHandler run) {
-//                run.render();
-//            }
-//
-//            @Override
-//            public void onError() {
-//
-//            }
-//        });
+        GrowthPush.getInstance().trackEvent("ReceiveMessage", null, new ShowMessageHandler() {
+            @Override
+            public void complete(MessageRenderHandler renderHandler) {
+                renderHandler.render();
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
         GrowthPush.getInstance().setTag("tag1", "TAG");
         GrowthPush.getInstance().trackEvent("event1");
@@ -99,12 +98,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        Growthbeat.getInstance().start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Growthbeat.getInstance().stop();
     }
 }
