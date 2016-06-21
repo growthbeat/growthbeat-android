@@ -226,7 +226,7 @@ public class GrowthPush {
                         GrowthPush.getInstance().credentialId, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
-                    GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId());
+                    GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
 
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));

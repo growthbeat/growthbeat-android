@@ -32,6 +32,7 @@ public class GrowthLink {
     private static final int HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT = 60 * 1000;
     private static final int HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT = 60 * 1000;
     private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthlink-preferences";
+    private static final String PREFERENCE_ANALYTICS_FILE_NAME = "growthanalytics-preferences";
 
     private static final String INSTALL_REFERRER_KEY = "installReferrer";
 
@@ -40,6 +41,7 @@ public class GrowthLink {
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECTION_TIMEOUT, HTTP_CLIENT_DEFAULT_SOCKET_TIMEOUT);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
+    private final Preference analyticsPreference = new Preference(PREFERENCE_ANALYTICS_FILE_NAME);
 
     private Context context = null;
     private String applicationId = null;
@@ -221,6 +223,10 @@ public class GrowthLink {
 
     public Preference getPreference() {
         return preference;
+    }
+
+    public Preference getAnalyticsPreference() {
+        return analyticsPreference;
     }
 
     public String getSyncronizationUrl() {

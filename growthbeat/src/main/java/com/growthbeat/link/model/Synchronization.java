@@ -1,6 +1,5 @@
 package com.growthbeat.link.model;
 
-import com.growthbeat.analytics.GrowthAnalytics;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.JSONObjectUtils;
@@ -51,11 +50,13 @@ public class Synchronization extends Model {
     public static void save(Synchronization synchronization) {
         if (synchronization == null)
             return;
-        GrowthAnalytics.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
+        //to reference prev sdk's data
+        GrowthLink.getInstance().getAnalyticsPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
     }
 
     public static Synchronization load() {
-        JSONObject jsonObject = GrowthAnalytics.getInstance().getPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
+        //to reference prev sdk's data
+        JSONObject jsonObject = GrowthLink.getInstance().getAnalyticsPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
         if (jsonObject == null)
             return null;
         return new Synchronization(jsonObject);
