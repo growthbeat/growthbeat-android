@@ -3,6 +3,7 @@ package com.growthbeat.message;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CloseButton;
@@ -99,10 +101,10 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
         for (Button button : swipeMessage.getButtons()) {
             switch (button.getType()) {
                 case image:
-                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl()));
                     break;
                 case close:
-                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
                     break;
                 default:
                     continue;
@@ -125,10 +127,12 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
         String url = originUrl;
         String[] paths = url.split("/");
-
-        String[] extension = paths[paths.length - 1].split(".");
-
-        return String.format("%s@%d.%s", extension[0], (int) density, extension[1]);
+        String filename = paths[paths.length - 1];
+        String[] extension = filename.split("\\.");
+        String resultFileName =  String.format("%s@%d.%s", extension[0], (int) density, extension[1]);
+        paths = Arrays.copyOf(paths, paths.length - 1);
+        String  pathString = TextUtils.join("/", paths);
+        return String.format("%s/%s", pathString, resultFileName);
     }
 
     @Override
