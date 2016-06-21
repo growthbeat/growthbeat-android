@@ -74,6 +74,7 @@ public class GrowthPush {
 
         setAdvertisingId();
         setTrackingEnabled();
+        trackEvent(Event.EventType.Default, "Open", null, null);
 
     }
 
@@ -206,6 +207,10 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
+        trackEvent(Event.EventType.Custom, name, value, handler);
+    }
+
+    public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
 
         if(!initialized) {
             logger.info("call after initialized.");
@@ -227,7 +232,7 @@ public class GrowthPush {
                 logger.info(String.format("Sending event ... (name: %s)", name));
                 try {
                     Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId,
-                        GrowthPush.getInstance().credentialId, name, value);
+                        GrowthPush.getInstance().credentialId, type, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
                     GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);

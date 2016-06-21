@@ -20,6 +20,21 @@ public class Event extends Model {
 
     private String value;
 
+    public enum EventType {
+
+        Default("default"), Custom("custom"), Message("message");
+
+        private String typeName;
+
+        EventType(String typeName) {
+            this.typeName = typeName;
+        }
+
+        public String getTypeName() {
+            return typeName;
+        }
+    }
+
     public Event() {
         super();
     }
@@ -29,7 +44,7 @@ public class Event extends Model {
         setJsonObject(jsonObject);
     }
 
-    public static Event create(String clientId, String applicationId, String credentialId, String name, String value) {
+    public static Event create(String clientId, String applicationId, String credentialId, EventType type, String name, String value) {
 
         Map<String, Object> params = new HashMap<String, Object>();
         if (clientId != null)
@@ -38,6 +53,8 @@ public class Event extends Model {
             params.put("applicationId", applicationId);
         if (credentialId != null)
             params.put("credentialId", credentialId);
+        if (type != null)
+            params.put("type", type.getTypeName());
         if (name != null)
             params.put("name", name);
         if (value != null)
