@@ -17,7 +17,7 @@ import android.view.WindowManager;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 
 public final class DeviceUtils {
 
@@ -25,14 +25,14 @@ public final class DeviceUtils {
         FutureTask<Boolean> future = new FutureTask<Boolean>(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 try {
-                    Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+                    Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(Growthbeat.getInstance().getContext());
                     return !adInfo.isLimitAdTrackingEnabled();
                 } catch (Throwable e) {
                     return null;
                 }
             }
         });
-        GrowthbeatCore.getInstance().getExecutor().execute(future);
+        Growthbeat.getInstance().getExecutor().execute(future);
         return future;
     }
 
@@ -40,14 +40,14 @@ public final class DeviceUtils {
         FutureTask<String> future = new FutureTask<String>(new Callable<String>() {
             public String call() throws Exception {
                 try {
-                    Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(GrowthbeatCore.getInstance().getContext());
+                    Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(Growthbeat.getInstance().getContext());
                     return adInfo.getId();
                 } catch (Throwable e) {
                     return null;
                 }
             }
         });
-        GrowthbeatCore.getInstance().getExecutor().execute(future);
+        Growthbeat.getInstance().getExecutor().execute(future);
         return future;
     }
 

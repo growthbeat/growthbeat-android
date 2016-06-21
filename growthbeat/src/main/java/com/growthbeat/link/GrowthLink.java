@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebView;
 
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -83,10 +83,10 @@ public class GrowthLink {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
 
-        GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-        this.preference.setContext(GrowthbeatCore.getInstance().getContext());
-        if (GrowthbeatCore.getInstance().getClient() == null
-            || (GrowthbeatCore.getInstance().getClient().getApplication() != null && !GrowthbeatCore.getInstance().getClient()
+        Growthbeat.getInstance().initialize(context, applicationId, credentialId);
+        this.preference.setContext(Growthbeat.getInstance().getContext());
+        if (Growthbeat.getInstance().getClient() == null
+            || (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient()
             .getApplication().getId().equals(applicationId))) {
             preference.removeAll();
         }
@@ -114,7 +114,7 @@ public class GrowthLink {
             return;
         }
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -122,7 +122,7 @@ public class GrowthLink {
 
                 try {
 
-                    final Click click = Click.deeplink(GrowthbeatCore.getInstance().waitClient().getId(), clickId, firstSession,
+                    final Click click = Click.deeplink(Growthbeat.getInstance().waitClient().getId(), clickId, firstSession,
                         credentialId);
                     if (click == null || click.getPattern() == null || click.getPattern().getLink() == null) {
                         logger.error("Failed to deeplink.");
@@ -143,7 +143,7 @@ public class GrowthLink {
                             firstSession = false;
 
                             if (click.getPattern().getIntent() != null) {
-                                GrowthbeatCore.getInstance().handleIntent(click.getPattern().getIntent());
+                                Growthbeat.getInstance().handleIntent(click.getPattern().getIntent());
                             }
 
                         }
@@ -168,7 +168,7 @@ public class GrowthLink {
         firstSession = true;
 
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 logger.info("Synchronizing...");

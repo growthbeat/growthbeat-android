@@ -7,7 +7,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 
@@ -27,7 +27,7 @@ public class Client extends Model {
 
     public static Client load() {
 
-        JSONObject jsonObject = GrowthbeatCore.getInstance().getPreference().get(Client.class.getName());
+        JSONObject jsonObject = Growthbeat.getInstance().getPreference().get(Client.class.getName());
         if (jsonObject == null)
             return null;
 
@@ -40,7 +40,7 @@ public class Client extends Model {
         if (client == null)
             throw new IllegalArgumentException("Argument client cannot be null.");
 
-        GrowthbeatCore.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
+        Growthbeat.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
 
     }
 
@@ -50,7 +50,7 @@ public class Client extends Model {
         params.put("applicationId", applicationId);
         params.put("credentialId", credentialId);
 
-        JSONObject jsonObject = GrowthbeatCore.getInstance().getHttpClient().post("1/clients", params);
+        JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().post("1/clients", params);
         if (jsonObject == null)
             return null;
 
@@ -63,7 +63,7 @@ public class Client extends Model {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("credentialId", credentialId);
 
-        JSONObject jsonObject = GrowthbeatCore.getInstance().getHttpClient().get("1/clients/" + id, params);
+        JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().get("1/clients/" + id, params);
         if (jsonObject == null)
             return null;
 

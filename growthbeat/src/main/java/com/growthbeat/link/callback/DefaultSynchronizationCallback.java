@@ -1,14 +1,7 @@
 package com.growthbeat.link.callback;
 
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-
-import com.growthbeat.GrowthbeatCore;
-import com.growthbeat.link.GrowthLink;
 import com.growthbeat.link.handler.SynchronizationHandler;
 import com.growthbeat.link.model.Synchronization;
-import com.growthbeat.utils.DeviceUtils;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 

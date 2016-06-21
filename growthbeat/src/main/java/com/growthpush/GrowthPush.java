@@ -1,8 +1,5 @@
 package com.growthpush;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 
@@ -12,7 +9,6 @@ import android.os.Build;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.Growthbeat;
-import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
@@ -80,16 +76,16 @@ public class GrowthPush {
         this.credentialId = credentialId;
         this.environment = environment;
 
-        GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
+        Growthbeat.getInstance().initialize(context, applicationId, credentialId);
         GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
 
-        this.preference.setContext(GrowthbeatCore.getInstance().getContext());
+        this.preference.setContext(Growthbeat.getInstance().getContext());
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
-                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
                 client = Client.load();
 
                 if (client != null && client.getGrowthbeatClientId() != null
@@ -120,10 +116,10 @@ public class GrowthPush {
 
         this.senderId = senderId;
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                String token = registerGCM(GrowthbeatCore.getInstance().getContext());
+                String token = registerGCM(Growthbeat.getInstance().getContext());
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
@@ -151,12 +147,12 @@ public class GrowthPush {
     }
 
     protected void registerClient(final String registrationId) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
 
-                com.growthbeat.model.Client growthbeatClient = GrowthbeatCore.getInstance().waitClient();
+                com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
                 createClient(growthbeatClient.getId(), registrationId);
 
                 if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
@@ -239,7 +235,7 @@ public class GrowthPush {
             return;
         }
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -284,7 +280,7 @@ public class GrowthPush {
             return;
         }
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {
@@ -321,12 +317,12 @@ public class GrowthPush {
         setTag("OS", "Android " + DeviceUtils.getOsVersion());
         setTag("Language", DeviceUtils.getLanguage());
         setTag("Time Zone", DeviceUtils.getTimeZone());
-        setTag("Version", AppUtils.getaAppVersion(GrowthbeatCore.getInstance().getContext()));
-        setTag("Build", AppUtils.getAppBuild(GrowthbeatCore.getInstance().getContext()));
+        setTag("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
+        setTag("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
     }
 
     private void setAdvertisingId() {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -341,7 +337,7 @@ public class GrowthPush {
     }
 
     private void setTrackingEnabled() {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 try {

@@ -1,6 +1,6 @@
 package com.growthbeat.link.model;
 
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.Preference;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Model;
@@ -63,7 +63,7 @@ public class Synchronization extends Model {
             if(file == null || !file.exists())
                 return null;
             Preference preference = new Preference("growthanalytics-preferences");
-            preference.setContext(GrowthbeatCore.getInstance().getContext());
+            preference.setContext(Growthbeat.getInstance().getContext());
             jsonObject = preference.get(PREFERENCE_SYNCHRONIZATION_KEY);
 
             if (jsonObject == null)

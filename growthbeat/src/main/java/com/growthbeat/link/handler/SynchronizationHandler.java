@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.link.model.Synchronization;
 import com.growthbeat.utils.DeviceUtils;
@@ -17,7 +17,7 @@ public class SynchronizationHandler {
     private static long INSTALLREFERRER_TIMEOUT = 60 * 1000;
 
     public void synchronizeWithInstallReferrer(final Synchronization synchronization) {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 String installReferrer = GrowthLink.getInstance().waitInstallReferrer(INSTALLREFERRER_TIMEOUT);

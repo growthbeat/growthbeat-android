@@ -14,7 +14,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
@@ -79,10 +79,10 @@ public class GrowthMessage {
         this.showingMessage = false;
         this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
-        GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-        this.preference.setContext(GrowthbeatCore.getInstance().getContext());
-        if (GrowthbeatCore.getInstance().getClient() == null
-            || (GrowthbeatCore.getInstance().getClient().getApplication() != null && !GrowthbeatCore.getInstance().getClient()
+        Growthbeat.getInstance().initialize(context, applicationId, credentialId);
+        this.preference.setContext(Growthbeat.getInstance().getContext());
+        if (Growthbeat.getInstance().getClient() == null
+            || (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient()
             .getApplication().getId().equals(applicationId))) {
             preference.removeAll();
         }
@@ -93,7 +93,7 @@ public class GrowthMessage {
 
     public void recevieMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
             public void run() {
 
@@ -129,10 +129,10 @@ public class GrowthMessage {
             if (!messageHandler.handle(message))
                 continue;
 
-            GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+            Growthbeat.getInstance().getExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    Client client = GrowthbeatCore.getInstance().waitClient();
+                    Client client = Growthbeat.getInstance().waitClient();
                     int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, message.getTask().getId(), message.getId());
                     logger.info(String.format("Success show message (count : %d)", incrementCount));
                 }
@@ -145,7 +145,7 @@ public class GrowthMessage {
 
     public void selectButton(Button button, Message message) {
 
-        GrowthbeatCore.getInstance().handleIntent(button.getIntent());
+        Growthbeat.getInstance().handleIntent(button.getIntent());
 
         JSONObject jsonObject = new JSONObject();
 
@@ -164,7 +164,7 @@ public class GrowthMessage {
     }
 
     public void openMessageIfExists() {
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
+        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
             public void run() {

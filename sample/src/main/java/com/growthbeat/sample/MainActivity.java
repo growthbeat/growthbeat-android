@@ -9,7 +9,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
-import com.growthbeat.GrowthbeatCore;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
@@ -31,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Client client = GrowthbeatCore.getInstance().waitClient();
+                Client client = Growthbeat.getInstance().waitClient();
                 Log.d("GrowthbeatSample", String.format("clientId is %s", client.getId()));
             }
         }).start();
