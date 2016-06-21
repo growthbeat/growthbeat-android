@@ -1,5 +1,7 @@
 package com.growthbeat.link.model;
 
+import com.growthbeat.GrowthbeatCore;
+import com.growthbeat.Preference;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.JSONObjectUtils;
@@ -7,6 +9,7 @@ import com.growthbeat.utils.JSONObjectUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,15 +53,25 @@ public class Synchronization extends Model {
     public static void save(Synchronization synchronization) {
         if (synchronization == null)
             return;
-        //to reference prev sdk's data
-        GrowthLink.getInstance().getAnalyticsPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
+        GrowthLink.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, synchronization.getJsonObject());
     }
 
     public static Synchronization load() {
-        //to reference prev sdk's data
-        JSONObject jsonObject = GrowthLink.getInstance().getAnalyticsPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
-        if (jsonObject == null)
-            return null;
+        JSONObject jsonObject = GrowthLink.getInstance().getPreference().get(PREFERENCE_SYNCHRONIZATION_KEY);
+        if (jsonObject == null) {
+            File file = GrowthLink.getInstance().getContext().getFileStreamPath("growthanalytics-preferences");
+            if(file == null || !file.exists())
+                return null;
+            Preference preference = new Preference("growthanalytics-preferences");
+            preference.setContext(GrowthbeatCore.getInstance().getContext());
+            jsonObject = preference.get(PREFERENCE_SYNCHRONIZATION_KEY);
+
+            if (jsonObject == null)
+                return null;
+
+            GrowthLink.getInstance().getPreference().save(PREFERENCE_SYNCHRONIZATION_KEY, new Synchronization(jsonObject).getJsonObject());
+
+        }
         return new Synchronization(jsonObject);
     }
 
