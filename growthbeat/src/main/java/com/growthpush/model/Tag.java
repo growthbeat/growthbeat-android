@@ -12,7 +12,7 @@ import com.growthpush.GrowthPush;
 
 public class Tag extends Model {
 
-    private static final String TAG_KEY_FORMAT = "tags:%s";
+    private static final String TAG_KEY_FORMAT_V4 = "tags:%s:%s";
 
     private int tagId;
 
@@ -68,21 +68,31 @@ public class Tag extends Model {
 
     }
 
-    public static void save(Tag tag, String name) {
+    public static void save(Tag tag, TagType type, String name) {
 
         if (tag == null || name == null || name.length() == 0)
             return;
 
-        GrowthPush.getInstance().getPreference().save(String.format(TAG_KEY_FORMAT, name), tag.getJsonObject());
+        GrowthPush.getInstance().getPreference().save(String.format(TAG_KEY_FORMAT_V4, type.getTypeName(), name), tag.getJsonObject());
 
     }
 
-    public static Tag load(String name) {
+    public static Tag load(TagType type, String name) {
 
         if (name == null || name.length() == 0)
             return null;
 
-        return new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT, name)));
+        Tag tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT_V4, type.getTypeName(), name)));
+        if(tag != null)
+            return tag;
+
+        final String old_key_format = "tags:%s";
+        tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(old_key_format, name)));
+        if(tag == null)
+            return null;
+
+        save(tag, type, name);
+        return tag;
 
     }
 

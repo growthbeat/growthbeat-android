@@ -235,7 +235,8 @@ public class GrowthPush {
                         GrowthPush.getInstance().credentialId, type, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
-                    GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
+                    if(type != Event.EventType.Message)
+                        GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
 
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));
@@ -271,7 +272,7 @@ public class GrowthPush {
                     return;
                 }
 
-                Tag tag = Tag.load(name);
+                Tag tag = Tag.load(type, name);
                 if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
                     logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
                     return;
@@ -283,7 +284,7 @@ public class GrowthPush {
                 try {
                     Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, type, name, value);
                     logger.info(String.format("Sending tag success"));
-                    Tag.save(createdTag, name);
+                    Tag.save(createdTag, type, name);
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending tag fail. %s", e.getMessage()));
                 }
