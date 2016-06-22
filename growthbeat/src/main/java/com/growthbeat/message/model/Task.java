@@ -187,13 +187,13 @@ public class Task extends Model {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "orientation"))
 				setOrientation(Orientation.valueOf(jsonObject.getString("orientation")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "begin"))
-				setBegin(DateUtils.parseFromDateTimeString(jsonObject.getString("begin")));
+				setBegin(DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("begin"), "yyyy-MM-dd HH:mm:ss"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "end"))
-				setEnd(DateUtils.parseFromDateTimeString(jsonObject.getString("end")));
+				setEnd(DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("end"), "yyyy-MM-dd HH:mm:ss"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "capacity"))
 				setCapacity(jsonObject.getInt("capacity"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
-				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+				setCreated(DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss"));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.", e);
 		}

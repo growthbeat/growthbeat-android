@@ -18,7 +18,7 @@ public class CardMessageHandler implements MessageHandler {
 	@Override
 	public boolean handle(final Message message) {
 
-		if (message.getType() != Message.MessageType.image)
+		if (message.getType() != Message.MessageType.card)
 			return false;
 		if (!(message instanceof CardMessage))
 			return false;

@@ -49,7 +49,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 	public void download() {
 
 		switch (message.getType()) {
-		case image:
+		case card:
 			download((CardMessage) message);
 			break;
 		case swipe:

@@ -47,7 +47,7 @@ public class MessageActivity extends FragmentActivity {
 				plainMessageFragment.show(getSupportFragmentManager(), getClass().getName());
 			}
 			break;
-		case image:
+		case card:
 			CardMessageFragment cardMessageFragment = new CardMessageFragment();
 			cardMessageFragment.setArguments(bundle);
 			getSupportFragmentManager().beginTransaction().replace(android.R.id.content, cardMessageFragment).commitAllowingStateLoss();

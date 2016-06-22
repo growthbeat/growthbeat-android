@@ -64,7 +64,7 @@ public class Message extends Model implements Parcelable {
 		switch (message.getType()) {
 		case plain:
 			return new PlainMessage(jsonObject);
-		case image:
+		case card:
 			return new CardMessage(jsonObject);
 		case swipe:
 			return new SwipeMessage(jsonObject);
@@ -236,7 +236,7 @@ public class Message extends Model implements Parcelable {
 
 	public enum MessageType {
 		plain,
-		image,
+        card,
 		swipe
 	}
 

@@ -19,7 +19,7 @@ public final class DateUtils {
 
 	}
 
-	public static String formatToDateTimeString(Date date) {
+    public static String formatToDateTimeString(Date date) {
 		return format(date, FORMAT_DATETIME);
 	}
 
@@ -43,6 +43,10 @@ public final class DateUtils {
 	public static Date parseFromDateTimeString(String string) {
 		return parse(string, FORMAT_DATETIME);
 	}
+
+    public static Date parseFromDateTimeStringWithFormat(String string, String format) {
+        return parse(string, format);
+    }
 
 	public static Date parseFromDateString(String string) {
 		return parse(string, FORMAT_DATE);
