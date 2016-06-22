@@ -48,7 +48,7 @@ public class Task extends Model {
 
         params.put("goalId", goalId);
 
-        JSONArray jsonArray = GrowthPush.getInstance().getHttpClient().postForArray("/4/tasks", params);
+        JSONArray jsonArray = GrowthPush.getInstance().getHttpClient().getForArray("4/tasks", params);
         return createList(jsonArray);
     }
 

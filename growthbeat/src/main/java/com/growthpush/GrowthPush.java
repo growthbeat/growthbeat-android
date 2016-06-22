@@ -176,6 +176,8 @@ public class GrowthPush {
             Client loadClient = Client.load();
             if(loadClient != null) {
                 this.client = loadClient;
+                logger.info(String.format("Client already Created... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
+                    registrationId, environment));
                 return;
             }
 
