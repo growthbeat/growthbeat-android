@@ -152,7 +152,7 @@ public class GrowthMessage {
         } catch (JSONException e) {
         }
 
-        GrowthPush.getInstance().trackEvent(Event.EventType.Message, "selectButton", jsonObject.toString(), null);
+        GrowthPush.getInstance().trackEvent(Event.EventType.message, "selectButton", jsonObject.toString(), null);
 
     }
 
