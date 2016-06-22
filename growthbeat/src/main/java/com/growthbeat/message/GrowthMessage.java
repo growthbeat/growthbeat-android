@@ -17,8 +17,6 @@ import android.os.Looper;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
-import com.growthbeat.Preference;
-import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.handler.CardMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;
 import com.growthbeat.message.handler.PlainMessageHandler;
@@ -38,9 +36,6 @@ public class GrowthMessage {
 
     private static final GrowthMessage instance = new GrowthMessage();
     private final Logger logger = new Logger(GrowthMessageConstants.LOGGER_DEFAULT_TAG);
-    private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(GrowthMessageConstants.HTTP_CLIENT_DEFAULT_BASE_URL,
-        GrowthMessageConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthMessageConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
-    private final Preference preference = new Preference(GrowthMessageConstants.PREFERENCE_DEFAULT_FILE_NAME);
 
     private String applicationId = null;
     private String credentialId = null;
@@ -80,11 +75,9 @@ public class GrowthMessage {
         this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
         Growthbeat.getInstance().initialize(context, applicationId, credentialId);
-        this.preference.setContext(Growthbeat.getInstance().getContext());
         if (Growthbeat.getInstance().getClient() == null
             || (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient()
             .getApplication().getId().equals(applicationId))) {
-            preference.removeAll();
         }
 
         setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
@@ -221,14 +214,6 @@ public class GrowthMessage {
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public GrowthbeatHttpClient getHttpClient() {
-        return httpClient;
-    }
-
-    public Preference getPreference() {
-        return preference;
     }
 
     public void setMessageHandlers(List<MessageHandler> messageHandlers) {

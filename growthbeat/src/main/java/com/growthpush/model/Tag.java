@@ -21,18 +21,7 @@ public class Tag extends Model {
     private String value;
 
     public enum TagType {
-
-        Default("default"), Custom("custom"), Message("message");
-
-        private String typeName;
-
-        TagType(String typeName) {
-            this.typeName = typeName;
-        }
-
-        public String getTypeName() {
-            return typeName;
-        }
+        custom, message
     };
 
     public Tag() {
@@ -54,7 +43,7 @@ public class Tag extends Model {
         if (credentialId != null)
             params.put("credentialId", credentialId);
         if(type != null)
-            params.put("type", type.getTypeName());
+            params.put("type", type.toString());
         if (name != null)
             params.put("name", name);
         if (value != null)
@@ -73,7 +62,7 @@ public class Tag extends Model {
         if (tag == null || name == null || name.length() == 0)
             return;
 
-        GrowthPush.getInstance().getPreference().save(String.format(TAG_KEY_FORMAT_V4, type.getTypeName(), name), tag.getJsonObject());
+        GrowthPush.getInstance().getPreference().save(String.format(TAG_KEY_FORMAT_V4, type.toString(), name), tag.getJsonObject());
 
     }
 
@@ -82,7 +71,7 @@ public class Tag extends Model {
         if (name == null || name.length() == 0)
             return null;
 
-        Tag tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT_V4, type.getTypeName(), name)));
+        Tag tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT_V4, type.toString(), name)));
         if(tag != null)
             return tag;
 

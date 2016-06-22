@@ -99,7 +99,7 @@ public class GrowthPush {
                     setTrackingEnabled();
                 }
 
-                trackEvent(Event.EventType.Default, "Install", null, null);
+                trackEvent(Event.EventType.custom, "Install", null, null);
 
             }
         });
@@ -225,7 +225,7 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
-        trackEvent(Event.EventType.Custom, name, value, handler);
+        trackEvent(Event.EventType.custom, name, value, handler);
     }
 
     public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
@@ -253,7 +253,7 @@ public class GrowthPush {
                         GrowthPush.getInstance().credentialId, type, name, value);
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
-                    if(type != Event.EventType.Message)
+                    if(type != Event.EventType.message)
                         GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
 
                 } catch (GrowthPushException e) {
@@ -270,7 +270,7 @@ public class GrowthPush {
     }
 
     public void setTag(final String name, final String value) {
-        setTag(Tag.TagType.Custom, name, value);
+        setTag(Tag.TagType.custom, name, value);
     }
 
     private void setTag(final Tag.TagType type, final String name, final String value) {
@@ -328,7 +328,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.Default, "AdvertisingID", advertisingId);
+                        setTag(Tag.TagType.custom, "AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
@@ -343,7 +343,7 @@ public class GrowthPush {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
                     if (trackingEnabled != null)
-                        setTag(Tag.TagType.Default, "TrackingEnabled", String.valueOf(trackingEnabled));
+                        setTag(Tag.TagType.custom, "TrackingEnabled", String.valueOf(trackingEnabled));
                 } catch (Exception e) {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }

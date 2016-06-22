@@ -21,18 +21,7 @@ public class Event extends Model {
     private String value;
 
     public enum EventType {
-
-        Default("default"), Custom("custom"), Message("message");
-
-        private String typeName;
-
-        EventType(String typeName) {
-            this.typeName = typeName;
-        }
-
-        public String getTypeName() {
-            return typeName;
-        }
+        custom, message
     }
 
     public Event() {
@@ -54,7 +43,7 @@ public class Event extends Model {
         if (credentialId != null)
             params.put("credentialId", credentialId);
         if (type != null)
-            params.put("type", type.getTypeName());
+            params.put("type", type.toString());
         if (name != null)
             params.put("name", name);
         if (value != null)
