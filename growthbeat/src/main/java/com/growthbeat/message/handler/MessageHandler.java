@@ -4,6 +4,6 @@ import com.growthbeat.message.model.Message;
 
 public interface MessageHandler {
 
-    boolean handle(Message message);
+	boolean handle(Message message);
 
 }

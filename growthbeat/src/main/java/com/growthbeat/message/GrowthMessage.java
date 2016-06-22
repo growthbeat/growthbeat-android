@@ -10,9 +10,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
@@ -29,198 +28,199 @@ import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Event;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 public class GrowthMessage {
 
-    private static final GrowthMessage instance = new GrowthMessage();
-    private final Logger logger = new Logger(GrowthMessageConstants.LOGGER_DEFAULT_TAG);
+	private static final GrowthMessage instance = new GrowthMessage();
+	private final Logger logger = new Logger(GrowthMessageConstants.LOGGER_DEFAULT_TAG);
+	private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+	private String applicationId = null;
+	private String credentialId = null;
+	private boolean initialized = false;
+	private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
+	private Semaphore messageSemaphore = new Semaphore(1);
+	private long lastMessageOpenedTimeMills;
+	private boolean showingMessage;
+	private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
+	private Map<Message, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
-    private String applicationId = null;
-    private String credentialId = null;
+	private GrowthMessage() {
+		super();
+	}
 
-    private boolean initialized = false;
-    private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
+	public static GrowthMessage getInstance() {
+		return instance;
+	}
 
-    private Semaphore messageSemaphore = new Semaphore(1);
-    private long lastMessageOpenedTimeMills;
-    private boolean showingMessage;
-    private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-    private Map<Message, ShowMessageHandler> showMessageHandlers = new HashMap<>();
+	public void initialize(final Context context, final String applicationId, final String credentialId) {
 
-    private GrowthMessage() {
-        super();
-    }
+		if (initialized)
+			return;
+		initialized = true;
 
-    public static GrowthMessage getInstance() {
-        return instance;
-    }
+		if (context == null) {
+			logger.warning("The context parameter cannot be null.");
+			return;
+		}
 
-    public void initialize(final Context context, final String applicationId, final String credentialId) {
+		this.applicationId = applicationId;
+		this.credentialId = credentialId;
+		this.showingMessage = false;
+		this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
-        if (initialized)
-            return;
-        initialized = true;
+		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
+		if (Growthbeat.getInstance().getClient() == null || (Growthbeat.getInstance().getClient().getApplication() != null
+				&& !Growthbeat.getInstance().getClient().getApplication().getId().equals(applicationId))) {
+		}
 
-        if (context == null) {
-            logger.warning("The context parameter cannot be null.");
-            return;
-        }
+		setMessageHandlers(
+				Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
-        this.applicationId = applicationId;
-        this.credentialId = credentialId;
-        this.showingMessage = false;
-        this.lastMessageOpenedTimeMills = System.currentTimeMillis();
+	}
 
-        Growthbeat.getInstance().initialize(context, applicationId, credentialId);
-        if (Growthbeat.getInstance().getClient() == null
-            || (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient()
-            .getApplication().getId().equals(applicationId))) {
-        }
+	public void recevieMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
-        setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
+		Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+			@Override
+			public void run() {
 
-    }
+				logger.info("Receive message...");
 
-    public void recevieMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
+				try {
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
+					List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
+					logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
+					for (Task task : tasks) {
+						// TODO キューはMessageの描画キュー
+						Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
+						if (message != null) {
+							// TODO handlerとmessageが別管理なのが気になる
+							messageQueue.add(message);
+							if (handler != null)
+								showMessageHandlers.put(message, handler);
+						}
+					}
 
-                logger.info("Receive message...");
+					openMessageIfExists();
 
-                try {
+				} catch (GrowthbeatException e) {
+					logger.info(String.format("Failed to get message. %s", e.getMessage()));
+				}
 
-                    List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
-                    logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
-                    for (Task task : tasks) {
-                        Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
-                        if(message != null) {
-                            messageQueue.add(message);
-                            if(handler != null)
-                            showMessageHandlers.put(message, handler);
-                        }
-                    }
+			}
 
-                    openMessageIfExists();
+		});
+	}
 
-                } catch (GrowthbeatException e) {
-                    logger.info(String.format("Failed to get message. %s", e.getMessage()));
-                }
+	private void openMessage(final Message message) {
 
-            }
+		for (MessageHandler messageHandler : messageHandlers) {
+			if (!messageHandler.handle(message))
+				continue;
 
-        });
-    }
+			Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+				@Override
+				public void run() {
+					Client client = Growthbeat.getInstance().waitClient();
+					int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, message.getTask().getId(),
+							message.getId());
+					logger.info(String.format("Success show message (count : %d)", incrementCount));
+				}
+			});
 
-    private void openMessage(final Message message) {
+			break;
+		}
 
-        for (MessageHandler messageHandler : messageHandlers) {
-            if (!messageHandler.handle(message))
-                continue;
+	}
 
-            Growthbeat.getInstance().getExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    Client client = Growthbeat.getInstance().waitClient();
-                    int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, message.getTask().getId(), message.getId());
-                    logger.info(String.format("Success show message (count : %d)", incrementCount));
-                }
-            });
+	public void selectButton(Button button, Message message) {
 
-            break;
-        }
+		Growthbeat.getInstance().handleIntent(button.getIntent());
 
-    }
+		JSONObject jsonObject = new JSONObject();
 
-    public void selectButton(Button button, Message message) {
+		try {
+			if (message != null && message.getTask() != null)
+				jsonObject.put("taskId", message.getTask().getId());
+			if (message != null)
+				jsonObject.put("messageId", message.getId());
+			if (button != null && button.getIntent() != null)
+				jsonObject.put("intentId", button.getIntent().getId());
+		} catch (JSONException e) {
+		}
 
-        Growthbeat.getInstance().handleIntent(button.getIntent());
+		GrowthPush.getInstance().trackEvent(Event.EventType.message, "selectButton", jsonObject.toString(), null);
 
-        JSONObject jsonObject = new JSONObject();
+	}
 
-        try {
-            if (message != null && message.getTask() != null)
-                jsonObject.put("taskId", message.getTask().getId());
-            if (message != null)
-                jsonObject.put("messageId", message.getId());
-            if (button != null && button.getIntent() != null)
-                jsonObject.put("intentId", button.getIntent().getId());
-        } catch (JSONException e) {
-        }
+	public void openMessageIfExists() {
+		Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
-        GrowthPush.getInstance().trackEvent(Event.EventType.message, "selectButton", jsonObject.toString(), null);
+			@Override
+			public void run() {
 
-    }
+				try {
+					messageSemaphore.acquire();
 
-    public void openMessageIfExists() {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+					long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
+					if (showingMessage && diff < GrowthMessageConstants.MIN_TIME_FOR_OVERRIDE_MESSAGE) {
+						return;
+					}
+					final Message message = messageQueue.poll();
+					showingMessage = true;
 
-            @Override
-            public void run() {
+					logger.info(String.format("Show Message for %s", message.getId()));
+					new Handler(Looper.getMainLooper()).post(new Runnable() {
+						@Override
+						public void run() {
+							GrowthMessage.getInstance().openMessage(message);
+						}
+					});
+					lastMessageOpenedTimeMills = System.currentTimeMillis();
 
-                try {
-                    messageSemaphore.acquire();
+				} catch (InterruptedException e) {
+				} finally {
+					messageSemaphore.release();
+				}
 
-                    long diff = System.currentTimeMillis() - lastMessageOpenedTimeMills;
-                    if (showingMessage &&  diff < GrowthMessageConstants.MIN_TIME_FOR_OVERRIDE_MESSAGE) {
-                        return;
-                    }
-                    final Message message = messageQueue.poll();
-                    showingMessage = true;
+			}
+		});
+	}
 
-                    logger.info(String.format("Show Message for %s", message.getId()));
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            GrowthMessage.getInstance().openMessage(message);
-                        }
-                    });
-                    lastMessageOpenedTimeMills = System.currentTimeMillis();
+	public ShowMessageHandler findShowMessageHandler(Message message) {
+		return showMessageHandlers.get(message);
+	}
 
-                } catch (InterruptedException e) {
-                } finally {
-                    messageSemaphore.release();
-                }
+	public void notifyPopNextMessage() {
+		scheduledThreadPoolExecutor.schedule(new Runnable() {
+			@Override
+			public void run() {
+				showingMessage = false;
+				openMessageIfExists();
+			}
+		}, GrowthMessageConstants.POP_NEX_MESSAGE_DELAY, TimeUnit.MILLISECONDS);
+	}
 
-            }
-        });
-    }
+	public String getApplicationId() {
+		return applicationId;
+	}
 
-    public ShowMessageHandler findShowMessageHandler(Message message) {
-        return showMessageHandlers.get(message);
-    }
+	public String getCredentialId() {
+		return credentialId;
+	}
 
-    public void notifyPopNextMessage() {
-        scheduledThreadPoolExecutor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                showingMessage = false;
-                openMessageIfExists();
-            }
-        }, GrowthMessageConstants.POP_NEX_MESSAGE_DELAY, TimeUnit.MILLISECONDS);
-    }
+	public Logger getLogger() {
+		return logger;
+	}
 
-    public String getApplicationId() {
-        return applicationId;
-    }
+	public void setMessageHandlers(List<MessageHandler> messageHandlers) {
+		this.messageHandlers = messageHandlers;
+	}
 
-    public String getCredentialId() {
-        return credentialId;
-    }
-
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public void setMessageHandlers(List<MessageHandler> messageHandlers) {
-        this.messageHandlers = messageHandlers;
-    }
-
-    public void addMessageHandler(MessageHandler messageHandler) {
-        this.messageHandlers.add(messageHandler);
-    }
+	public void addMessageHandler(MessageHandler messageHandler) {
+		this.messageHandlers.add(messageHandler);
+	}
 }

@@ -1,5 +1,7 @@
 package com.growthpush.view;
 
+import com.growthpush.GrowthPushConstants;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,90 +16,87 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 
-import com.growthpush.GrowthPush;
-import com.growthpush.GrowthPushConstants;
-
 /**
  * Created by Shigeru Ogawa on 13/08/12.
  */
 public class AlertFragment extends DialogFragment implements DialogInterface.OnClickListener {
 
-    protected DialogCallback listener;
+	protected DialogCallback listener;
 
-    public AlertFragment() {
-        super();
-    }
+	public AlertFragment() {
+		super();
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        Dialog dialog = generateAlertDialog();
-        if (dialog == null)
-            return super.onCreateDialog(savedInstanceState);
+		Dialog dialog = generateAlertDialog();
+		if (dialog == null)
+			return super.onCreateDialog(savedInstanceState);
 
-        return dialog;
+		return dialog;
 
-    }
+	}
 
-    protected Dialog generateAlertDialog() {
+	protected Dialog generateAlertDialog() {
 
-        PackageManager packageManager = getActivity().getPackageManager();
-        ApplicationInfo applicationInfo = null;
-        try {
-            applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
-        } catch (NameNotFoundException e) {
-            return null;
-        }
+		PackageManager packageManager = getActivity().getPackageManager();
+		ApplicationInfo applicationInfo = null;
+		try {
+			applicationInfo = packageManager.getApplicationInfo(getActivity().getPackageName(), PackageManager.GET_META_DATA);
+		} catch (NameNotFoundException e) {
+			return null;
+		}
 
-        int icon = applicationInfo.icon;
-        if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPushConstants.DIALOG_ICON_META_KEY))
-            icon = applicationInfo.metaData.getInt(GrowthPushConstants.DIALOG_ICON_META_KEY);
+		int icon = applicationInfo.icon;
+		if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPushConstants.DIALOG_ICON_META_KEY))
+			icon = applicationInfo.metaData.getInt(GrowthPushConstants.DIALOG_ICON_META_KEY);
 
-        Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(icon).setTitle(packageManager.getApplicationLabel(applicationInfo))
-            .setMessage(getArguments().getString("message")).setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
-        dialog.setOnKeyListener(new OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+		Dialog dialog = new AlertDialog.Builder(getActivity()).setIcon(icon).setTitle(packageManager.getApplicationLabel(applicationInfo))
+				.setMessage(getArguments().getString("message")).setPositiveButton("OK", this).setNegativeButton("Cancel", this).create();
+		dialog.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 
-                if (keyCode == KeyEvent.KEYCODE_BACK)
-                    if (listener != null)
-                        listener.onClickNegative(dialog);
+				if (keyCode == KeyEvent.KEYCODE_BACK)
+					if (listener != null)
+						listener.onClickNegative(dialog);
 
-                return false;
-            }
-        });
+				return false;
+			}
+		});
 
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
+		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+		dialog.setCanceledOnTouchOutside(false);
 
-        return dialog;
-    }
+		return dialog;
+	}
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
 
-        if (activity instanceof AlertActivity)
-            this.listener = (DialogCallback) activity;
+		if (activity instanceof AlertActivity)
+			this.listener = (DialogCallback) activity;
 
-    }
+	}
 
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
 
-        switch (which) {
-            case DialogInterface.BUTTON_POSITIVE:
-                if (this.listener != null)
-                    listener.onClickPositive(dialog);
-                break;
-            case DialogInterface.BUTTON_NEGATIVE:
-                if (this.listener != null)
-                    listener.onClickNegative(dialog);
-                break;
-            default:
-                break;
-        }
+		switch (which) {
+		case DialogInterface.BUTTON_POSITIVE:
+			if (this.listener != null)
+				listener.onClickPositive(dialog);
+			break;
+		case DialogInterface.BUTTON_NEGATIVE:
+			if (this.listener != null)
+				listener.onClickNegative(dialog);
+			break;
+		default:
+			break;
+		}
 
-    }
+	}
 
 }

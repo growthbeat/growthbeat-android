@@ -2,22 +2,22 @@ package com.growthbeat;
 
 public class GrowthbeatException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public GrowthbeatException() {
-        super();
-    }
+	public GrowthbeatException() {
+		super();
+	}
 
-    public GrowthbeatException(String message) {
-        super(message);
-    }
+	public GrowthbeatException(String message) {
+		super(message);
+	}
 
-    public GrowthbeatException(Throwable throwable) {
-        super(throwable);
-    }
+	public GrowthbeatException(Throwable throwable) {
+		super(throwable);
+	}
 
-    public GrowthbeatException(String message, Throwable throwable) {
-        super(message, throwable);
-    }
+	public GrowthbeatException(String message, Throwable throwable) {
+		super(message, throwable);
+	}
 
 }
