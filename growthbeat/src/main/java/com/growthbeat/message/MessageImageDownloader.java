@@ -89,8 +89,11 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	private void download(SwipeMessage swipeMessage) {
 
-        for (Picture picture : swipeMessage.getPictures())
-			urlStrings.add(picture.getUrl());
+        for (Picture picture : swipeMessage.getPictures()) {
+            String pictureUrl = addDensityByPictureUrl(picture.getUrl());
+            picture.setUrl(pictureUrl);
+            urlStrings.add(pictureUrl);
+        }
 
 		download(swipeMessage.getButtons());
 
@@ -110,12 +113,12 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
             switch (button.getType()) {
                 case image:
                     String imageButtonUrl = addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl());
-                    urlStrings.add(addDensityByPictureUrl(imageButtonUrl));
+                    urlStrings.add(imageButtonUrl);
                     ((ImageButton) button).getPicture().setUrl(imageButtonUrl);
                     break;
                 case close:
                     String closeButtonUrl = addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl());
-                    urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
+                    urlStrings.add(closeButtonUrl);
                     ((CloseButton) button).getPicture().setUrl(closeButtonUrl);
                     break;
                 default:
