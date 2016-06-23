@@ -15,6 +15,7 @@ import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 import com.growthpush.GrowthPush;
+import com.growthpush.model.Tag;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -112,8 +113,14 @@ public class Message extends Model implements Parcelable {
 		if (jsonObject == null)
 			throw new GrowthbeatException("Failed to count up message.");
 
-		// receiveCount常に0？
-		return 0;
+		Tag tag = new Tag(jsonObject);
+
+		try {
+			return Integer.valueOf(tag.getValue());
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+
 	}
 
 	public String getId() {

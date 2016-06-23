@@ -73,13 +73,12 @@ public class GrowthMessage {
 		this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
 		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
-		if (Growthbeat.getInstance().getClient() == null
-				|| (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient().getApplication()
-						.getId().equals(applicationId))) {
+		if (Growthbeat.getInstance().getClient() == null || (Growthbeat.getInstance().getClient().getApplication() != null
+				&& !Growthbeat.getInstance().getClient().getApplication().getId().equals(applicationId))) {
 		}
 
-		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context),
-				new SwipeMessageHandler(context)));
+		setMessageHandlers(
+				Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
 	}
 
@@ -95,14 +94,13 @@ public class GrowthMessage {
 
 					List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
 					logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
-                    if(tasks.isEmpty())
-                        return;
+					if (tasks.isEmpty())
+						return;
 
-                    String uuid = UUID.randomUUID().toString();
-                    showMessageHandlers.put(uuid, handler);
+					String uuid = UUID.randomUUID().toString();
+					showMessageHandlers.put(uuid, handler);
 
 					for (Task task : tasks) {
-						// TODO キューはMessageの描画キュー
 						Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
 						if (message != null) {
 							messageQueue.add(new MessageQueue(uuid, message));
@@ -130,8 +128,8 @@ public class GrowthMessage {
 				@Override
 				public void run() {
 					Client client = Growthbeat.getInstance().waitClient();
-					int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, messageJob.getMessage().getTask().getId(),
-							messageJob.getMessage().getId());
+					int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
+							messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
 					logger.info(String.format("Success show message (count : %d)", incrementCount));
 				}
 			});
