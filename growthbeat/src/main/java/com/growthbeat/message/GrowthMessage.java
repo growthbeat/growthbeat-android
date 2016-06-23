@@ -73,10 +73,6 @@ public class GrowthMessage {
 		this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
 		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
-		if (Growthbeat.getInstance().getClient() == null || (Growthbeat.getInstance().getClient().getApplication() != null
-				&& !Growthbeat.getInstance().getClient().getApplication().getId().equals(applicationId))) {
-		}
-
 		setMessageHandlers(
 				Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
@@ -155,7 +151,7 @@ public class GrowthMessage {
 		} catch (JSONException e) {
 		}
 
-		GrowthPush.getInstance().trackEvent(Event.EventType.message, "selectButton", jsonObject.toString(), null);
+		GrowthPush.getInstance().trackEvent(Event.EventType.message,  "SelectButton", jsonObject.toString(), null);
 
 	}
 
@@ -172,7 +168,8 @@ public class GrowthMessage {
 					if (showingMessage && diff < GrowthMessageConstants.MIN_TIME_FOR_OVERRIDE_MESSAGE) {
 						return;
 					}
-					final MessageQueue messageJob = messageQueue.poll();
+
+                    final MessageQueue messageJob = messageQueue.poll();
                     if(messageJob == null) {
                         logger.info("Empty message queue.");
                         return;
