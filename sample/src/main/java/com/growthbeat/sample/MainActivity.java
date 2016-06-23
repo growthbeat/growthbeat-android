@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		GrowthPush.getInstance().getHttpClient().setBaseUrl("https://api.stg.growthpush.com/");
-		GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
+		GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao",  "RtYOQo4QaSaFHNYdZSddSeoeEiJ2kboW",
 				BuildConfig.DEBUG ? Environment.development : Environment.production);
 		GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
 		GrowthPush.getInstance().requestRegistrationId("186415479559");

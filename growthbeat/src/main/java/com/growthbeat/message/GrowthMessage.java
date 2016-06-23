@@ -45,7 +45,7 @@ public class GrowthMessage {
 	private long lastMessageOpenedTimeMills;
 	private boolean showingMessage;
 	private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
-	private Map<Message, ShowMessageHandler> showMessageHandlers = new HashMap<>();
+	private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
 	private GrowthMessage() {
 		super();
@@ -100,7 +100,7 @@ public class GrowthMessage {
 							// TODO handlerとmessageが別管理なのが気になる
 							messageQueue.add(message);
 							if (handler != null)
-								showMessageHandlers.put(message, handler);
+								showMessageHandlers.put(message.getId(), handler);
 						}
 					}
 
@@ -190,8 +190,8 @@ public class GrowthMessage {
 		});
 	}
 
-	public ShowMessageHandler findShowMessageHandler(Message message) {
-		return showMessageHandlers.get(message);
+	public ShowMessageHandler findShowMessageHandler(String messageId) {
+		return showMessageHandlers.get(messageId);
 	}
 
 	public void notifyPopNextMessage() {

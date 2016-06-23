@@ -35,7 +35,7 @@ public class MessageActivity extends FragmentActivity {
 			plainMessageFragment.setCancelable(false);
 			plainMessageFragment.setArguments(bundle);
 
-			ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message);
+			ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message.getId());
 			if (showMessageHandler != null) {
 				showMessageHandler.complete(new ShowMessageHandler.MessageRenderHandler() {
 					@Override

@@ -71,7 +71,7 @@ public class BaseMessageFragment extends Fragment {
 			@Override
 			public void success(Map<String, Bitmap> images) {
 				cachedImages = images;
-				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message);
+				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message.getId());
 
 				if (showMessageHandler != null) {
 					showMessageHandler.complete(messageRenderHandler);

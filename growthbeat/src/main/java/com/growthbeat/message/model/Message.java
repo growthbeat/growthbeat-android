@@ -207,8 +207,10 @@ public class Message extends Model implements Parcelable {
 				setType(MessageType.valueOf(jsonObject.getString("type")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
 				setBackground(new Background(jsonObject.getJSONObject("background")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
-				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created")) {
+                Date created = DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss");
+                setCreated(created);
+            }
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
 				setTask(new Task(jsonObject.getJSONObject("task")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "buttons")) {
