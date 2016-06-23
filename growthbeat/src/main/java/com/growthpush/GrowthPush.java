@@ -100,9 +100,6 @@ public class GrowthPush {
 					setTrackingEnabled();
 				}
 
-				// TODO インストールイベントいらない or 初回のみイベントロジックの変更
-				trackEvent(Event.EventType.custom, "Install", null, null);
-
 			}
 		});
 
