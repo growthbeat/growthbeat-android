@@ -142,8 +142,8 @@ public class CardMessageFragment extends BaseMessageFragment {
 		double availableHeight = closeButton.getBaseHeight();
 		double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
 
-		int width = (int) (closeButton.getPicture().getWidth() * ratio);
-		int height = (int) (closeButton.getPicture().getHeight() * ratio);
+		int width = (int) (closeButton.getBaseWidth() * ratio);
+		int height = (int) (closeButton.getBaseHeight() * ratio);
 		int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
 		int top = rect.getTop() + 8 * (int) displayMetrics.density;
 
