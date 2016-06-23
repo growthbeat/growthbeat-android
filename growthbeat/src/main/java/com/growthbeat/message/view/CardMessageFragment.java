@@ -33,10 +33,11 @@ public class CardMessageFragment extends BaseMessageFragment {
 		if (message == null || !(message instanceof CardMessage))
 			return null;
 
+        final String uuid = getArguments().getString("uuid");
 		this.cardMessage = (CardMessage) message;
 		this.baseLayout = generateBaselayout(cardMessage.getBaseWidth(), cardMessage.getBaseHeight(), cardMessage.getBackground());
 
-		layoutMessage(cardMessage, new ShowMessageHandler.MessageRenderHandler() {
+		layoutMessage(cardMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
 			@Override
 			public void render() {
 				renderMessage();

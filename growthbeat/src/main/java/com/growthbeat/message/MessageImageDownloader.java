@@ -25,6 +25,9 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.util.Log;
+
+import org.json.JSONArray;
 
 public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
@@ -68,21 +71,12 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 	private void download(CardMessage cardMessage) {
 
 		if (cardMessage.getPicture().getUrl() != null) {
-			urlStrings.add(addDensityByPictureUrl(cardMessage.getPicture().getUrl()));
+            String pictureUrl = addDensityByPictureUrl(cardMessage.getPicture().getUrl());
+            cardMessage.getPicture().setUrl(pictureUrl);
+			urlStrings.add(pictureUrl);
 		}
 
-		for (Button button : cardMessage.getButtons()) {
-			switch (button.getType()) {
-			case image:
-				urlStrings.add(addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl()));
-				break;
-			case close:
-				urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
-				break;
-			default:
-				continue;
-			}
-		}
+        download(cardMessage.getButtons());
 
 		int loaderId = -1;
 		for (String urlString : urlStrings) {
@@ -95,21 +89,10 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	private void download(SwipeMessage swipeMessage) {
 
-		for (Picture picture : swipeMessage.getPictures())
+        for (Picture picture : swipeMessage.getPictures())
 			urlStrings.add(picture.getUrl());
 
-		for (Button button : swipeMessage.getButtons()) {
-			switch (button.getType()) {
-			case image:
-				urlStrings.add(addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl()));
-				break;
-			case close:
-				urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
-				break;
-			default:
-				continue;
-			}
-		}
+		download(swipeMessage.getButtons());
 
 		int loaderId = -1;
 		for (String urlString : urlStrings) {
@@ -120,6 +103,28 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	}
 
+    private void download(List<Button> buttons) {
+
+        for (Button button : buttons) {
+
+            switch (button.getType()) {
+                case image:
+                    String imageButtonUrl = addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(imageButtonUrl));
+                    ((ImageButton) button).getPicture().setUrl(imageButtonUrl);
+                    break;
+                case close:
+                    String closeButtonUrl = addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl());
+                    urlStrings.add(addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl()));
+                    ((CloseButton) button).getPicture().setUrl(closeButtonUrl);
+                    break;
+                default:
+                    continue;
+            }
+        }
+
+    }
+
 	private String addDensityByPictureUrl(String originUrl) {
 
 		if ((int) density <= 1)
@@ -129,7 +134,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 		String[] paths = url.split("/");
 		String filename = paths[paths.length - 1];
 		String[] extension = filename.split("\\.");
-		String resultFileName = String.format("%s@%d.%s", extension[0], (int) density, extension[1]);
+		String resultFileName = String.format("%s@%dx.%s", extension[0], (int) density, extension[1]);
 		paths = Arrays.copyOf(paths, paths.length - 1);
 		String pathString = TextUtils.join("/", paths);
 		return String.format("%s/%s", pathString, resultFileName);

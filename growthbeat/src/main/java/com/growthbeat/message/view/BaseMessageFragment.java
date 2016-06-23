@@ -25,7 +25,6 @@ import android.widget.ProgressBar;
 public class BaseMessageFragment extends Fragment {
 
 	protected FrameLayout baseLayout = null;
-	protected ProgressBar progressBar = null;
 	protected DisplayMetrics displayMetrics;
 	protected Rect rect = null;
 
@@ -45,9 +44,6 @@ public class BaseMessageFragment extends Fragment {
 		baseLayout.setBackgroundColor(Color.argb((int) (background.getOpacity() * 255), Color.red(color), Color.green(color),
 				Color.blue(color)));
 
-		progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleLarge);
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
-		layoutParams.gravity = Gravity.CENTER;
 
 		if (background.isOutsideClose()) {
 			baseLayout.setClickable(true);
@@ -58,20 +54,19 @@ public class BaseMessageFragment extends Fragment {
 				}
 			});
 		}
-		baseLayout.addView(progressBar, layoutParams);
 
 		return baseLayout;
 
 	}
 
-	protected void layoutMessage(final Message message, final ShowMessageHandler.MessageRenderHandler messageRenderHandler) {
+	protected void layoutMessage(final Message message, final String uuid, final ShowMessageHandler.MessageRenderHandler messageRenderHandler) {
 
 		MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
 
 			@Override
 			public void success(Map<String, Bitmap> images) {
 				cachedImages = images;
-				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message.getId());
+				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);
 
 				if (showMessageHandler != null) {
 					showMessageHandler.complete(messageRenderHandler);

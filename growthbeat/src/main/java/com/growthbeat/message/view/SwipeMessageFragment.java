@@ -42,17 +42,18 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 		if (message == null || !(message instanceof SwipeMessage))
 			return null;
 
+        final String uuid = getArguments().getString("uuid");
 		this.swipeMessage = (SwipeMessage) message;
 		this.baseLayout = generateBaselayout(swipeMessage.getBaseWidth(), swipeMessage.getBaseHeight(), swipeMessage.getBackground());
 
-		layoutMessage(swipeMessage, new ShowMessageHandler.MessageRenderHandler() {
+        layoutMessage(swipeMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
 			@Override
 			public void render() {
 				renderMessage();
 			}
 		});
 
-		return baseLayout;
+		return  baseLayout;
 
 	}
 

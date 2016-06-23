@@ -29,6 +29,7 @@ public class MessageActivity extends FragmentActivity {
         String uuid = getIntent().getExtras().getString("uuid");
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("message", (Parcelable) message);
+        bundle.putString("uuid", uuid);
 
 		switch (message.getType()) {
 		case plain:

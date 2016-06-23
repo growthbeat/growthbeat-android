@@ -1,5 +1,6 @@
 package com.growthbeat.message.handler;
 
+import com.growthbeat.message.MessageQueue;
 import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.view.MessageActivity;
@@ -16,8 +17,9 @@ public class CardMessageHandler implements MessageHandler {
 	}
 
 	@Override
-	public boolean handle(final Message message) {
+	public boolean handle(final MessageQueue messageJob) {
 
+        Message message = messageJob.getMessage();
 		if (message.getType() != Message.MessageType.card)
 			return false;
 		if (!(message instanceof CardMessage))
@@ -25,6 +27,7 @@ public class CardMessageHandler implements MessageHandler {
 
 		Intent intent = new Intent(context, MessageActivity.class);
 		intent.putExtra("message", (CardMessage) message);
+        intent.putExtra("uuid", messageJob.getUuid());
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 

@@ -92,7 +92,10 @@ public class SwipeMessage extends Message {
 			if (swipeType != null)
 				jsonObject.put("swipeType", swipeType.toString());
 			if (pictures != null) {
-				jsonObject.put("pictures", pictures);
+                JSONArray jsonArray = new JSONArray();
+                for(Picture picture: pictures)
+                    jsonArray.put(picture.getJsonObject());
+				jsonObject.put("pictures", jsonArray);
 			}
 			jsonObject.put("baseWidth", baseWidth);
 			jsonObject.put("baseHeight", baseHeight);
@@ -115,9 +118,9 @@ public class SwipeMessage extends Message {
 		try {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeType"))
 				setSwipeType(SwipeType.valueOf(jsonObject.getString("swipeType")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "swipeImages")) {
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "pictures")) {
 				List<Picture> pictures = new ArrayList<>();
-				JSONArray jsonArray = new JSONArray(jsonObject.getString("pictures"));
+				JSONArray jsonArray = jsonObject.getJSONArray("pictures");
 				for (int i = 0; i < jsonArray.length(); i++) {
 					JSONObject pictureJson = jsonArray.getJSONObject(i);
 					pictures.add(new Picture(pictureJson));
