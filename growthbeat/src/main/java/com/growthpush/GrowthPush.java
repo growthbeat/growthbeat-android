@@ -63,8 +63,7 @@ public class GrowthPush {
 
 		initialized = true;
 
-		// TODO 4.0以上にする
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			logger.warning("This SDK not supported this os.");
 			return;
 		}
