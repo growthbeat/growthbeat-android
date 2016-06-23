@@ -26,6 +26,7 @@ public class MessageActivity extends FragmentActivity {
 		setTheme(android.R.style.Theme_Translucent);
 
 		Message message = (Message) getIntent().getExtras().get("message");
+        String uuid = getIntent().getExtras().getString("uuid");
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("message", (Parcelable) message);
 
@@ -35,7 +36,7 @@ public class MessageActivity extends FragmentActivity {
 			plainMessageFragment.setCancelable(false);
 			plainMessageFragment.setArguments(bundle);
 
-			ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(message.getId());
+			ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);
 			if (showMessageHandler != null) {
 				showMessageHandler.complete(new ShowMessageHandler.MessageRenderHandler() {
 					@Override

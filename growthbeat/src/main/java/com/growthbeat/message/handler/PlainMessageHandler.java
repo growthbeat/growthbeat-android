@@ -1,5 +1,6 @@
 package com.growthbeat.message.handler;
 
+import com.growthbeat.message.MessageQueue;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.PlainMessage;
 import com.growthbeat.message.view.MessageActivity;
@@ -16,8 +17,9 @@ public class PlainMessageHandler implements MessageHandler {
 	}
 
 	@Override
-	public boolean handle(final Message message) {
+	public boolean handle(final MessageQueue messageJob) {
 
+        Message message = messageJob.getMessage();
 		if (message.getType() != Message.MessageType.plain)
 			return false;
 		if (!(message instanceof PlainMessage))
@@ -25,7 +27,8 @@ public class PlainMessageHandler implements MessageHandler {
 
 		Intent intent = new Intent(context, MessageActivity.class);
 		intent.putExtra("message", (PlainMessage) message);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("uuid", messageJob.getUuid());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		context.startActivity(intent);
 
 		return true;

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
@@ -44,7 +45,7 @@ public class GrowthMessage {
 	private Semaphore messageSemaphore = new Semaphore(1);
 	private long lastMessageOpenedTimeMills;
 	private boolean showingMessage;
-	private ConcurrentLinkedQueue<Message> messageQueue = new ConcurrentLinkedQueue<Message>();
+	private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
 	private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
 	private GrowthMessage() {
@@ -94,14 +95,17 @@ public class GrowthMessage {
 
 					List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
 					logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
+                    if(tasks.isEmpty())
+                        return;
+
+                    String uuid = UUID.randomUUID().toString();
+                    showMessageHandlers.put(uuid, handler);
+
 					for (Task task : tasks) {
 						// TODO キューはMessageの描画キュー
 						Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
 						if (message != null) {
-							// TODO handlerとmessageが別管理なのが気になる
-							messageQueue.add(message);
-							if (handler != null)
-								showMessageHandlers.put(message.getId(), handler);
+							messageQueue.add(new MessageQueue(uuid, message));
 						}
 					}
 
@@ -116,18 +120,18 @@ public class GrowthMessage {
 		});
 	}
 
-	private void openMessage(final Message message) {
+	private void openMessage(final MessageQueue messageJob) {
 
 		for (MessageHandler messageHandler : messageHandlers) {
-			if (!messageHandler.handle(message))
+			if (!messageHandler.handle(messageJob))
 				continue;
 
 			Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 				@Override
 				public void run() {
 					Client client = Growthbeat.getInstance().waitClient();
-					int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, message.getTask().getId(),
-							message.getId());
+					int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId, messageJob.getMessage().getTask().getId(),
+							messageJob.getMessage().getId());
 					logger.info(String.format("Success show message (count : %d)", incrementCount));
 				}
 			});
@@ -170,14 +174,14 @@ public class GrowthMessage {
 					if (showingMessage && diff < GrowthMessageConstants.MIN_TIME_FOR_OVERRIDE_MESSAGE) {
 						return;
 					}
-					final Message message = messageQueue.poll();
+					final MessageQueue messageJob = messageQueue.poll();
 					showingMessage = true;
 
-					logger.info(String.format("Show Message for %s", message.getId()));
+					logger.info(String.format("Show Message for %s", messageJob.getMessage().getId()));
 					new Handler(Looper.getMainLooper()).post(new Runnable() {
 						@Override
 						public void run() {
-							GrowthMessage.getInstance().openMessage(message);
+							GrowthMessage.getInstance().openMessage(messageJob);
 						}
 					});
 					lastMessageOpenedTimeMills = System.currentTimeMillis();
