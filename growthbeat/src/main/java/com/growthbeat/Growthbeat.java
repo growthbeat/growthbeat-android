@@ -90,9 +90,9 @@ public class Growthbeat {
 				GrowthPushClient growthPushClient = GrowthPushClient.load();
 				if (growthPushClient != null) {
 					growthPushClient = GrowthPushClient.findByGrowthPushClientId(growthPushClient.getId(), growthPushClient.getCode());
-					logger.info(String.format(
-							"Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
-							growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
+					logger.info(String
+							.format("Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
+									growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
 
 					client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
 					if (client == null) {

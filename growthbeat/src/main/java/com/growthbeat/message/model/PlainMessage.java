@@ -3,9 +3,35 @@ package com.growthbeat.message.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.GrowthbeatException;
 import com.growthbeat.utils.JSONObjectUtils;
 
+import android.os.Parcel;
+
 public class PlainMessage extends Message {
+
+	public static final Creator<Message> CREATOR = new Creator<Message>() {
+
+		@Override
+		public Message[] newArray(int size) {
+			return new Message[size];
+		}
+
+		@Override
+		public Message createFromParcel(Parcel source) {
+
+			JSONObject jsonObject = null;
+
+			try {
+				jsonObject = new JSONObject(source.readString());
+			} catch (JSONException e) {
+				throw new GrowthbeatException("Failed to parse JSON. " + e.getMessage(), e);
+			}
+
+			return Message.getFromJsonObject(jsonObject);
+
+		}
+	};
 
 	private String caption;
 	private String text;

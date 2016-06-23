@@ -72,12 +72,13 @@ public class GrowthMessage {
 		this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
 		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
-		if (Growthbeat.getInstance().getClient() == null || (Growthbeat.getInstance().getClient().getApplication() != null
-				&& !Growthbeat.getInstance().getClient().getApplication().getId().equals(applicationId))) {
+		if (Growthbeat.getInstance().getClient() == null
+				|| (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient().getApplication()
+						.getId().equals(applicationId))) {
 		}
 
-		setMessageHandlers(
-				Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
+		setMessageHandlers(Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context),
+				new SwipeMessageHandler(context)));
 
 	}
 

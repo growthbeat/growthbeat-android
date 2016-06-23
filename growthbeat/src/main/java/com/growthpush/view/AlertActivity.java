@@ -127,8 +127,8 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 		if (powerManager == null)
 			return;
 
-		final PowerManager.WakeLock wakeLock = powerManager
-				.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
+		final PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+				| PowerManager.ACQUIRE_CAUSES_WAKEUP, getClass().getName());
 		try {
 			wakeLock.acquire();
 		} catch (SecurityException e) {

@@ -85,8 +85,9 @@ public class GrowthLink {
 
 		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
 		this.preference.setContext(Growthbeat.getInstance().getContext());
-		if (Growthbeat.getInstance().getClient() == null || (Growthbeat.getInstance().getClient().getApplication() != null
-				&& !Growthbeat.getInstance().getClient().getApplication().getId().equals(applicationId))) {
+		if (Growthbeat.getInstance().getClient() == null
+				|| (Growthbeat.getInstance().getClient().getApplication() != null && !Growthbeat.getInstance().getClient().getApplication()
+						.getId().equals(applicationId))) {
 			preference.removeAll();
 		}
 

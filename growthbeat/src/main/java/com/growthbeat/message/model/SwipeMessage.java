@@ -1,5 +1,8 @@
 package com.growthbeat.message.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +10,33 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.GrowthbeatException;
 import com.growthbeat.utils.JSONObjectUtils;
 
 public class SwipeMessage extends Message {
+
+    public static final Parcelable.Creator<Message> CREATOR = new Parcelable.Creator<Message>() {
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+
+        @Override
+        public Message createFromParcel(Parcel source) {
+
+            JSONObject jsonObject = null;
+
+            try {
+                jsonObject = new JSONObject(source.readString());
+            } catch (JSONException e) {
+                throw new GrowthbeatException("Failed to parse JSON. " + e.getMessage(), e);
+            }
+
+            return Message.getFromJsonObject(jsonObject);
+
+        }
+    };
 
 	private SwipeType swipeType;
 	private List<Picture> pictures;

@@ -207,14 +207,12 @@ public class Message extends Model implements Parcelable {
 				setType(MessageType.valueOf(jsonObject.getString("type")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
 				setBackground(new Background(jsonObject.getJSONObject("background")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created")) {
-                Date created = DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss");
-                setCreated(created);
-            }
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
+				setCreated(DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
 				setTask(new Task(jsonObject.getJSONObject("task")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "buttons")) {
-				List<Button> buttons = new ArrayList<Button>();
+				List<Button> buttons = new ArrayList<>();
 				JSONArray buttonJsonArray = jsonObject.getJSONArray("buttons");
 				for (int i = 0; i < buttonJsonArray.length(); i++)
 					buttons.add(Button.getFromJsonObject(buttonJsonArray.getJSONObject(i)));
@@ -238,7 +236,7 @@ public class Message extends Model implements Parcelable {
 
 	public enum MessageType {
 		plain,
-        card,
+		card,
 		swipe
 	}
 

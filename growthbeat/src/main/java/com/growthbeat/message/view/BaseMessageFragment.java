@@ -42,8 +42,8 @@ public class BaseMessageFragment extends Fragment {
 
 		FrameLayout baseLayout = new FrameLayout(getActivity());
 		int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & background.getColor())));
-		baseLayout.setBackgroundColor(
-				Color.argb((int) (background.getOpacity() * 255), Color.red(color), Color.green(color), Color.blue(color)));
+		baseLayout.setBackgroundColor(Color.argb((int) (background.getOpacity() * 255), Color.red(color), Color.green(color),
+				Color.blue(color)));
 
 		progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleLarge);
 		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(100, 100);
