@@ -76,6 +76,7 @@ public class Message extends Model implements Parcelable {
 	}
 
 	public static Message receive(String taskId, String applicationId, String clientId, String credentialId) {
+
 		Map<String, Object> params = new HashMap<String, Object>();
 
 		if (taskId != null)

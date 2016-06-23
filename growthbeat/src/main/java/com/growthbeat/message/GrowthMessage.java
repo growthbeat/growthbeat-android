@@ -173,6 +173,11 @@ public class GrowthMessage {
 						return;
 					}
 					final MessageQueue messageJob = messageQueue.poll();
+                    if(messageJob == null) {
+                        logger.info("Empty message queue.");
+                        return;
+                    }
+
 					showingMessage = true;
 
 					logger.info(String.format("Show Message for %s", messageJob.getMessage().getId()));
