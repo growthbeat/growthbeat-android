@@ -3,6 +3,7 @@ package com.growthbeat.message.view;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.PlainMessage;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,7 +35,7 @@ public class MessageActivity extends FragmentActivity {
 		switch (message.getType()) {
 		case plain:
 			final PlainMessageFragment plainMessageFragment = new PlainMessageFragment();
-			plainMessageFragment.setCancelable(false);
+			plainMessageFragment.setCancelable(((PlainMessage) message).getBackground().isOutsideClose());
 			plainMessageFragment.setArguments(bundle);
 
 			ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);

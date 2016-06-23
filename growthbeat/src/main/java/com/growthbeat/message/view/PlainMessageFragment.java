@@ -88,7 +88,12 @@ public class PlainMessageFragment extends DialogFragment {
 
 		AlertDialog dialog = dialogBuilder.create();
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-		dialog.setCanceledOnTouchOutside(this.plainMessage.getBackground().isOutsideClose());
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                getActivity().finish();
+            }
+        });
 
 		return dialog;
 
