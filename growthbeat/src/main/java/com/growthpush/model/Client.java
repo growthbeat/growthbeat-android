@@ -16,10 +16,8 @@ import com.growthpush.GrowthPush;
  */
 public class Client extends Model {
 
-	private long id;
-	private String growthbeatClientId;
-	private int applicationId;
-	private String code;
+	private String id;
+	private String applicationId;
 	private String token;
 	private Environment environment;
 	private Status status;
@@ -97,36 +95,20 @@ public class Client extends Model {
 		return new Client(jsonObject);
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
-	public String getGrowthbeatClientId() {
-		return growthbeatClientId;
-	}
-
-	public void setGrowthbeatClientId(String growthbeatClientId) {
-		this.growthbeatClientId = growthbeatClientId;
-	}
-
-	public int getApplicationId() {
+	public String getApplicationId() {
 		return applicationId;
 	}
 
-	public void setApplicationId(int applicationId) {
+	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
 	}
 
 	public String getToken() {
@@ -167,9 +149,7 @@ public class Client extends Model {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("id", getId());
-			jsonObject.put("growthbeatClientId", getGrowthbeatClientId());
 			jsonObject.put("applicationId", getApplicationId());
-			jsonObject.put("code", getCode());
 			jsonObject.put("token", getToken());
 			if (getEnvironment() != null)
 				jsonObject.put("environment", getEnvironment().toString());
@@ -193,13 +173,9 @@ public class Client extends Model {
 
 		try {
 			if (jsonObject.has("id"))
-				setId(jsonObject.getLong("id"));
-			if (jsonObject.has("growthbeatClientId"))
-				setGrowthbeatClientId(jsonObject.getString("growthbeatClientId"));
+				setId(jsonObject.getString("id"));
 			if (jsonObject.has("applicationId"))
-				setApplicationId(jsonObject.getInt("applicationId"));
-			if (jsonObject.has("code"))
-				setCode(jsonObject.getString("code"));
+				setApplicationId(jsonObject.getString("applicationId"));
 			if (jsonObject.has("token"))
 				setToken(jsonObject.getString("token"));
 			if (jsonObject.has("environment"))
@@ -214,7 +190,7 @@ public class Client extends Model {
 
 	}
 
-	public static enum Status {
+	public enum Status {
 		unknown,
 		validating,
 		active,

@@ -89,8 +89,7 @@ public class GrowthPush {
 				com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
 				client = Client.load();
 
-				if (client != null && client.getGrowthbeatClientId() != null
-						&& !client.getGrowthbeatClientId().equals(growthbeatClient.getId()))
+				if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
 					GrowthPush.this.clearClient();
 
 				createClient(growthbeatClient.getId(), null);
@@ -182,7 +181,7 @@ public class GrowthPush {
 			logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
 					registrationId, environment));
 			client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-			logger.info(String.format("Create client success (clientId: %d)", client.getId()));
+			logger.info(String.format("Create client success (clientId: %s)", client.getId()));
 			Client.save(client);
 
 		} catch (InterruptedException e) {
@@ -199,15 +198,15 @@ public class GrowthPush {
 
 		try {
 
-			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)",
-					client.getGrowthbeatClientId(), registrationId, environment));
+			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getId(),
+					registrationId, environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
-			Client updatedClient = Client.update(client.getGrowthbeatClientId(), applicationId, credentialId, registrationId, environment);
-			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
+			Client updatedClient = Client.update(client.getId(), applicationId, credentialId, registrationId, environment);
+			logger.info(String.format("Update client success (clientId: %s)", client.getId()));
 
 			Client.save(updatedClient);
-            this.client = updatedClient;
+			this.client = updatedClient;
 
 		} catch (GrowthPushException e) {
 			logger.error(String.format("Update client fail. %s", e.getMessage()));
@@ -250,12 +249,12 @@ public class GrowthPush {
 
 				logger.info(String.format("Sending event ... (name: %s)", name));
 				try {
-					Event event = Event.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId,
+					Event event = Event.create(GrowthPush.getInstance().client.getId(), applicationId,
 							GrowthPush.getInstance().credentialId, type, name, value);
 					logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
 					if (type != Event.EventType.message)
-						GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getGrowthbeatClientId(), handler);
+						GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getId(), handler);
 
 				} catch (GrowthPushException e) {
 					logger.error(String.format("Sending event fail. %s", e.getMessage()));
@@ -301,8 +300,7 @@ public class GrowthPush {
 
 				logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
 				try {
-					Tag createdTag = Tag.create(GrowthPush.getInstance().client.getGrowthbeatClientId(), applicationId, credentialId, type,
-							name, value);
+					Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
 					logger.info(String.format("Sending tag success"));
 					Tag.save(createdTag, type, name);
 				} catch (GrowthPushException e) {
