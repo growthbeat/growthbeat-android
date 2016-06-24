@@ -24,6 +24,7 @@ import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.NoContentMessage;
 import com.growthbeat.message.model.Task;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -98,9 +99,13 @@ public class GrowthMessage {
 
 					for (Task task : tasks) {
 						Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
-						if (message != null) {
+                        if(message instanceof NoContentMessage) {
+                            logger.info("this message is not target client.");
+                            return;
+                        }
+
+                        if (message != null)
 							messageQueue.add(new MessageQueue(uuid, message));
-						}
 					}
 
 					openMessageIfExists();
