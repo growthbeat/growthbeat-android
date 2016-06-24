@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 		GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
 
 		GrowthPush.getInstance().trackEvent("Launch");
+		GrowthPush.getInstance().setDeviceTags();
 
 		new Thread(new Runnable() {
 			@Override
