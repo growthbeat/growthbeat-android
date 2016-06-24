@@ -88,15 +88,16 @@ public class PlainMessageFragment extends DialogFragment {
 
 		AlertDialog dialog = dialogBuilder.create();
 		dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                getActivity().finish();
-            }
-        });
 
 		return dialog;
 
 	}
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        if(!getActivity().isFinishing())
+            getActivity().finish();
+    }
 
 }
