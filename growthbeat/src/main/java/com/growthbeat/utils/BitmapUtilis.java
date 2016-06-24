@@ -44,6 +44,7 @@ public class BitmapUtilis {
 		imageView.setImageDrawable(null);
 	}
 
+    @SuppressWarnings("unchecked")
 	public static void unbindRecursively(View view) {
 		if (view == null)
 			return;
@@ -80,6 +81,7 @@ public class BitmapUtilis {
 		view = null;
 	}
 
+    @SuppressWarnings("deprecation")
 	private static void setBackgroundDrawable(View view, Drawable drawable) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 			view.setBackground(drawable);
