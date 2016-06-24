@@ -175,7 +175,7 @@ public class GrowthPush {
 			if (loadClient != null) {
 				this.client = loadClient;
 				logger.info(String.format("Client already Created... (growthbeatClientId: %s, token: %s, environment: %s",
-						growthbeatClientId, registrationId, environment));
+						growthbeatClientId, loadClient.getToken(), environment));
 				return;
 			}
 
@@ -203,10 +203,11 @@ public class GrowthPush {
 					client.getGrowthbeatClientId(), registrationId, environment));
 			client.setToken(registrationId);
 			client.setEnvironment(environment);
-			client = Client.update(client.getGrowthbeatClientId(), applicationId, credentialId, registrationId, environment);
+			Client updatedClient = Client.update(client.getGrowthbeatClientId(), applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Update client success (clientId: %d)", client.getId()));
 
-			Client.save(client);
+			Client.save(updatedClient);
+            this.client = updatedClient;
 
 		} catch (GrowthPushException e) {
 			logger.error(String.format("Update client fail. %s", e.getMessage()));
