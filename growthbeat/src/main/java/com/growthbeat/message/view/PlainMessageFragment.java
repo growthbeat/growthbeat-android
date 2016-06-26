@@ -96,7 +96,7 @@ public class PlainMessageFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
-        if(!getActivity().isFinishing())
+        if(getActivity() != null && !getActivity().isFinishing())
             getActivity().finish();
     }
 
