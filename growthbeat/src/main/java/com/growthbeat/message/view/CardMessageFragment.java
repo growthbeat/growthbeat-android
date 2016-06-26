@@ -51,8 +51,8 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private void renderMessage() {
 
-        int width = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
-        int height = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseHeight() : cardMessage.getBaseWidth()) * displayMetrics.density);
+        final int width = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
+        final int height = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseHeight() : cardMessage.getBaseWidth()) * displayMetrics.density);
         int left = (displayMetrics.widthPixels - width) / 2;
         int top = (displayMetrics.heightPixels - height) / 2;
         Rect rect = new Rect(left, top, width, height);
