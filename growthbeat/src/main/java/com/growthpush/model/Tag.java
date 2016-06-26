@@ -16,7 +16,7 @@ public class Tag extends Model {
 
 	private int tagId;
 
-	private long clientId;
+	private String clientId;
 
 	private String value;
 
@@ -90,11 +90,11 @@ public class Tag extends Model {
 		this.tagId = tagId;
 	}
 
-	public long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 
@@ -128,7 +128,7 @@ public class Tag extends Model {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "tagId"))
 				setTagId(jsonObject.getInt("tagId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clientId"))
-				setClientId(jsonObject.getLong("clientId"));
+				setClientId(jsonObject.getString("clientId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "value"))
 				setValue(jsonObject.getString("value"));
 		} catch (JSONException e) {

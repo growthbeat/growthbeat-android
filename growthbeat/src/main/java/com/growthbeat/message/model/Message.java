@@ -62,6 +62,9 @@ public class Message extends Model implements Parcelable {
 	public static Message getFromJsonObject(JSONObject jsonObject) {
 
 		Message message = new Message(jsonObject);
+        if(message.getType() == null)
+            return new NoContentMessage();
+
 		switch (message.getType()) {
 		case plain:
 			return new PlainMessage(jsonObject);
@@ -70,7 +73,7 @@ public class Message extends Model implements Parcelable {
 		case swipe:
 			return new SwipeMessage(jsonObject);
 		default:
-			return null;
+			return new NoContentMessage();
 		}
 
 	}
@@ -209,10 +212,12 @@ public class Message extends Model implements Parcelable {
 			return;
 
 		try {
+            if (!JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
+                return;
+
+            setType(MessageType.valueOf(jsonObject.getString("type")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
 				setId(jsonObject.getString("id"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
-				setType(MessageType.valueOf(jsonObject.getString("type")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
 				setBackground(new Background(jsonObject.getJSONObject("background")));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))

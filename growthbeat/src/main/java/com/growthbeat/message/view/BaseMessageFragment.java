@@ -14,10 +14,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 /**
  * Created by tabatakatsutoshi on 2016/06/02.
@@ -26,24 +24,17 @@ public class BaseMessageFragment extends Fragment {
 
 	protected FrameLayout baseLayout = null;
 	protected DisplayMetrics displayMetrics;
-	protected Rect rect = null;
 
 	protected Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
-	protected FrameLayout generateBaselayout(int width, int height, Background background) {
+	protected FrameLayout generateBaselayout(Background background) {
 
 		displayMetrics = getResources().getDisplayMetrics();
-
-		int left = (int) ((displayMetrics.widthPixels - width) / 2);
-		int top = (int) ((displayMetrics.heightPixels - height) / 2);
-
-		rect = new Rect(left, top, width, height);
 
 		FrameLayout baseLayout = new FrameLayout(getActivity());
 		int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & background.getColor())));
 		baseLayout.setBackgroundColor(Color.argb((int) (background.getOpacity() * 255), Color.red(color), Color.green(color),
 				Color.blue(color)));
-
 
 		if (background.isOutsideClose()) {
 			baseLayout.setClickable(true);
@@ -59,7 +50,8 @@ public class BaseMessageFragment extends Fragment {
 
 	}
 
-	protected void layoutMessage(final Message message, final String uuid, final ShowMessageHandler.MessageRenderHandler messageRenderHandler) {
+	protected void layoutMessage(final Message message, final String uuid,
+			final ShowMessageHandler.MessageRenderHandler messageRenderHandler) {
 
 		MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
 

@@ -24,6 +24,7 @@ import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.NoContentMessage;
 import com.growthbeat.message.model.Task;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -86,28 +87,39 @@ public class GrowthMessage {
 
 				logger.info("Receive message...");
 
+                List<Task> tasks = new ArrayList<>();
 				try {
 
-					List<Task> tasks = Task.getTasks(applicationId, credentialId, goalId);
+					tasks = Task.getTasks(applicationId, credentialId, goalId);
 					logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
 					if (tasks.isEmpty())
 						return;
 
-					String uuid = UUID.randomUUID().toString();
-					showMessageHandlers.put(uuid, handler);
-
-					for (Task task : tasks) {
-						Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
-						if (message != null) {
-							messageQueue.add(new MessageQueue(uuid, message));
-						}
-					}
-
-					openMessageIfExists();
-
 				} catch (GrowthbeatException e) {
-					logger.info(String.format("Failed to get message. %s", e.getMessage()));
+					logger.info(String.format("Failed to get tasks. %s", e.getMessage()));
 				}
+
+                String uuid = UUID.randomUUID().toString();
+                showMessageHandlers.put(uuid, handler);
+
+                for (Task task : tasks) {
+
+                    try {
+                        Message message = Message.receive(task.getId(), applicationId, clientId, credentialId);
+                        if (message instanceof NoContentMessage) {
+                            logger.info("this message is not target client.");
+                            continue;
+                        }
+
+                        if (message != null)
+                            messageQueue.add(new MessageQueue(uuid, message));
+                    } catch (GrowthbeatException e) {
+                        logger.info(String.format("Failed to get messages. %s", e.getMessage()));
+                    }
+
+                }
+
+                openMessageIfExists();
 
 			}
 

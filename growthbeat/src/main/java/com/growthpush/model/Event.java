@@ -14,7 +14,7 @@ public class Event extends Model {
 
 	private int goalId;
 
-	private long clientId;
+	private String clientId;
 
 	private long timestamp;
 
@@ -61,11 +61,11 @@ public class Event extends Model {
 		this.goalId = goalId;
 	}
 
-	public long getClientId() {
+	public String getClientId() {
 		return clientId;
 	}
 
-	public void setClientId(long clientId) {
+	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 
@@ -112,7 +112,7 @@ public class Event extends Model {
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "goalId"))
 				setGoalId(jsonObject.getInt("goalId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "clientId"))
-				setClientId(jsonObject.getLong("clientId"));
+				setClientId(jsonObject.getString("clientId"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "timestamp"))
 				setTimestamp(jsonObject.getLong("timestamp"));
 			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "value"))
