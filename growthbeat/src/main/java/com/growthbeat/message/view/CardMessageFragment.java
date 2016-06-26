@@ -11,6 +11,7 @@ import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.ScreenButton;
+import com.growthbeat.message.model.Task;
 
 import android.os.Bundle;
 import android.view.Gravity;
@@ -50,9 +51,11 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private void renderMessage() {
 
-        int left = (int) ((displayMetrics.widthPixels - cardMessage.getBaseWidth()) / 2);
-        int top = (int) ((displayMetrics.heightPixels - cardMessage.getBaseHeight()) / 2);
-        Rect rect = new Rect(left, top, cardMessage.getBaseWidth(), cardMessage.getBaseHeight());
+        int width = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
+        int height = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseHeight() : cardMessage.getBaseWidth()) * displayMetrics.density);
+        int left = (displayMetrics.widthPixels - width) / 2;
+        int top = (displayMetrics.heightPixels - height) / 2;
+        Rect rect = new Rect(left, top, width, height);
 
         showImage(baseLayout, rect);
         showScreenButton(baseLayout, rect);
@@ -114,7 +117,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             final ImageButton imageButton = (ImageButton) button;
 
-            int width = (int) (imageButton.getBaseWidth() * displayMetrics.density);
+            int width = (int) ((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
             int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
             int left = rect.getLeft() + (rect.getWidth() - width) / 2;
             top -= height;
@@ -144,12 +147,9 @@ public class CardMessageFragment extends BaseMessageFragment {
             return;
 
         final CloseButton closeButton = (CloseButton) buttons.get(0);
-        double availableWidth = closeButton.getBaseWidth();
-        double availableHeight = closeButton.getBaseHeight();
-        double ratio = Math.min(availableWidth / closeButton.getBaseWidth(), availableHeight / closeButton.getBaseHeight());
 
-        int width = (int) (closeButton.getBaseWidth() * ratio);
-        int height = (int) (closeButton.getBaseHeight() * ratio);
+        int width = (int) (closeButton.getBaseWidth() * displayMetrics.density);
+        int height = (int) (closeButton.getBaseHeight() * displayMetrics.density);
         int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
         int top = rect.getTop() + 8 * (int) displayMetrics.density;
 
