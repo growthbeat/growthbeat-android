@@ -11,6 +11,7 @@ import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.handler.ShowMessageHandler;
+import com.growthbeat.model.GrowthPushClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
@@ -86,13 +87,23 @@ public class GrowthPush {
 			@Override
 			public void run() {
 
+                GrowthPushClient oldClient = GrowthPushClient.load();
 				com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
 				client = Client.load();
 
-				if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
-					GrowthPush.this.clearClient();
+                if(oldClient != null) {
+                    client = new Client();
+                    client.setId(growthbeatClient.getId());
+                    client.setToken(oldClient.getToken());
+                    updateClient(oldClient.getToken());
 
-				createClient(growthbeatClient.getId(), null);
+                } else {
+
+                    if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
+                        GrowthPush.this.clearClient();
+
+                    createClient(growthbeatClient.getId(), null);
+                }
 
 				if (adInfoEnabled) {
 					setAdvertisingId();
@@ -200,8 +211,6 @@ public class GrowthPush {
 
 			logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getId(),
 					registrationId, environment));
-			client.setToken(registrationId);
-			client.setEnvironment(environment);
 			Client updatedClient = Client.update(client.getId(), applicationId, credentialId, registrationId, environment);
 			logger.info(String.format("Update client success (clientId: %s)", client.getId()));
 

@@ -20,7 +20,6 @@ public class Client extends Model {
 	private String applicationId;
 	private String token;
 	private Environment environment;
-	private Status status;
 	private Date created;
 
 	public Client() {
@@ -38,8 +37,16 @@ public class Client extends Model {
 		if (clientJsonObject == null)
 			return null;
 
-		Client client = new Client();
-		client.setJsonObject(clientJsonObject);
+        Client client = new Client();
+        if(clientJsonObject.has("growthbeatClientId")) {
+            try {
+                client.setId(clientJsonObject.getString("growthbeatClientId"));
+                client.setToken(clientJsonObject.getString("token"));
+                client.setEnvironment(Environment.valueOf(clientJsonObject.getString("environment")));
+            } catch (JSONException e) {
+            }
+        } else
+		    client.setJsonObject(clientJsonObject);
 
 		return client;
 
@@ -127,14 +134,6 @@ public class Client extends Model {
 		this.environment = environment;
 	}
 
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
 	public Date getCreated() {
 		return created;
 	}
@@ -153,8 +152,6 @@ public class Client extends Model {
 			jsonObject.put("token", getToken());
 			if (getEnvironment() != null)
 				jsonObject.put("environment", getEnvironment().toString());
-			if (getStatus() != null)
-				jsonObject.put("status", getStatus().toString());
 			if (getCreated() != null)
 				jsonObject.put("created", DateUtils.formatToDateTimeString(getCreated()));
 		} catch (JSONException e) {
@@ -180,22 +177,12 @@ public class Client extends Model {
 				setToken(jsonObject.getString("token"));
 			if (jsonObject.has("environment"))
 				setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
-			if (jsonObject.has("status"))
-				setStatus(Status.valueOf(jsonObject.getString("status")));
 			if (jsonObject.has("created"))
 				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
 		} catch (JSONException e) {
 			throw new IllegalArgumentException("Failed to parse JSON.");
 		}
 
-	}
-
-	public enum Status {
-		unknown,
-		validating,
-		active,
-		inactive,
-		invalid
 	}
 
 }
