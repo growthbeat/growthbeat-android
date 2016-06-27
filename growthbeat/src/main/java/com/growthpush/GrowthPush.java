@@ -92,7 +92,7 @@ public class GrowthPush {
 				client = Client.load();
 
 				if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
-					GrowthPush.this.clearClient();
+                    GrowthPush.this.clearClient();
 
                 if(oldClient != null) {
 
