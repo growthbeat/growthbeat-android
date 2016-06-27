@@ -51,8 +51,8 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private void renderMessage() {
 
-        final int width = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
-        final int height = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseHeight() : cardMessage.getBaseWidth()) * displayMetrics.density);
+        final int width = (int)(cardMessage.getBaseWidth() * displayMetrics.density);
+        final int height = (int)(cardMessage.getBaseHeight() * displayMetrics.density);
         int left = (displayMetrics.widthPixels - width) / 2;
         int top = (displayMetrics.heightPixels - height) / 2;
         Rect rect = new Rect(left, top, width, height);
@@ -115,7 +115,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             final ImageButton imageButton = (ImageButton) button;
 
-            int width = (int) ((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
+            int width = (int) (imageButton.getBaseHeight() * displayMetrics.density);
             int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
             int left = rect.getLeft() + (rect.getWidth() - width) / 2;
             top -= height;

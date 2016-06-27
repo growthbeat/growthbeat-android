@@ -59,8 +59,8 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
 	private void renderMessage() {
 
-        final int width = (int)((swipeMessage.getTask().getOrientation() == Task.Orientation.vertical ? swipeMessage.getBaseWidth() : swipeMessage.getBaseHeight()) * displayMetrics.density);
-        final int height = (int)((swipeMessage.getTask().getOrientation() == Task.Orientation.vertical ? swipeMessage.getBaseHeight() : swipeMessage.getBaseWidth()) * displayMetrics.density);
+        final int width = (int)(swipeMessage.getBaseWidth() * displayMetrics.density);
+        final int height = (int)(swipeMessage.getBaseHeight() * displayMetrics.density);
 
         final Rect rect = new Rect();
         rect.setLeft((int) ((displayMetrics.widthPixels - width) * 0.5));
@@ -101,7 +101,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             .getBaseHeight() * displayMetrics.density)) * 0.5));
 		showPager(baseLayout, rect);
 
-        final int buttonWidth = (int)((swipeMessage.getTask().getOrientation() == Task.Orientation.vertical ? swipeMessage.getBaseWidth() : swipeMessage.getBaseHeight()) * displayMetrics.density);
+        final int buttonWidth = (int)(imageButton.getBaseWidth() * displayMetrics.density);
         final int buttonHeight = (int)(imageButton.getBaseHeight() * displayMetrics.density);
         final int buttonLeft = rect.getLeft() + (rect.getWidth() - buttonWidth) / 2;
         final int buttonTop = rect.getTop() + rect.getHeight();
