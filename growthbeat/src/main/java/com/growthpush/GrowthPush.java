@@ -91,22 +91,17 @@ public class GrowthPush {
 				com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
 				client = Client.load();
 
-				if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
-                    GrowthPush.this.clearClient();
-
                 if(oldClient != null) {
-
-                    if(!applicationId.equals(oldClient.getGrowthbeatApplicationId())) {
-                        logger.warning(String.format("applicationId difference. now: %s, before: %s", applicationId, oldClient.getGrowthbeatApplicationId()));
-                        latch.countDown();
-                        return;
-                    }
-
-                    client.setId(oldClient.getGrowthbeatClientId());
+                    client = new Client();
+                    client.setId(growthbeatClient.getId());
                     client.setToken(oldClient.getToken());
-
                     updateClient(oldClient.getToken());
+
                 } else {
+
+                    if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
+                        GrowthPush.this.clearClient();
+
                     createClient(growthbeatClient.getId(), null);
                 }
 

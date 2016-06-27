@@ -12,18 +12,13 @@ import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
+import com.growthpush.GrowthPush;
 
 public class GrowthPushClient extends Model {
 
 	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
 	private static final String PREFERENCE_CLIENT_KEY = "client";
-	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthpush.com/";
-	private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 60 * 1000;
-	private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 60 * 1000;
-
 	private static final Preference preference = new Preference(Growthbeat.getInstance().getContext(), PREFERENCE_DEFAULT_FILE_NAME);
-	private static final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
-			HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
 
 	private long id;
 	private int applicationId;
@@ -58,7 +53,7 @@ public class GrowthPushClient extends Model {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("code", code);
 
-		JSONObject jsonObject = httpClient.get("1/clients/" + growthpushClientId, params);
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().get("1/clients/" + growthpushClientId, params);
 		if (jsonObject == null)
 			return null;
 
