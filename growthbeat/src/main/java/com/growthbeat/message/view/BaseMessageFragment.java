@@ -32,7 +32,7 @@ public class BaseMessageFragment extends Fragment {
 
 		displayMetrics = getResources().getDisplayMetrics();
 
-		FrameLayout baseLayout = new FrameLayout(getActivity());
+		FrameLayout baseLayout = new FrameLayout(getActivity().getApplicationContext());
 		int color = Color.parseColor(String.format("#%06X", (0xFFFFFF & background.getColor())));
 		baseLayout.setBackgroundColor(Color.argb((int) (background.getOpacity() * 255), Color.red(color), Color.green(color),
 				Color.blue(color)));

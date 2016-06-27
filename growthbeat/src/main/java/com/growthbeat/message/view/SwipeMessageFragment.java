@@ -139,25 +139,31 @@ public class SwipeMessageFragment extends BaseMessageFragment {
     }
 
 	private void showPager(FrameLayout innerLayout, Rect imageRect) {
+
+        FrameLayout pagerLayout = new FrameLayout(getActivity().getApplicationContext());
+        FrameLayout.LayoutParams pagerLayoutParams = new FrameLayout.LayoutParams(imageRect.getWidth(), imageRect.getHeight());
+        pagerLayoutParams.leftMargin = imageRect.getLeft();
+        pagerLayoutParams.topMargin = imageRect.getTop();
+
 		SwipePagerAdapter adapter = new SwipePagerAdapter();
 		List<Picture> pictures = swipeMessage.getPictures();
 
 		for (Picture picture : pictures) {
-			FrameLayout frameLayout = new FrameLayout(getActivity());
+			FrameLayout frameLayout = new FrameLayout(getActivity().getApplicationContext());
 			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
 					FrameLayout.LayoutParams.MATCH_PARENT);
 			layoutParams.gravity = Gravity.FILL;
 			frameLayout.setLayoutParams(layoutParams);
 
-			frameLayout.addView(createImage(picture, imageRect));
+			frameLayout.addView(createImage(picture));
 
 			adapter.add(frameLayout);
 		}
 
 		viewPager = new ViewPager(getActivity());
 		viewPager.setAdapter(adapter);
-
-		innerLayout.addView(viewPager);
+        pagerLayout.addView(viewPager, pagerLayoutParams);
+		innerLayout.addView(pagerLayout);
 	}
 
 	private void showIndicator(FrameLayout innerLayout, Rect rect) {
@@ -177,7 +183,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 			return;
 
 		final CloseButton closeButton = (CloseButton) buttons.get(0);
-		TouchableImageView touchableImageView = new TouchableImageView(getActivity());
+		TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
 		touchableImageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -203,15 +209,10 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 		innerLayout.addView(touchableImageView);
 	}
 
-	private View createImage(Picture picture, Rect rect) {
-		ImageView imageView = new ImageView(getActivity());
-		FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-		imageLayoutParams.leftMargin = rect.getLeft();
-		imageLayoutParams.topMargin = rect.getTop();
-		imageView.setLayoutParams(imageLayoutParams);
+	private View createImage(Picture picture) {
+		ImageView imageView = new ImageView(getActivity().getApplicationContext());
 		imageView.setScaleType(ScaleType.FIT_CENTER);
 		imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
-
 		return imageView;
 	}
 
@@ -220,7 +221,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 		case image:
 			final ImageButton imageButton = (ImageButton) button;
 
-			TouchableImageView touchableImageView = new TouchableImageView(getActivity());
+			TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
 			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
 			imageLayoutParams.leftMargin = rect.getLeft();
 			imageLayoutParams.topMargin = rect.getTop();
