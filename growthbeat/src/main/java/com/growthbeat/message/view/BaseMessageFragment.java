@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -27,7 +28,7 @@ public class BaseMessageFragment extends Fragment {
 
 	protected Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
 
-	protected FrameLayout generateBaselayout(Background background) {
+	protected FrameLayout generateBaseLayout(Background background) {
 
 		displayMetrics = getResources().getDisplayMetrics();
 
@@ -80,7 +81,7 @@ public class BaseMessageFragment extends Fragment {
 	}
 
 	protected void finishActivity() {
-		if (getActivity().isFinishing() || baseLayout == null) {
+		if ((getActivity() != null && getActivity().isFinishing()) || baseLayout == null) {
 			return;
 		}
 		BitmapUtilis.unbindRecursively(baseLayout);

@@ -36,7 +36,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         final String uuid = getArguments().getString("uuid");
         this.cardMessage = (CardMessage) message;
-        this.baseLayout = generateBaselayout(cardMessage.getBackground());
+        this.baseLayout = generateBaseLayout(cardMessage.getBackground());
 
         layoutMessage(cardMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
             @Override
@@ -72,8 +72,6 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             @Override
             public boolean onTouch(View arg0, MotionEvent arg1) {
-                // this will make sure event is not propagated to others,
-                // nesting same view area
                 return true;
             }
 

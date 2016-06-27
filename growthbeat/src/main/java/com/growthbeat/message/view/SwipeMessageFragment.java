@@ -44,7 +44,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
 		final String uuid = getArguments().getString("uuid");
 		this.swipeMessage = (SwipeMessage) message;
-		this.baseLayout = generateBaselayout(swipeMessage.getBackground());
+		this.baseLayout = generateBaseLayout(swipeMessage.getBackground());
 
 		layoutMessage(swipeMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
 			@Override
