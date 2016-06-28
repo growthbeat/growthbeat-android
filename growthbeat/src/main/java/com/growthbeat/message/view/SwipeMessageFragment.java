@@ -17,6 +17,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -27,318 +28,314 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 
 public class SwipeMessageFragment extends BaseMessageFragment {
 
-	private static final int PAGING_HEIGHT = 16;
+    private static final int INDICATOR_HEIGHT = 8;
+    private static final int INDICATOR_TOP_MARGIN = 16;
 
-	private SwipeMessage swipeMessage = null;
-	private ViewPager viewPager = null;
+    private SwipeMessage swipeMessage = null;
+    private ViewPager viewPager = null;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		Object message = getArguments().get("message");
-		if (message == null || !(message instanceof SwipeMessage))
-			return null;
+        Object message = getArguments().get("message");
+        if (message == null || !(message instanceof SwipeMessage))
+            return null;
 
-		final String uuid = getArguments().getString("uuid");
-		this.swipeMessage = (SwipeMessage) message;
-		this.baseLayout = generateBaseLayout(swipeMessage.getBackground());
+        final String uuid = getArguments().getString("uuid");
+        this.swipeMessage = (SwipeMessage) message;
+        this.baseLayout = generateBaseLayout(swipeMessage.getBackground());
 
-		layoutMessage(swipeMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
-			@Override
-			public void render() {
-				renderMessage();
-			}
-		});
+        layoutMessage(swipeMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
+            @Override
+            public void render() {
+                renderMessage();
+            }
+        });
 
-		return baseLayout;
-
-	}
-
-	private void renderMessage() {
-
-        final int width = (int)(swipeMessage.getBaseWidth() * displayMetrics.density);
-        final int height = (int)(swipeMessage.getBaseHeight() * displayMetrics.density);
-
-        final Rect rect = new Rect();
-        rect.setLeft((int) ((displayMetrics.widthPixels - width) * 0.5));
-        rect.setTop((int) ((displayMetrics.heightPixels - height) * 0.5));
-        rect.setWidth(width);
-        rect.setHeight(height);
-
-		switch (swipeMessage.getSwipeType()) {
-		case imageOnly:
-			renderOnlyImageSwipeMessage(rect);
-			break;
-		case oneButton:
-			renderOneButtonSwipeMessage(rect);
-			break;
-		default:
-			break;
-		}
-
-	}
-
-	private void renderOnlyImageSwipeMessage(Rect rect) {
-
-		showPager(baseLayout, rect);
-		showIndicator(baseLayout, rect);
-		showCloseButton(baseLayout, rect);
-
-	}
-
-	private void renderOneButtonSwipeMessage(Rect rect) {
-
-		List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.image));
-
-		if (buttons.size() != 1)
-			return;
-		ImageButton imageButton = (ImageButton) buttons.get(0);
-
-        rect.setTop((int) ((displayMetrics.heightPixels - (rect.getHeight() + imageButton
-            .getBaseHeight() * displayMetrics.density)) * 0.5));
-		showPager(baseLayout, rect);
-
-        final int buttonWidth = (int)(imageButton.getBaseWidth() * displayMetrics.density);
-        final int buttonHeight = (int)(imageButton.getBaseHeight() * displayMetrics.density);
-        final int buttonLeft = (int)(rect.getLeft() + (rect.getWidth() - buttonWidth) * 0.5);
-        final int buttonTop = rect.getTop() + rect.getHeight();
-        Rect buttonRect = new Rect(buttonLeft, buttonTop, buttonWidth, buttonHeight);
-		View buttonView = createButton(imageButton, buttonRect);
-		if (buttonView != null)
-			baseLayout.addView(buttonView);
-
-		showIndicator(baseLayout, buttonRect);
-        showCloseButton(baseLayout, rect);
+        return baseLayout;
 
     }
 
-	private void showPager(FrameLayout innerLayout, Rect imageRect) {
+    private void renderMessage() {
+
+        FrameLayout swipeLayout = createSwipeLayout();
+
+        // ドット
+        FrameLayout indicatorLayout = createIndicatorLayout();
+        FrameLayout.LayoutParams indicatorLayoutParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT, (int) (INDICATOR_HEIGHT * displayMetrics.density));
+        int indicatorTopMargin = (int) (INDICATOR_TOP_MARGIN * displayMetrics.density);
+        indicatorLayoutParams.setMargins(0, swipeLayout.getLayoutParams().height + indicatorTopMargin, 0, 0);
+        indicatorLayout.setLayoutParams(indicatorLayoutParams);
+
+        int messageWidth = swipeLayout.getLayoutParams().width;
+        int messageHeight = swipeLayout.getLayoutParams().height + indicatorLayout.getLayoutParams().height + indicatorTopMargin;
+
+        FrameLayout messageLayout = new FrameLayout(getActivity().getApplicationContext());
+        FrameLayout.LayoutParams messageLayoutParams = new FrameLayout.LayoutParams(
+            messageWidth, messageHeight);
+        messageLayoutParams.gravity = Gravity.CENTER;
+        messageLayout.setLayoutParams(messageLayoutParams);
+
+        messageLayout.addView(swipeLayout);
+        messageLayout.addView(indicatorLayout);
+
+        baseLayout.addView(messageLayout);
+    }
+
+    private FrameLayout createSwipeLayout() {
+        final int swipeBaseWidth = (int) (swipeMessage.getBaseWidth() * displayMetrics.density);
+        final int swipeBaseHeight = (int) (swipeMessage.getBaseHeight() * displayMetrics.density);
+
+        FrameLayout swipeLayout = new FrameLayout(getActivity().getApplicationContext());
+        FrameLayout.LayoutParams swipeLayoutParams = new FrameLayout.LayoutParams(
+            swipeBaseWidth, swipeBaseHeight);
+        swipeLayout.setLayoutParams(swipeLayoutParams);
 
         FrameLayout pagerLayout = new FrameLayout(getActivity().getApplicationContext());
-        FrameLayout.LayoutParams pagerLayoutParams = new FrameLayout.LayoutParams(imageRect.getWidth(), imageRect.getHeight());
-        pagerLayoutParams.leftMargin = imageRect.getLeft();
-        pagerLayoutParams.topMargin = imageRect.getTop();
+        FrameLayout.LayoutParams pagerLayoutParams = new FrameLayout.LayoutParams(swipeBaseWidth, swipeBaseHeight);
 
-		SwipePagerAdapter adapter = new SwipePagerAdapter();
-		List<Picture> pictures = swipeMessage.getPictures();
+        SwipePagerAdapter adapter = new SwipePagerAdapter();
+        List<Picture> pictures = swipeMessage.getPictures();
 
-		for (Picture picture : pictures) {
-			FrameLayout frameLayout = new FrameLayout(getActivity().getApplicationContext());
-			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-					FrameLayout.LayoutParams.MATCH_PARENT);
-			layoutParams.gravity = Gravity.FILL;
-			frameLayout.setLayoutParams(layoutParams);
+        for (Picture picture : pictures) {
+            ImageView imageView = new ImageView(getActivity().getApplicationContext());
+            imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
+            imageView.setScaleType(ScaleType.CENTER_INSIDE);
 
-			frameLayout.addView(createImage(picture));
+            imageView.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
-			adapter.add(frameLayout);
-		}
+            FrameLayout innerPictureLayout = new FrameLayout(getActivity().getApplicationContext());
 
-		viewPager = new ViewPager(getActivity());
-		viewPager.setAdapter(adapter);
+            float imageRatio = Math.min(1.0f, Math.min(
+                (float) swipeBaseWidth / imageView.getMeasuredWidth(), (float) swipeBaseHeight / imageView.getMeasuredHeight()));
+
+            FrameLayout.LayoutParams innerPictureLayoutParams = new FrameLayout.LayoutParams(
+                (int) (imageView.getMeasuredWidth() * imageRatio),
+                (int) (imageView.getMeasuredHeight() * imageRatio));
+            innerPictureLayoutParams.gravity = Gravity.CENTER;
+            innerPictureLayout.setLayoutParams(innerPictureLayoutParams);
+
+            innerPictureLayout.addView(imageView);
+
+            FrameLayout pictureLayout = new FrameLayout(getActivity().getApplicationContext());
+            FrameLayout.LayoutParams pictureLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+            pictureLayoutParams.gravity = Gravity.CENTER;
+            pictureLayout.setLayoutParams(pictureLayoutParams);
+
+            // 閉じる
+            addCloseButton(innerPictureLayout);
+
+            pictureLayout.addView(innerPictureLayout);
+
+            adapter.add(pictureLayout);
+        }
+
+        viewPager = new ViewPager(getActivity());
+        viewPager.setAdapter(adapter);
         pagerLayout.addView(viewPager, pagerLayoutParams);
-		innerLayout.addView(pagerLayout);
-	}
+        swipeLayout.addView(pagerLayout);
 
-	private void showIndicator(FrameLayout innerLayout, Rect rect) {
+        return swipeLayout;
+    }
 
-        final Rect indicatorRect = new Rect();
-        indicatorRect.setLeft(rect.getLeft());
-        indicatorRect.setTop(rect.getTop() + rect.getHeight());
-        indicatorRect.setWidth(rect.getWidth());
-        indicatorRect.setHeight((int) (PAGING_HEIGHT * displayMetrics.density));
 
-		SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator();
-		swipePagerIndicator.setViewPager(viewPager);
-		FrameLayout.LayoutParams indicatorLayoutparams = new FrameLayout.LayoutParams(indicatorRect.getWidth(), indicatorRect.getHeight());
-		indicatorLayoutparams.leftMargin = indicatorRect.getLeft();
-		indicatorLayoutparams.topMargin = indicatorRect.getTop();
-		swipePagerIndicator.setLayoutParams(indicatorLayoutparams);
-		innerLayout.addView(swipePagerIndicator);
-	}
+    private FrameLayout createIndicatorLayout() {
+        SwipePagerIndicator swipePagerIndicator = new SwipePagerIndicator();
+        swipePagerIndicator.setViewPager(viewPager);
+        FrameLayout layout = new FrameLayout(getActivity().getApplicationContext());
+        layout.addView(swipePagerIndicator);
+        return layout;
+    }
 
-	private void showCloseButton(FrameLayout innerLayout, Rect rect) {
-		List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.close));
+    private void addCloseButton(FrameLayout swipeLayout) {
 
-		if (buttons.size() < 1)
-			return;
+        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.close));
 
-		final CloseButton closeButton = (CloseButton) buttons.get(0);
-		TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
-		touchableImageView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				GrowthMessage.getInstance().selectButton(closeButton, swipeMessage);
-				finishActivity();
-			}
-		});
+        if (buttons.size() < 1)
+            return;
 
-		Bitmap bitmap = cachedImages.get(closeButton.getPicture().getUrl());
-		touchableImageView.setImageBitmap(bitmap);
+        final CloseButton closeButton = (CloseButton) buttons.get(0);
 
-        int width = (int) (closeButton.getBaseWidth() * displayMetrics.density);
-        int height = (int) (closeButton.getBaseHeight() * displayMetrics.density);
-        int left = rect.getLeft() + rect.getWidth() - width - (int) (BASE_CLOSE_PADDING * displayMetrics.density);
-        int top = rect.getTop() + (int) (BASE_CLOSE_PADDING * displayMetrics.density);
+        int closeBaseWidth = (int) (closeButton.getBaseWidth() * displayMetrics.density);
+        int closeBaseHeight = (int) (closeButton.getBaseHeight() * displayMetrics.density);
+        int rightMargin = (int) (8 * displayMetrics.density);
+        int topMargin = (int) (8 * displayMetrics.density);
 
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
-		layoutParams.leftMargin = left;
-		layoutParams.topMargin = top;
-		touchableImageView.setLayoutParams(layoutParams);
-		touchableImageView.setScaleType(ScaleType.FIT_CENTER);
+        TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
+        touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
+        touchableImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GrowthMessage.getInstance().selectButton(closeButton, swipeMessage);
+                finishActivity();
+            }
+        });
+        touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
 
-		innerLayout.addView(touchableImageView);
-	}
+        touchableImageView.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
-	private View createImage(Picture picture) {
-		ImageView imageView = new ImageView(getActivity().getApplicationContext());
-		imageView.setScaleType(ScaleType.FIT_CENTER);
-		imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
-		return imageView;
-	}
+        FrameLayout closeLayout = new FrameLayout(getActivity().getApplicationContext());
+        FrameLayout.LayoutParams closeLayoutParams = new FrameLayout.LayoutParams(
+            Math.min(touchableImageView.getMeasuredWidth(), closeBaseWidth),
+            Math.min(touchableImageView.getMeasuredHeight(), closeBaseHeight));
+        closeLayoutParams.gravity = Gravity.RIGHT | Gravity.TOP;
+        closeLayoutParams.setMargins(0, topMargin, rightMargin, 0);
+        closeLayout.setLayoutParams(closeLayoutParams);
 
-	private View createButton(Button button, Rect rect) {
-		switch (button.getType()) {
-		case image:
-			final ImageButton imageButton = (ImageButton) button;
+        closeLayout.addView(touchableImageView);
 
-			TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
-			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-			imageLayoutParams.leftMargin = rect.getLeft();
-			imageLayoutParams.topMargin = rect.getTop();
-            imageLayoutParams.gravity = Gravity.TOP;
-			touchableImageView.setLayoutParams(imageLayoutParams);
-			touchableImageView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
-					finishActivity();
-				}
-			});
-			touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
-			return touchableImageView;
-		default:
-			return null;
-		}
-	}
+        swipeLayout.addView(closeLayout);
+    }
 
-	private List<Button> extractButtons(EnumSet<Button.ButtonType> types) {
+    private View createButton(Button button, Rect rect) {
+        switch (button.getType()) {
+            case image:
+                final ImageButton imageButton = (ImageButton) button;
 
-		List<Button> buttons = new ArrayList<Button>();
+                TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
+                FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
+                imageLayoutParams.leftMargin = rect.getLeft();
+                imageLayoutParams.topMargin = rect.getTop();
+                imageLayoutParams.gravity = Gravity.TOP;
+                touchableImageView.setLayoutParams(imageLayoutParams);
+                touchableImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
+                        finishActivity();
+                    }
+                });
+                touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+                return touchableImageView;
+            default:
+                return null;
+        }
+    }
 
-		for (Button button : swipeMessage.getButtons()) {
-			if (types.contains(button.getType())) {
-				buttons.add(button);
-			}
-		}
+    private List<Button> extractButtons(EnumSet<Button.ButtonType> types) {
 
-		return buttons;
+        List<Button> buttons = new ArrayList<Button>();
 
-	}
+        for (Button button : swipeMessage.getButtons()) {
+            if (types.contains(button.getType())) {
+                buttons.add(button);
+            }
+        }
 
-	private class SwipePagerAdapter extends PagerAdapter {
-		private ArrayList<FrameLayout> itemList;
+        return buttons;
 
-		public SwipePagerAdapter() {
-			itemList = new ArrayList<FrameLayout>();
-		}
+    }
 
-		public void add(FrameLayout layout) {
-			itemList.add(layout);
-		}
+    private class SwipePagerAdapter extends PagerAdapter {
+        private ArrayList<FrameLayout> itemList;
 
-		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
-			FrameLayout layout = itemList.get(position);
-			container.addView(layout);
-			return layout;
-		}
+        public SwipePagerAdapter() {
+            itemList = new ArrayList<FrameLayout>();
+        }
 
-		@Override
-		public void destroyItem(ViewGroup container, int position, Object object) {
-			container.removeView((View) object);
-		}
+        public void add(FrameLayout layout) {
+            itemList.add(layout);
+        }
 
-		@Override
-		public int getCount() {
-			return itemList.size();
-		}
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            FrameLayout layout = itemList.get(position);
+            container.addView(layout);
+            return layout;
+        }
 
-		@Override
-		public boolean isViewFromObject(View view, Object object) {
-			return view == (FrameLayout) object;
-		}
-	}
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
 
-	private class SwipePagerIndicator extends View {
-		private static final float DISTANCE = 16.0f;
-		private static final float RADIUS = 4.0f;
+        @Override
+        public int getCount() {
+            return itemList.size();
+        }
 
-		private ViewPager viewPager;
-		private int position;
-		private Paint paint;
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == (FrameLayout) object;
+        }
+    }
 
-		public SwipePagerIndicator() {
-			super(getActivity());
+    private class SwipePagerIndicator extends View {
+        private static final float DISTANCE = 24.0f;
+        private static final float RADIUS = 4.0f;
 
-			paint = new Paint();
-			paint.setStrokeWidth(1);
-			paint.setStyle(Paint.Style.FILL_AND_STROKE);
-			paint.setStrokeCap(Paint.Cap.ROUND);
-			paint.setAntiAlias(true);
-		}
+        private ViewPager viewPager;
+        private int position;
+        private Paint paint;
 
-		public void setViewPager(ViewPager viewPager) {
-			this.viewPager = viewPager;
+        public SwipePagerIndicator() {
+            super(getActivity());
 
-			this.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-				@Override
-				public void onPageSelected(int position) {
-					setPosition(position);
-					invalidate();
-				}
+            paint = new Paint();
+            paint.setStrokeWidth(1);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            paint.setStrokeCap(Paint.Cap.ROUND);
+            paint.setAntiAlias(true);
+        }
 
-				@Override
-				public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				}
+        public void setViewPager(ViewPager viewPager) {
+            this.viewPager = viewPager;
 
-				@Override
-				public void onPageScrollStateChanged(int state) {
-				}
-			});
-		}
+            this.viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    setPosition(position);
+                    invalidate();
+                }
 
-		private void setPosition(int position) {
-			this.position = position;
-		}
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                }
 
-		@Override
-		protected void onDraw(Canvas canvas) {
-			super.onDraw(canvas);
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                }
+            });
+        }
 
-			if (viewPager == null) {
-				return;
-			}
+        private void setPosition(int position) {
+            this.position = position;
+        }
 
-			final int count = viewPager.getAdapter().getCount();
-			final float longOffset = (getWidth() * 0.5f) + (DISTANCE * displayMetrics.density * 0.5f)
-					- (count * DISTANCE * displayMetrics.density * 0.5f);
-			final float shortOffset = getHeight() * 0.5f;
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
 
-			for (int i = 0; i < count; i++) {
-				if (position == i) {
-					paint.setColor(Color.WHITE);
-				} else {
-					paint.setColor(Color.DKGRAY);
-				}
-				float cx = longOffset + (i * DISTANCE * displayMetrics.density);
-				float cy = shortOffset;
-				canvas.drawCircle(cx, cy, RADIUS * displayMetrics.density, paint);
-			}
+            if (viewPager == null) {
+                return;
+            }
 
-		}
-	}
+            final int count = viewPager.getAdapter().getCount();
+            final float longOffset = (getWidth() * 0.5f) + (DISTANCE * displayMetrics.density * 0.5f)
+                - (count * DISTANCE * displayMetrics.density * 0.5f);
+            final float shortOffset = getHeight() * 0.5f;
+
+            for (int i = 0; i < count; i++) {
+                if (position == i) {
+                    paint.setColor(Color.WHITE);
+                } else {
+                    paint.setARGB(255, 30, 30, 30);
+                }
+                float cx = longOffset + (i * DISTANCE * displayMetrics.density);
+                float cy = shortOffset;
+                canvas.drawCircle(cx, cy, RADIUS * displayMetrics.density, paint);
+            }
+
+        }
+    }
 }
