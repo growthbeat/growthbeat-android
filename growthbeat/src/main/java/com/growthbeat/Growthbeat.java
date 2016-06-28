@@ -10,6 +10,7 @@ import com.growthbeat.intenthandler.UrlIntentHandler;
 import com.growthbeat.model.Client;
 import com.growthbeat.model.GrowthPushClient;
 import com.growthbeat.model.Intent;
+import com.growthpush.GrowthPush;
 
 import android.content.Context;
 
@@ -70,6 +71,7 @@ public class Growthbeat {
 					&& client.getApplication().getId().equals(growthPushClient.getGrowthbeatApplicationId())
 					&& client.getApplication().getId().equals(applicationId)) {
 				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+                GrowthPushClient.removePreference();
 				return;
 			}
 		} else {
@@ -98,12 +100,12 @@ public class Growthbeat {
 					if (client == null) {
 						logger.info("Failed to convert client.");
 						client = null;
-						GrowthPushClient.removePreference();
-						return;
-					}
+					} else {
+                        Client.save(client);
+                        logger.info(String.format("Client converted. (id:%s)", client.getId()));
+                    }
 
-					Client.save(client);
-					logger.info(String.format("Client converted. (id:%s)", client.getId()));
+                    GrowthPushClient.removePreference();
 
 				} else {
 					logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
