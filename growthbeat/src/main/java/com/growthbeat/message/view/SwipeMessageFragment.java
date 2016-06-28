@@ -111,7 +111,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 			baseLayout.addView(buttonView);
 
 		showIndicator(baseLayout, buttonRect);
-		showCloseButton(baseLayout, buttonRect);
+        showCloseButton(baseLayout, rect);
 
     }
 
@@ -182,9 +182,9 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         int width = (int) (closeButton.getBaseWidth() * displayMetrics.density);
         int height = (int) (closeButton.getBaseHeight() * displayMetrics.density);
         int left = rect.getLeft() + rect.getWidth() - width - (int) (BASE_CLOSE_PADDING * displayMetrics.density);
-        int top = rect.getTop() + BASE_CLOSE_PADDING * (int) displayMetrics.density;
+        int top = rect.getTop() + (int) (BASE_CLOSE_PADDING * displayMetrics.density);
 
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
 		layoutParams.leftMargin = left;
 		layoutParams.topMargin = top;
 		touchableImageView.setLayoutParams(layoutParams);
@@ -209,8 +209,8 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 			FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
 			imageLayoutParams.leftMargin = rect.getLeft();
 			imageLayoutParams.topMargin = rect.getTop();
+            imageLayoutParams.gravity = Gravity.TOP;
 			touchableImageView.setLayoutParams(imageLayoutParams);
-			touchableImageView.setScaleType(ScaleType.FIT_CENTER);
 			touchableImageView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {

@@ -115,13 +115,12 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             final ImageButton imageButton = (ImageButton) button;
 
-            int width = (int) (imageButton.getBaseHeight() * displayMetrics.density);
+            int width = (int) (imageButton.getBaseWidth() * displayMetrics.density);
             int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
             int left = rect.getLeft() + (rect.getWidth() - width) / 2;
             top -= height;
 
             TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
-            touchableImageView.setScaleType(ScaleType.FIT_CENTER);
             touchableImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
