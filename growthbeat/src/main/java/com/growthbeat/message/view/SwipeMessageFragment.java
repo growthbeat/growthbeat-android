@@ -239,12 +239,21 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         float imageRatio = Math.min(1.0f, Math.min(
             (float) buttonBaseWidth / touchableImageView.getMeasuredWidth(), (float) buttonBaseHeight / touchableImageView.getMeasuredHeight()));
 
-        FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
+        FrameLayout innerButtonLayout = new FrameLayout(getActivity().getApplicationContext());
+        FrameLayout.LayoutParams innerButtonLayoutParams = new FrameLayout.LayoutParams(
             (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
+        innerButtonLayoutParams.gravity = Gravity.CENTER;
+        innerButtonLayout.setLayoutParams(innerButtonLayoutParams);
+
+        innerButtonLayout.addView(touchableImageView);
+
+        FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
+            buttonBaseWidth,
             (int) (touchableImageView.getMeasuredHeight() * imageRatio));
         buttonLayout.setLayoutParams(buttonLayoutParams);
 
-        buttonLayout.addView(touchableImageView);
+        buttonLayout.addView(innerButtonLayout);
 
         return buttonLayout;
     }
