@@ -70,7 +70,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	private void download(CardMessage cardMessage) {
 
-		if (cardMessage.getPicture().getUrl() != null) {
+		if (cardMessage.getPicture() != null && cardMessage.getPicture().getUrl() != null) {
             String pictureUrl = addDensityByPictureUrl(cardMessage.getPicture().getUrl());
             cardMessage.getPicture().setUrl(pictureUrl);
 			urlStrings.add(pictureUrl);
