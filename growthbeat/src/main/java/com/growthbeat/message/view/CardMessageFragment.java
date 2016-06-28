@@ -93,6 +93,7 @@ public class CardMessageFragment extends BaseMessageFragment {
         ImageView cardImageView = new ImageView(getActivity().getApplicationContext());
         cardImageView.setScaleType(ScaleType.CENTER);
         cardImageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
+        cardImageView.setScaleType(ScaleType.CENTER);
         cardImageView.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
@@ -133,6 +134,7 @@ public class CardMessageFragment extends BaseMessageFragment {
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
+        touchableImageView.setScaleType(ScaleType.CENTER);
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -174,6 +176,7 @@ public class CardMessageFragment extends BaseMessageFragment {
                 }
             });
         touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+        touchableImageView.setScaleType(ScaleType.CENTER);
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -213,6 +216,7 @@ public class CardMessageFragment extends BaseMessageFragment {
             }
         });
         touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+        touchableImageView.setScaleType(ScaleType.CENTER);
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
