@@ -1,6 +1,7 @@
 package com.growthbeat.message.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -11,13 +12,10 @@ import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.Picture;
 import com.growthbeat.message.model.SwipeMessage;
-import com.growthbeat.message.model.Task;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -28,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 
 public class SwipeMessageFragment extends BaseMessageFragment {
 
@@ -63,17 +60,23 @@ public class SwipeMessageFragment extends BaseMessageFragment {
     private void renderMessage() {
 
         FrameLayout swipeLayout = createSwipeLayout();
+        int swipeWidth = swipeLayout.getLayoutParams().width;
+        int swipeHeight = swipeLayout.getLayoutParams().height;
+
+        FrameLayout buttonLayout = createButtonLayout();
+        int buttonHeight = buttonLayout.getLayoutParams().height;
+        buttonLayout.setY(swipeHeight);
 
         // ドット
         FrameLayout indicatorLayout = createIndicatorLayout();
         FrameLayout.LayoutParams indicatorLayoutParams = new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT, (int) (INDICATOR_HEIGHT * displayMetrics.density));
         int indicatorTopMargin = (int) (INDICATOR_TOP_MARGIN * displayMetrics.density);
-        indicatorLayoutParams.setMargins(0, swipeLayout.getLayoutParams().height + indicatorTopMargin, 0, 0);
+        indicatorLayoutParams.setMargins(0, swipeHeight + buttonHeight + indicatorTopMargin, 0, 0);
         indicatorLayout.setLayoutParams(indicatorLayoutParams);
 
-        int messageWidth = swipeLayout.getLayoutParams().width;
-        int messageHeight = swipeLayout.getLayoutParams().height + indicatorLayout.getLayoutParams().height + indicatorTopMargin;
+        int messageWidth = swipeWidth;
+        int messageHeight = swipeHeight + buttonHeight + indicatorTopMargin + indicatorLayout.getLayoutParams().height;
 
         FrameLayout messageLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams messageLayoutParams = new FrameLayout.LayoutParams(
@@ -82,6 +85,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         messageLayout.setLayoutParams(messageLayoutParams);
 
         messageLayout.addView(swipeLayout);
+        messageLayout.addView(buttonLayout);
         messageLayout.addView(indicatorLayout);
 
         baseLayout.addView(messageLayout);
@@ -184,10 +188,13 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) closeBaseWidth / touchableImageView.getMeasuredWidth(), (float) closeBaseHeight / touchableImageView.getMeasuredHeight()));
+
         FrameLayout closeLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams closeLayoutParams = new FrameLayout.LayoutParams(
-            Math.min(touchableImageView.getMeasuredWidth(), closeBaseWidth),
-            Math.min(touchableImageView.getMeasuredHeight(), closeBaseHeight));
+            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
         closeLayoutParams.gravity = Gravity.RIGHT | Gravity.TOP;
         closeLayoutParams.setMargins(0, topMargin, rightMargin, 0);
         closeLayout.setLayoutParams(closeLayoutParams);
@@ -197,29 +204,49 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         swipeLayout.addView(closeLayout);
     }
 
-    private View createButton(Button button, Rect rect) {
-        switch (button.getType()) {
-            case image:
-                final ImageButton imageButton = (ImageButton) button;
+    private FrameLayout createButtonLayout() {
+        List<Button> buttons = extractButtons(EnumSet.of(Button.ButtonType.image));
+        Collections.reverse(buttons);
 
-                TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
-                FrameLayout.LayoutParams imageLayoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
-                imageLayoutParams.leftMargin = rect.getLeft();
-                imageLayoutParams.topMargin = rect.getTop();
-                imageLayoutParams.gravity = Gravity.TOP;
-                touchableImageView.setLayoutParams(imageLayoutParams);
-                touchableImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
-                        finishActivity();
-                    }
-                });
-                touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
-                return touchableImageView;
-            default:
-                return null;
+        FrameLayout buttonLayout = new FrameLayout(getActivity().getApplicationContext());
+
+        if (buttons.size() < 1) {
+            FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(0, 0);
+            buttonLayout.setLayoutParams(buttonLayoutParams);
+            return buttonLayout;
         }
+
+        final ImageButton imageButton = (ImageButton) buttons.get(0);
+
+        int buttonBaseWidth = (int) (imageButton.getBaseWidth() * displayMetrics.density);
+        int buttonBaseHeight = (int) (imageButton.getBaseHeight() * displayMetrics.density);
+
+        TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
+        touchableImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GrowthMessage.getInstance().selectButton(imageButton, swipeMessage);
+                finishActivity();
+            }
+        });
+        touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+        touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
+
+        touchableImageView.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) buttonBaseWidth / touchableImageView.getMeasuredWidth(), (float) buttonBaseHeight / touchableImageView.getMeasuredHeight()));
+
+        FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
+            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
+        buttonLayout.setLayoutParams(buttonLayoutParams);
+
+        buttonLayout.addView(touchableImageView);
+
+        return buttonLayout;
     }
 
     private List<Button> extractButtons(EnumSet<Button.ButtonType> types) {
