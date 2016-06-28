@@ -103,7 +103,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
         final int buttonWidth = (int)(imageButton.getBaseWidth() * displayMetrics.density);
         final int buttonHeight = (int)(imageButton.getBaseHeight() * displayMetrics.density);
-        final int buttonLeft = rect.getLeft() + (rect.getWidth() - buttonWidth) / 2;
+        final int buttonLeft = (int)(rect.getLeft() + (rect.getWidth() - buttonWidth) * 0.5);
         final int buttonTop = rect.getTop() + rect.getHeight();
         Rect buttonRect = new Rect(buttonLeft, buttonTop, buttonWidth, buttonHeight);
 		View buttonView = createButton(imageButton, buttonRect);

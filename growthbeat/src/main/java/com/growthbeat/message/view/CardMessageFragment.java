@@ -53,8 +53,8 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         final int width = (int)(cardMessage.getBaseWidth() * displayMetrics.density);
         final int height = (int)(cardMessage.getBaseHeight() * displayMetrics.density);
-        int left = (displayMetrics.widthPixels - width) / 2;
-        int top = (displayMetrics.heightPixels - height) / 2;
+        final int left = (int)((displayMetrics.widthPixels - width) * 0.5);
+        final int top = (int)((displayMetrics.heightPixels - height) * 0.5);
         Rect rect = new Rect(left, top, width, height);
 
         showImage(baseLayout, rect);
@@ -117,7 +117,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             int width = (int) (imageButton.getBaseWidth() * displayMetrics.density);
             int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
-            int left = rect.getLeft() + (rect.getWidth() - width) / 2;
+            int left = (int)(rect.getLeft() + (rect.getWidth() - width) * 0.5);
             top -= height;
 
             TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
@@ -148,7 +148,7 @@ public class CardMessageFragment extends BaseMessageFragment {
         int width = (int) (closeButton.getBaseWidth() * displayMetrics.density);
         int height = (int) (closeButton.getBaseHeight() * displayMetrics.density);
         int left = rect.getLeft() + rect.getWidth() - width - (int) (BASE_CLOSE_PADDING * displayMetrics.density);
-        int top = rect.getTop() + BASE_CLOSE_PADDING * (int) displayMetrics.density;
+        int top = rect.getTop() + (int)(BASE_CLOSE_PADDING * displayMetrics.density);
 
         TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);
