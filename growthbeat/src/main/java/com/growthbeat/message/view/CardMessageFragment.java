@@ -106,10 +106,13 @@ public class CardMessageFragment extends BaseMessageFragment {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) cardBaseWidth / cardImageView.getMeasuredWidth(), (float) cardBaseHeight / cardImageView.getMeasuredHeight()));
+
         FrameLayout cardLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams cardLayoutParams = new FrameLayout.LayoutParams(
-            Math.min(cardImageView.getMeasuredWidth(), cardBaseWidth),
-            Math.min(cardImageView.getMeasuredHeight(), cardBaseHeight));
+            (int) (cardImageView.getMeasuredWidth() * imageRatio),
+            (int) (cardImageView.getMeasuredHeight() * imageRatio));
         cardLayoutParams.gravity = Gravity.CENTER;
         cardLayout.setLayoutParams(cardLayoutParams);
 
@@ -138,10 +141,13 @@ public class CardMessageFragment extends BaseMessageFragment {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) cardBaseWidth / touchableImageView.getMeasuredWidth(), (float) cardBaseHeight / touchableImageView.getMeasuredHeight()));
+
         FrameLayout cardLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams cardLayoutParams = new FrameLayout.LayoutParams(
-            Math.min(touchableImageView.getMeasuredWidth(), cardBaseWidth),
-            Math.min(touchableImageView.getMeasuredHeight(), cardBaseHeight));
+            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
         cardLayoutParams.gravity = Gravity.CENTER;
         cardLayout.setLayoutParams(cardLayoutParams);
 
@@ -157,8 +163,11 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         FrameLayout buttonLayout = new FrameLayout(getActivity().getApplicationContext());
 
-        if (buttons.size() < 1)
+        if (buttons.size() < 1) {
+            FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(0, 0);
+            buttonLayout.setLayoutParams(buttonLayoutParams);
             return buttonLayout;
+        }
 
         final ImageButton imageButton = (ImageButton) buttons.get(0);
 
@@ -180,9 +189,12 @@ public class CardMessageFragment extends BaseMessageFragment {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) buttonBaseWidth / touchableImageView.getMeasuredWidth(), (float) buttonBaseHeight / touchableImageView.getMeasuredHeight()));
+
         FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
-            Math.min(touchableImageView.getMeasuredWidth(), buttonBaseWidth),
-            Math.min(touchableImageView.getMeasuredHeight(), buttonBaseHeight));
+            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
         buttonLayout.setLayoutParams(buttonLayoutParams);
 
         buttonLayout.addView(touchableImageView);
@@ -219,10 +231,13 @@ public class CardMessageFragment extends BaseMessageFragment {
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
 
+        float imageRatio = Math.min(1.0f, Math.min(
+            (float) closeBaseWidth / touchableImageView.getMeasuredWidth(), (float) closeBaseHeight / touchableImageView.getMeasuredHeight()));
+
         FrameLayout closeLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams closeLayoutParams = new FrameLayout.LayoutParams(
-            Math.min(touchableImageView.getMeasuredWidth(), closeBaseWidth),
-            Math.min(touchableImageView.getMeasuredHeight(), closeBaseHeight));
+            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
         closeLayoutParams.gravity = Gravity.RIGHT | Gravity.TOP;
         closeLayoutParams.setMargins(0, topMargin, rightMargin, 0);
         closeLayout.setLayoutParams(closeLayoutParams);
