@@ -51,10 +51,10 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private void renderMessage() {
 
-        final int width = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
-        final int height = (int)((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseHeight() : cardMessage.getBaseWidth()) * displayMetrics.density);
-        int left = (displayMetrics.widthPixels - width) / 2;
-        int top = (displayMetrics.heightPixels - height) / 2;
+        final int width = (int)(cardMessage.getBaseWidth() * displayMetrics.density);
+        final int height = (int)(cardMessage.getBaseHeight() * displayMetrics.density);
+        final int left = (int)((displayMetrics.widthPixels - width) * 0.5);
+        final int top = (int)((displayMetrics.heightPixels - height) * 0.5);
         Rect rect = new Rect(left, top, width, height);
 
         showImage(baseLayout, rect);
@@ -65,7 +65,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private void showImage(FrameLayout innerLayout, Rect rect) {
 
-        ImageView imageView = new ImageView(getActivity());
+        ImageView imageView = new ImageView(getActivity().getApplicationContext());
         imageView.setScaleType(ScaleType.FIT_CENTER);
         imageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
         imageView.setOnTouchListener(new View.OnTouchListener() {
@@ -90,7 +90,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         final ScreenButton screenButton = (ScreenButton) buttons.get(0);
 
-        TouchableImageView touchableImageView = new TouchableImageView(getActivity());
+        TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);
         touchableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,13 +115,12 @@ public class CardMessageFragment extends BaseMessageFragment {
 
             final ImageButton imageButton = (ImageButton) button;
 
-            int width = (int) ((cardMessage.getTask().getOrientation() == Task.Orientation.vertical ? cardMessage.getBaseWidth() : cardMessage.getBaseHeight()) * displayMetrics.density);
+            int width = (int) (imageButton.getBaseWidth() * displayMetrics.density);
             int height = (int) (imageButton.getBaseHeight() * displayMetrics.density);
-            int left = rect.getLeft() + (rect.getWidth() - width) / 2;
+            int left = (int)(rect.getLeft() + (rect.getWidth() - width) * 0.5);
             top -= height;
 
-            TouchableImageView touchableImageView = new TouchableImageView(getActivity());
-            touchableImageView.setScaleType(ScaleType.FIT_CENTER);
+            TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
             touchableImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -148,10 +147,10 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         int width = (int) (closeButton.getBaseWidth() * displayMetrics.density);
         int height = (int) (closeButton.getBaseHeight() * displayMetrics.density);
-        int left = rect.getLeft() + rect.getWidth() - width - (int) (8 * displayMetrics.density);
-        int top = rect.getTop() + 8 * (int) displayMetrics.density;
+        int left = rect.getLeft() + rect.getWidth() - width - (int) (BASE_CLOSE_PADDING * displayMetrics.density);
+        int top = rect.getTop() + (int)(BASE_CLOSE_PADDING * displayMetrics.density);
 
-        TouchableImageView touchableImageView = new TouchableImageView(getActivity());
+        TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
         touchableImageView.setScaleType(ScaleType.FIT_CENTER);
         touchableImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,7 +181,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
     private View wrapViewWithAbsoluteLayout(View view, Rect rect) {
 
-        FrameLayout frameLayout = new FrameLayout(getActivity());
+        FrameLayout frameLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(rect.getWidth(), rect.getHeight());
         layoutParams.setMargins(rect.getLeft(), rect.getTop(), 0, 0);
         layoutParams.gravity = Gravity.FILL;

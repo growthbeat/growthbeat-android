@@ -23,6 +23,8 @@ import android.widget.FrameLayout;
  */
 public class BaseMessageFragment extends Fragment {
 
+    protected static final int BASE_CLOSE_PADDING = 8;
+
 	protected FrameLayout baseLayout = null;
 	protected DisplayMetrics displayMetrics;
 
