@@ -46,6 +46,7 @@ public class GrowthMessage {
 	private Semaphore messageSemaphore = new Semaphore(1);
 	private long lastMessageOpenedTimeMills;
 	private boolean showingMessage;
+    private ResourceCacheManager resourceCacheManager;
 	private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
 	private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
@@ -72,6 +73,7 @@ public class GrowthMessage {
 		this.credentialId = credentialId;
 		this.showingMessage = false;
 		this.lastMessageOpenedTimeMills = System.currentTimeMillis();
+        this.resourceCacheManager = new ResourceCacheManager();
 
 		Growthbeat.getInstance().initialize(context, applicationId, credentialId);
 		setMessageHandlers(
@@ -241,4 +243,12 @@ public class GrowthMessage {
 	public void addMessageHandler(MessageHandler messageHandler) {
 		this.messageHandlers.add(messageHandler);
 	}
+
+    public ResourceCacheManager getResourceCacheManager() {
+        return resourceCacheManager;
+    }
+
+    public void setResourceCacheManager(ResourceCacheManager resourceCacheManager) {
+        this.resourceCacheManager = resourceCacheManager;
+    }
 }

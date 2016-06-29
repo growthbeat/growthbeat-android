@@ -107,7 +107,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
 
         for (Picture picture : pictures) {
             ImageView imageView = new ImageView(getActivity().getApplicationContext());
-            imageView.setImageBitmap(cachedImages.get(picture.getUrl()));
+            imageView.setImageBitmap(getImageResource(picture.getUrl()));
             imageView.setScaleType(ScaleType.CENTER_INSIDE);
 
             imageView.measure(
@@ -180,7 +180,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(getImageResource(closeButton.getPicture().getUrl()));
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -227,7 +227,7 @@ public class SwipeMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(getImageResource(imageButton.getPicture().getUrl()));
         touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
 
         touchableImageView.measure(

@@ -28,8 +28,6 @@ public class BaseMessageFragment extends Fragment {
 	protected FrameLayout baseLayout = null;
 	protected DisplayMetrics displayMetrics;
 
-	protected Map<String, Bitmap> cachedImages = new HashMap<String, Bitmap>();
-
 	protected FrameLayout generateBaseLayout(Background background) {
 
 		displayMetrics = getResources().getDisplayMetrics();
@@ -60,7 +58,10 @@ public class BaseMessageFragment extends Fragment {
 
 			@Override
 			public void success(Map<String, Bitmap> images) {
-				cachedImages = images;
+
+                for(Map.Entry<String, Bitmap> entry: images.entrySet())
+                    GrowthMessage.getInstance().getResourceCacheManager().put(entry.getKey(), entry.getValue());
+
 				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);
 
 				if (showMessageHandler != null) {
@@ -81,6 +82,10 @@ public class BaseMessageFragment extends Fragment {
 		messageImageDonwloader.download();
 
 	}
+
+    protected Bitmap getImageResource(String urlKey) {
+        return GrowthMessage.getInstance().getResourceCacheManager().get(urlKey);
+    }
 
 	protected void finishActivity() {
 		if ((getActivity() != null && getActivity().isFinishing()) || baseLayout == null) {

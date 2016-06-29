@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void error() {
+			public void error(String error) {
 
 			}
 		});
