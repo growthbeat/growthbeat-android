@@ -96,6 +96,7 @@ public class GrowthMessage {
 						return;
 
 				} catch (GrowthbeatException e) {
+                    handler.error("Failed to get tasks.");
 					logger.info(String.format("Failed to get tasks. %s", e.getMessage()));
 				}
 
