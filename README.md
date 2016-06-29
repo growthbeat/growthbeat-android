@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.growthbeat:growthbeat-android:1.2.7@aar'
+    compile 'com.growthbeat:growthbeat-android:2.0.0@aar'
 }
 ```
 
@@ -31,7 +31,7 @@ See the [support page](http://support.growthbeat.com/).
 
 ## Supported Environment
 
-* Android 2.3.3 and later.
+* Android 4.0.4 and later.
 
 ## License
 
