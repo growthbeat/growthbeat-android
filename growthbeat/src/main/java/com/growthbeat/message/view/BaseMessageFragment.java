@@ -1,8 +1,5 @@
 package com.growthbeat.message.view;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.MessageImageDownloader;
 import com.growthbeat.message.handler.ShowMessageHandler;
@@ -14,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -57,10 +53,7 @@ public class BaseMessageFragment extends Fragment {
 		MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
 
 			@Override
-			public void success(Map<String, Bitmap> images) {
-
-                for(Map.Entry<String, Bitmap> entry: images.entrySet())
-                    GrowthMessage.getInstance().getResourceCacheManager().put(entry.getKey(), entry.getValue());
+			public void success() {
 
 				ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);
 
@@ -84,7 +77,7 @@ public class BaseMessageFragment extends Fragment {
 	}
 
     protected Bitmap getImageResource(String urlKey) {
-        return GrowthMessage.getInstance().getResourceCacheManager().get(urlKey);
+        return GrowthMessage.getInstance().getMessageImageCacheManager().get(urlKey);
     }
 
 	protected void finishActivity() {

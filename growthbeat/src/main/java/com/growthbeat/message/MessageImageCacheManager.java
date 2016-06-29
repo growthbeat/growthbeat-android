@@ -6,13 +6,13 @@ import android.util.LruCache;
 /**
  * Created by mugi65 on 2016/06/29.
  */
-public class ResourceCacheManager extends LruCache<String, Bitmap> {
+public class MessageImageCacheManager extends LruCache<String, Bitmap> {
 
-    public ResourceCacheManager() {
+    public MessageImageCacheManager() {
         this((int) (Runtime.getRuntime().maxMemory() / 10));
     }
 
-    public ResourceCacheManager(int maxSize) {
+    public MessageImageCacheManager(int maxSize) {
         super(maxSize);
     }
 
