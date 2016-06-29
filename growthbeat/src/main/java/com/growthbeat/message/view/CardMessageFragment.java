@@ -58,7 +58,7 @@ public class CardMessageFragment extends BaseMessageFragment {
 
         List<Button> screenButtons = extractButtons(Button.ButtonType.screen);
 
-        if (screenButtons.size() > 0) {
+        if (!screenButtons.isEmpty()) {
             cardLayout = createScreenButtonLayout((ScreenButton) screenButtons.get(0));
         } else {
             cardLayout = createCardLayout();

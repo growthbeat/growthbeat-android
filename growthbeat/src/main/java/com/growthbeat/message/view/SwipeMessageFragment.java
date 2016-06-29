@@ -67,7 +67,6 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         int buttonHeight = buttonLayout.getLayoutParams().height;
         buttonLayout.setY(swipeHeight);
 
-        // ドット
         FrameLayout indicatorLayout = createIndicatorLayout();
         FrameLayout.LayoutParams indicatorLayoutParams = new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT, (int) (INDICATOR_HEIGHT * displayMetrics.density));
@@ -134,7 +133,6 @@ public class SwipeMessageFragment extends BaseMessageFragment {
             pictureLayoutParams.gravity = Gravity.CENTER;
             pictureLayout.setLayoutParams(pictureLayoutParams);
 
-            // 閉じる
             addCloseButton(innerPictureLayout);
 
             pictureLayout.addView(innerPictureLayout);
