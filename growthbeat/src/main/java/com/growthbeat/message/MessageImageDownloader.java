@@ -4,9 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CardMessage;
@@ -25,9 +23,6 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Log;
-
-import org.json.JSONArray;
 
 public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
@@ -38,7 +33,6 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 	private Callback callback;
 
 	private List<String> urlStrings = new ArrayList<String>();
-	private Map<String, Bitmap> images = new HashMap<String, Bitmap>();
 
 	public MessageImageDownloader(LoaderManager loaderManager, Context context, Message message, float density, Callback callback) {
 		super();
@@ -70,7 +64,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	private void download(CardMessage cardMessage) {
 
-		if (cardMessage.getPicture().getUrl() != null) {
+		if (cardMessage.getPicture() != null && cardMessage.getPicture().getUrl() != null) {
             String pictureUrl = addDensityByPictureUrl(cardMessage.getPicture().getUrl());
             cardMessage.getPicture().setUrl(pictureUrl);
 			urlStrings.add(pictureUrl);
@@ -165,11 +159,11 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 			return;
 		String urlString = ((ImageLoader) loader).getUrlString();
 
-		images.put(urlString, bitmap);
+        GrowthMessage.getInstance().getMessageImageCacheManager().put(urlString, bitmap);
 		urlStrings.remove(urlString);
 		if (urlStrings.size() == 0) {
 			if (callback != null) {
-				callback.success(images);
+				callback.success();
 			}
 		}
 
@@ -182,7 +176,7 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 	public interface Callback {
 
-		public void success(Map<String, Bitmap> images);
+		public void success();
 
 		public void failure();
 
@@ -204,6 +198,10 @@ public class MessageImageDownloader implements LoaderCallbacks<Bitmap> {
 
 			if (urlString == null)
 				return null;
+
+            Bitmap cachedBitmap = GrowthMessage.getInstance().getMessageImageCacheManager().get(urlString);
+            if(cachedBitmap != null && !cachedBitmap.isRecycled())
+                return cachedBitmap;
 
 			try {
 				URL url = new URL(urlString);

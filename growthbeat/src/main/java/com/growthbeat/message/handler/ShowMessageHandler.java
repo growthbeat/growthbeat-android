@@ -7,7 +7,7 @@ public interface ShowMessageHandler {
 
 	void complete(MessageRenderHandler run);
 
-	void onError();
+	void error(String error);
 
 	public static interface MessageRenderHandler {
 

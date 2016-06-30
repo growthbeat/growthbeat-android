@@ -109,6 +109,7 @@ public class GrowthPush {
 					setAdvertisingId();
 					setTrackingEnabled();
 				}
+                setDeviceTags();
 
 			}
 		});
