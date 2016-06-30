@@ -46,6 +46,7 @@ public class GrowthMessage {
 	private Semaphore messageSemaphore = new Semaphore(1);
 	private long lastMessageOpenedTimeMills;
 	private boolean showingMessage;
+    private MessageImageCacheManager messageImageCacheManager = new MessageImageCacheManager();
 	private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
 	private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
@@ -241,4 +242,12 @@ public class GrowthMessage {
 	public void addMessageHandler(MessageHandler messageHandler) {
 		this.messageHandlers.add(messageHandler);
 	}
+
+    public MessageImageCacheManager getMessageImageCacheManager() {
+        return messageImageCacheManager;
+    }
+
+    public void setMessageImageCacheManager(MessageImageCacheManager messageImageCacheManager) {
+        this.messageImageCacheManager = messageImageCacheManager;
+    }
 }

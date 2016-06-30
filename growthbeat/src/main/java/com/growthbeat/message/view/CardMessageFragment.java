@@ -91,7 +91,7 @@ public class CardMessageFragment extends BaseMessageFragment {
         final int cardBaseHeight = (int) (cardMessage.getBaseHeight() * displayMetrics.density);
 
         ImageView cardImageView = new ImageView(getActivity().getApplicationContext());
-        cardImageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
+        cardImageView.setImageBitmap(getImageResource(cardMessage.getPicture().getUrl()));
         cardImageView.setScaleType(ScaleType.CENTER_INSIDE);
         cardImageView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -135,7 +135,7 @@ public class CardMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(cardMessage.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(getImageResource(cardMessage.getPicture().getUrl()));
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -182,7 +182,7 @@ public class CardMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(imageButton.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(getImageResource(imageButton.getPicture().getUrl()));
         touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
 
         touchableImageView.measure(
@@ -225,7 +225,7 @@ public class CardMessageFragment extends BaseMessageFragment {
                 finishActivity();
             }
         });
-        touchableImageView.setImageBitmap(cachedImages.get(closeButton.getPicture().getUrl()));
+        touchableImageView.setImageBitmap(getImageResource(closeButton.getPicture().getUrl()));
 
         touchableImageView.measure(
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
