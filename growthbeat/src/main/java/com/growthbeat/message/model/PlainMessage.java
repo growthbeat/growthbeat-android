@@ -3,72 +3,98 @@ package com.growthbeat.message.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.growthbeat.GrowthbeatException;
 import com.growthbeat.utils.JSONObjectUtils;
+
+import android.os.Parcel;
 
 public class PlainMessage extends Message {
 
-    private String caption;
-    private String text;
+	public static final Creator<Message> CREATOR = new Creator<Message>() {
 
-    public PlainMessage() {
-        super();
-    }
+		@Override
+		public Message[] newArray(int size) {
+			return new Message[size];
+		}
 
-    public PlainMessage(JSONObject jsonObject) {
-        super(jsonObject);
-    }
+		@Override
+		public Message createFromParcel(Parcel source) {
 
-    public String getCaption() {
-        return caption;
-    }
+			JSONObject jsonObject = null;
 
-    public void setCaption(String caption) {
-        this.caption = caption;
-    }
+			try {
+				jsonObject = new JSONObject(source.readString());
+			} catch (JSONException e) {
+				throw new GrowthbeatException("Failed to parse JSON. " + e.getMessage(), e);
+			}
 
-    public String getText() {
-        return text;
-    }
+			return Message.getFromJsonObject(jsonObject);
 
-    public void setText(String text) {
-        this.text = text;
-    }
+		}
+	};
 
-    @Override
-    public JSONObject getJsonObject() {
+	private String caption;
+	private String text;
 
-        JSONObject jsonObject = super.getJsonObject();
+	public PlainMessage() {
+		super();
+	}
 
-        try {
-            if (caption != null)
-                jsonObject.put("caption", caption);
-            if (text != null)
-                jsonObject.put("text", text);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to get JSON.");
-        }
+	public PlainMessage(JSONObject jsonObject) {
+		super(jsonObject);
+	}
 
-        return jsonObject;
+	public String getCaption() {
+		return caption;
+	}
 
-    }
+	public void setCaption(String caption) {
+		this.caption = caption;
+	}
 
-    @Override
-    public void setJsonObject(JSONObject jsonObject) {
+	public String getText() {
+		return text;
+	}
 
-        if (jsonObject == null)
-            return;
+	public void setText(String text) {
+		this.text = text;
+	}
 
-        super.setJsonObject(jsonObject);
+	@Override
+	public JSONObject getJsonObject() {
 
-        try {
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "caption"))
-                setCaption(jsonObject.getString("caption"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "text"))
-                setText(jsonObject.getString("text"));
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to parse JSON.", e);
-        }
+		JSONObject jsonObject = super.getJsonObject();
 
-    }
+		try {
+			if (caption != null)
+				jsonObject.put("caption", caption);
+			if (text != null)
+				jsonObject.put("text", text);
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to get JSON.");
+		}
+
+		return jsonObject;
+
+	}
+
+	@Override
+	public void setJsonObject(JSONObject jsonObject) {
+
+		if (jsonObject == null)
+			return;
+
+		super.setJsonObject(jsonObject);
+
+		try {
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "caption"))
+				setCaption(jsonObject.getString("caption"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "text"))
+				setText(jsonObject.getString("text"));
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to parse JSON.", e);
+		}
+
+	}
 
 }

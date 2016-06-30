@@ -10,22 +10,22 @@ import android.content.Intent;
  */
 public class DefaultReceiveHandler extends BaseReceiveHandler {
 
-    public DefaultReceiveHandler() {
-        super();
-    }
+	public DefaultReceiveHandler() {
+		super();
+	}
 
-    public DefaultReceiveHandler(Callback callback) {
-        this();
-        setCallback(callback);
-    }
+	public DefaultReceiveHandler(Callback callback) {
+		this();
+		setCallback(callback);
+	}
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
+	@Override
+	public void onReceive(Context context, Intent intent) {
 
-        super.onReceive(context, intent);
-        showAlert(context, intent);
-        addNotification(context, intent);
+		super.onReceive(context, intent);
+		showAlert(context, intent);
+		addNotification(context, intent);
 
-    }
+	}
 
 }

@@ -1,69 +1,178 @@
 package com.growthbeat;
 
-import android.content.Context;
-import android.os.Build;
+import java.util.Arrays;
+import java.util.List;
 
-import com.growthbeat.analytics.GrowthAnalytics;
-import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.http.GrowthbeatHttpClient;
+import com.growthbeat.intenthandler.IntentHandler;
+import com.growthbeat.intenthandler.NoopIntentHandler;
+import com.growthbeat.intenthandler.UrlIntentHandler;
 import com.growthbeat.model.Client;
+import com.growthbeat.model.GrowthPushClient;
+import com.growthbeat.model.Intent;
 import com.growthpush.GrowthPush;
+
+import android.content.Context;
 
 public class Growthbeat {
 
-    private static final Growthbeat instance = new Growthbeat();
+	private static final String LOGGER_DEFAULT_TAG = "Growthbeat";
+	private static final String HTTP_CLIENT_DEFAULT_BASE_URL = "https://api.growthbeat.com/";
+	private static final int HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT = 60 * 1000;
+	private static final int HTTP_CLIENT_DEFAULT_READ_TIMEOUT = 60 * 1000;
+	private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthbeat-preferences";
 
-    private Growthbeat() {
-        super();
-    }
+	private static final Growthbeat instance = new Growthbeat();
+	private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
+	private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
+			HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
+	private final GrowthbeatThreadExecutor executor = new GrowthbeatThreadExecutor();
+	private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
-    public static Growthbeat getInstance() {
-        return instance;
-    }
+	private Context context = null;
 
-    public void initialize(Context context, String applicationId, String credentialId) {
-        initialize(context, applicationId, credentialId, true);
-    }
+	private boolean initialized = false;
+	private Client client;
 
-    public void initialize(Context context, String applicationId, String credentialId, boolean adInfoEnabled) {
-        context = context.getApplicationContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            GrowthbeatCore.getInstance().initialize(context, applicationId, credentialId);
-            GrowthPush.getInstance().initialize(context, applicationId, credentialId);
-            GrowthAnalytics.getInstance().initialize(context, applicationId, credentialId, adInfoEnabled);
-            GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
-        }
-    }
+	private List<? extends IntentHandler> intentHandlers;
 
-    public void start() {
-        GrowthAnalytics.getInstance().open();
-    }
+	private Growthbeat() {
+		super();
+	}
 
-    public void stop() {
-        GrowthAnalytics.getInstance().close();
-    }
+	public static Growthbeat getInstance() {
+		return instance;
+	}
 
-    public void setLoggerSilent(boolean silent) {
-        GrowthbeatCore.getInstance().getLogger().setSilent(silent);
-        GrowthAnalytics.getInstance().getLogger().setSilent(silent);
-        GrowthMessage.getInstance().getLogger().setSilent(silent);
-        GrowthPush.getInstance().getLogger().setSilent(silent);
-    }
+	public void initialize(Context context, final String applicationId, final String credentialId) {
 
-    public void getClient(final ClientCallback clientCallback) {
+		if (initialized)
+			return;
+		initialized = true;
 
-        if(clientCallback == null)
-            return;
+		if (context == null) {
+			logger.warning("The context parameter cannot be null.");
+			return;
+		}
 
-        GrowthbeatCore.getInstance().getExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                clientCallback.callback(GrowthbeatCore.getInstance().waitClient());
-            }
-        });
-    }
+		this.context = context.getApplicationContext();
 
-    public static abstract class ClientCallback {
-        public abstract void callback(Client client);
-    }
+		this.intentHandlers = Arrays.asList(new UrlIntentHandler(this.context), new NoopIntentHandler());
+
+		logger.info(String.format("Initializing... (applicationId:%s)", applicationId));
+
+		preference.setContext(Growthbeat.this.context);
+
+		GrowthPushClient growthPushClient = GrowthPushClient.load();
+		client = Client.load();
+
+		if (growthPushClient != null) {
+			if (client != null && client.getId().equals(growthPushClient.getGrowthbeatClientId())
+					&& client.getApplication().getId().equals(growthPushClient.getGrowthbeatApplicationId())
+					&& client.getApplication().getId().equals(applicationId)) {
+				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+                GrowthPushClient.removePreference();
+				return;
+			}
+		} else {
+			if (client != null && client.getApplication().getId().equals(applicationId)) {
+				logger.info(String.format("Client already exists. (id:%s)", client.getId()));
+				return;
+			}
+		}
+
+		preference.removeAll();
+		client = null;
+
+		executor.execute(new Runnable() {
+
+			@Override
+			public void run() {
+
+				GrowthPushClient growthPushClient = GrowthPushClient.load();
+				if (growthPushClient != null) {
+					growthPushClient = GrowthPushClient.findByGrowthPushClientId(growthPushClient.getId(), growthPushClient.getCode());
+					logger.info(String
+							.format("Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
+									growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
+
+					client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
+					if (client == null) {
+						logger.info("Failed to convert client.");
+						client = null;
+					} else {
+                        Client.save(client);
+                        logger.info(String.format("Client converted. (id:%s)", client.getId()));
+                    }
+
+                    GrowthPushClient.removePreference();
+
+				} else {
+					logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
+					client = Client.create(applicationId, credentialId);
+
+					if (client == null) {
+						logger.info("Failed to create client.");
+						return;
+					}
+
+					Client.save(client);
+					logger.info(String.format("Client created. (id:%s)", client.getId()));
+				}
+			}
+
+		});
+
+	}
+
+	public void handleIntent(Intent intent) {
+
+		if (intentHandlers == null)
+			return;
+
+		for (IntentHandler intentHandler : intentHandlers)
+			if (intentHandler.handle(intent))
+				break;
+
+	}
+
+	public Client getClient() {
+		return client;
+	}
+
+	public Client waitClient() {
+		while (true) {
+			if (client != null)
+				return client;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
+	public Logger getLogger() {
+		return logger;
+	}
+
+	public GrowthbeatHttpClient getHttpClient() {
+		return httpClient;
+	}
+
+	public GrowthbeatThreadExecutor getExecutor() {
+		return executor;
+	}
+
+	public Preference getPreference() {
+		return preference;
+	}
+
+	public Context getContext() {
+		return context;
+	}
+
+	public void setIntentHandlers(List<? extends IntentHandler> intentHandlers) {
+		this.intentHandlers = intentHandlers;
+	}
 
 }

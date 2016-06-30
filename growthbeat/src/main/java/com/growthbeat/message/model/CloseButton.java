@@ -7,55 +7,79 @@ import com.growthbeat.utils.JSONObjectUtils;
 
 public class CloseButton extends Button {
 
-    private Picture picture;
+	private Picture picture;
+	private int baseWidth;
+	private int baseHeight;
 
-    public CloseButton() {
-        super();
-    }
+	public CloseButton() {
+		super();
+	}
 
-    public CloseButton(JSONObject jsonObject) {
-        super(jsonObject);
-    }
+	public CloseButton(JSONObject jsonObject) {
+		super(jsonObject);
+	}
 
-    public Picture getPicture() {
-        return picture;
-    }
+	public Picture getPicture() {
+		return picture;
+	}
 
-    public void setPicture(Picture picture) {
-        this.picture = picture;
-    }
+	public void setPicture(Picture picture) {
+		this.picture = picture;
+	}
 
-    @Override
-    public JSONObject getJsonObject() {
+	public int getBaseWidth() {
+		return baseWidth;
+	}
 
-        JSONObject jsonObject = super.getJsonObject();
+	public void setBaseWidth(int baseWidth) {
+		this.baseWidth = baseWidth;
+	}
 
-        try {
-            if (picture != null)
-                jsonObject.put("picture", picture.getJsonObject());
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to get JSON.");
-        }
+	public int getBaseHeight() {
+		return baseHeight;
+	}
 
-        return jsonObject;
+	public void setBaseHeight(int baseHeight) {
+		this.baseHeight = baseHeight;
+	}
 
-    }
+	@Override
+	public JSONObject getJsonObject() {
 
-    @Override
-    public void setJsonObject(JSONObject jsonObject) {
+		JSONObject jsonObject = super.getJsonObject();
 
-        if (jsonObject == null)
-            return;
+		try {
+			if (picture != null)
+				jsonObject.put("picture", picture.getJsonObject());
+			jsonObject.put("baseWidth", baseWidth);
+			jsonObject.put("baseHeight", baseHeight);
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to get JSON.");
+		}
 
-        super.setJsonObject(jsonObject);
+		return jsonObject;
 
-        try {
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "picture"))
-                setPicture(new Picture(jsonObject.getJSONObject("picture")));
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to parse JSON.", e);
-        }
+	}
 
-    }
+	@Override
+	public void setJsonObject(JSONObject jsonObject) {
+
+		if (jsonObject == null)
+			return;
+
+		super.setJsonObject(jsonObject);
+
+		try {
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "picture"))
+				setPicture(new Picture(jsonObject.getJSONObject("picture")));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseWidth"))
+				setBaseWidth(jsonObject.getInt("baseWidth"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "baseHeight"))
+				setBaseHeight(jsonObject.getInt("baseHeight"));
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to parse JSON.", e);
+		}
+
+	}
 
 }

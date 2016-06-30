@@ -7,24 +7,24 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 public class PermissionUtils {
 
-    public static boolean permitted(Context context, String permission) {
+	public static boolean permitted(Context context, String permission) {
 
-        PackageInfo packageInfo = null;
+		PackageInfo packageInfo = null;
 
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
-        } catch (NameNotFoundException e) {
-            return false;
-        }
+		try {
+			packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+		} catch (NameNotFoundException e) {
+			return false;
+		}
 
-        String[] requestedPermissions = packageInfo.requestedPermissions;
+		String[] requestedPermissions = packageInfo.requestedPermissions;
 
-        for (String requestedPermission : requestedPermissions)
-            if (requestedPermission.equals(permission))
-                return true;
+		for (String requestedPermission : requestedPermissions)
+			if (requestedPermission.equals(permission))
+				return true;
 
-        return false;
+		return false;
 
-    }
+	}
 
 }
