@@ -1,34 +1,37 @@
 package com.growthbeat.message.handler;
 
-import android.content.Context;
-import android.content.Intent;
-
+import com.growthbeat.message.MessageQueue;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.PlainMessage;
 import com.growthbeat.message.view.MessageActivity;
 
+import android.content.Context;
+import android.content.Intent;
+
 public class PlainMessageHandler implements MessageHandler {
 
-    private Context context;
+	private Context context;
 
-    public PlainMessageHandler(Context context) {
-        this.context = context;
-    }
+	public PlainMessageHandler(Context context) {
+		this.context = context;
+	}
 
-    @Override
-    public boolean handle(final Message message) {
+	@Override
+	public boolean handle(final MessageQueue messageJob) {
 
-        if (message.getType() != Message.Type.plain)
-            return false;
-        if (!(message instanceof PlainMessage))
-            return false;
+        Message message = messageJob.getMessage();
+		if (message.getType() != Message.MessageType.plain)
+			return false;
+		if (!(message instanceof PlainMessage))
+			return false;
 
-        Intent intent = new Intent(context, MessageActivity.class);
-        intent.putExtra("message", (PlainMessage) message);
+		Intent intent = new Intent(context, MessageActivity.class);
+		intent.putExtra("message", (PlainMessage) message);
+        intent.putExtra("uuid", messageJob.getUuid());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+		context.startActivity(intent);
 
-        return true;
+		return true;
 
-    }
+	}
 }

@@ -10,275 +10,247 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.growthbeat.GrowthbeatException;
-import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
+import com.growthpush.GrowthPush;
+import com.growthpush.model.Tag;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 public class Message extends Model implements Parcelable {
 
-    private String id;
-    private int version;
-    private Type type;
-    private String eventId;
-    private int frequency;
-    private String segmentId;
-    private int cap;
-    private Animation animation;
-    private Date created;
-    private Task task;
-    private List<Button> buttons;
+	public static final Creator<Message> CREATOR = new Creator<Message>() {
 
-    protected Message() {
-        super();
-    }
+		@Override
+		public Message[] newArray(int size) {
+			return new Message[size];
+		}
 
-    protected Message(JSONObject jsonObject) {
-        super(jsonObject);
-    }
+		@Override
+		public Message createFromParcel(Parcel source) {
 
-    public static Message getFromJsonObject(JSONObject jsonObject) {
+			JSONObject jsonObject = null;
 
-        Message message = new Message(jsonObject);
-        switch (message.getType()) {
-            case plain:
-                return new PlainMessage(jsonObject);
-            case image:
-                return new ImageMessage(jsonObject);
-            case banner:
-                return new BannerMessage(jsonObject);
-            case swipe:
-                return new SwipeMessage(jsonObject);
-            default:
-                return null;
-        }
+			try {
+				jsonObject = new JSONObject(source.readString());
+			} catch (JSONException e) {
+				throw new GrowthbeatException("Failed to parse JSON. " + e.getMessage(), e);
+			}
 
-    }
+			return Message.getFromJsonObject(jsonObject);
 
-    public static Message receive(String clientId, String eventId, String credentialId) {
+		}
+	};
+	private String id;
+	private Task task;
+	private MessageType type;
+	private Background background;
+	private Date created;
+	private List<Button> buttons;
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        if (clientId != null)
-            params.put("clientId", clientId);
-        if (eventId != null)
-            params.put("eventId", eventId);
-        if (credentialId != null)
-            params.put("credentialId", credentialId);
+	protected Message() {
+		super();
+	}
 
-        JSONObject jsonObject = GrowthMessage.getInstance().getHttpClient().post("1/receive", params);
-        if (jsonObject == null)
-            return null;
+	protected Message(JSONObject jsonObject) {
+		super(jsonObject);
+	}
 
-        return Message.getFromJsonObject(jsonObject);
+	public static Message getFromJsonObject(JSONObject jsonObject) {
 
-    }
+		Message message = new Message(jsonObject);
+        if(message.getType() == null)
+            return new NoContentMessage();
 
-    public String getId() {
-        return id;
-    }
+		switch (message.getType()) {
+		case plain:
+			return new PlainMessage(jsonObject);
+		case card:
+			return new CardMessage(jsonObject);
+		case swipe:
+			return new SwipeMessage(jsonObject);
+		default:
+			return new NoContentMessage();
+		}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	}
 
-    public int getVersion() {
-        return version;
-    }
+	public static Message receive(String taskId, String applicationId, String clientId, String credentialId) {
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
+		Map<String, Object> params = new HashMap<String, Object>();
 
-    public Type getType() {
-        return type;
-    }
+		if (taskId != null)
+			params.put("taskId", taskId);
+		if (applicationId != null)
+			params.put("applicationId", applicationId);
+		if (clientId != null)
+			params.put("clientId", clientId);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
 
-    public void setType(Type type) {
-        this.type = type;
-    }
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().get("4/receive", params);
+		if (jsonObject == null)
+			return null;
 
-    public String getEventId() {
-        return eventId;
-    }
+		return Message.getFromJsonObject(jsonObject);
+	}
 
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
+	public static int receiveCount(String clientId, String applicationId, String credentialId, String taskId, String messageId) {
 
-    public int getFrequency() {
-        return frequency;
-    }
+		Map<String, Object> params = new HashMap<String, Object>();
 
-    public void setFrequency(int frequency) {
-        this.frequency = frequency;
-    }
+		if (clientId != null)
+			params.put("clientId", clientId);
+		if (applicationId != null)
+			params.put("applicationId", applicationId);
+		if (credentialId != null)
+			params.put("credentialId", credentialId);
+		if (taskId != null)
+			params.put("taskId", taskId);
+		if (messageId != null)
+			params.put("messageId", messageId);
 
-    public String getSegmentId() {
-        return segmentId;
-    }
+		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive/count", params);
+		if (jsonObject == null)
+			throw new GrowthbeatException("Failed to count up message.");
 
-    public void setSegmentId(String segmentId) {
-        this.segmentId = segmentId;
-    }
+		Tag tag = new Tag(jsonObject);
 
-    public Animation getAnimation() {
-        return animation;
-    }
+		try {
+			return Integer.valueOf(tag.getValue());
+		} catch (NumberFormatException e) {
+			return 0;
+		}
 
-    public void setAnimation(Animation animation) {
-        this.animation = animation;
-    }
+	}
 
-    public int getCap() {
-        return cap;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setCap(int cap) {
-        this.cap = cap;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public Date getCreated() {
-        return created;
-    }
+	public Task getTask() {
+		return task;
+	}
 
-    public void setCreated(Date created) {
-        this.created = created;
-    }
+	public void setTask(Task task) {
+		this.task = task;
+	}
 
-    public Task getTask() {
-        return task;
-    }
+	public MessageType getType() {
+		return type;
+	}
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
+	public void setType(MessageType type) {
+		this.type = type;
+	}
 
-    public List<Button> getButtons() {
-        return buttons;
-    }
+	public Background getBackground() {
+		return background;
+	}
 
-    public void setButtons(List<Button> buttons) {
-        this.buttons = buttons;
-    }
+	public void setBackground(Background background) {
+		this.background = background;
+	}
 
-    @Override
-    public JSONObject getJsonObject() {
+	public Date getCreated() {
+		return created;
+	}
 
-        JSONObject jsonObject = new JSONObject();
+	public void setCreated(Date created) {
+		this.created = created;
+	}
 
-        try {
-            if (id != null)
-                jsonObject.put("id", id);
-            jsonObject.put("version", version);
-            if (type != null)
-                jsonObject.put("type", type.toString());
-            if (eventId != null)
-                jsonObject.put("eventId", eventId);
-            jsonObject.put("frequency", frequency);
-            if (segmentId != null)
-                jsonObject.put("segmentId", segmentId);
-            jsonObject.put("cap", cap);
-            if (created != null)
-                jsonObject.put("created", DateUtils.formatToDateTimeString(created));
-            if (task != null)
-                jsonObject.put("task", task.getJsonObject());
-            if (buttons != null) {
-                JSONArray buttonJsonArray = new JSONArray();
-                for (Button button : buttons)
-                    buttonJsonArray.put(button.getJsonObject());
-                jsonObject.put("buttons", buttonJsonArray);
-            }
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to get JSON.", e);
-        }
+	public List<Button> getButtons() {
+		return buttons;
+	}
 
-        return jsonObject;
+	public void setButtons(List<Button> buttons) {
+		this.buttons = buttons;
+	}
 
-    }
+	@Override
+	public JSONObject getJsonObject() {
 
-    @Override
-    public void setJsonObject(JSONObject jsonObject) {
+		JSONObject jsonObject = new JSONObject();
 
-        if (jsonObject == null)
-            return;
+		try {
+			if (id != null)
+				jsonObject.put("id", id);
+			if (type != null)
+				jsonObject.put("type", type.toString());
+			if (background != null)
+				jsonObject.put("background", background.getJsonObject());
+			if (created != null)
+				jsonObject.put("created", DateUtils.formatToDateTimeString(created));
+			if (task != null)
+				jsonObject.put("task", task.getJsonObject());
+			if (buttons != null) {
+				JSONArray buttonJsonArray = new JSONArray();
+				for (Button button : buttons)
+					buttonJsonArray.put(button.getJsonObject());
+				jsonObject.put("buttons", buttonJsonArray);
+			}
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to get JSON.", e);
+		}
 
-        try {
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
-                setId(jsonObject.getString("id"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "version"))
-                setVersion(jsonObject.getInt("version"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
-                setType(Type.valueOf(jsonObject.getString("type")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "eventId"))
-                setEventId(jsonObject.getString("eventId"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "frequency"))
-                setFrequency(jsonObject.getInt("frequency"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "segmentId"))
-                setSegmentId(jsonObject.getString("segmentId"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "cap"))
-                setCap(jsonObject.getInt("cap"));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "animation"))
-                setAnimation(Animation.valueOf(jsonObject.getString("animation")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
-                setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
-                setTask(new Task(jsonObject.getJSONObject("task")));
-            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "buttons")) {
-                List<Button> buttons = new ArrayList<Button>();
-                JSONArray buttonJsonArray = jsonObject.getJSONArray("buttons");
-                for (int i = 0; i < buttonJsonArray.length(); i++)
-                    buttons.add(Button.getFromJsonObject(buttonJsonArray.getJSONObject(i)));
-                setButtons(buttons);
-            }
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to parse JSON.", e);
-        }
+		return jsonObject;
 
-    }
+	}
 
-    public static enum Type {
-        plain, image, banner, swipe
-    }
+	@Override
+	public void setJsonObject(JSONObject jsonObject) {
 
-    public static enum Animation {
-        none, defaults
-    }
+		if (jsonObject == null)
+			return;
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+		try {
+            if (!JSONObjectUtils.hasAndIsNotNull(jsonObject, "type"))
+                return;
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getJsonObject().toString());
-    }
+            setType(MessageType.valueOf(jsonObject.getString("type")));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
+				setId(jsonObject.getString("id"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "background"))
+				setBackground(new Background(jsonObject.getJSONObject("background")));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
+				setCreated(DateUtils.parseFromDateTimeStringWithFormat(jsonObject.getString("created"), "yyyy-MM-dd HH:mm:ss"));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "task"))
+				setTask(new Task(jsonObject.getJSONObject("task")));
+			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "buttons")) {
+				List<Button> buttons = new ArrayList<>();
+				JSONArray buttonJsonArray = jsonObject.getJSONArray("buttons");
+				for (int i = 0; i < buttonJsonArray.length(); i++)
+					buttons.add(Button.getFromJsonObject(buttonJsonArray.getJSONObject(i)));
+				setButtons(buttons);
+			}
+		} catch (JSONException e) {
+			throw new IllegalArgumentException("Failed to parse JSON.", e);
+		}
 
-    public static final Creator<Message> CREATOR = new Creator<Message>() {
+	}
 
-        @Override
-        public Message[] newArray(int size) {
-            return new Message[size];
-        }
+	@Override
+	public int describeContents() {
+		return 0;
+	}
 
-        @Override
-        public Message createFromParcel(Parcel source) {
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(getJsonObject().toString());
+	}
 
-            JSONObject jsonObject = null;
-
-            try {
-                jsonObject = new JSONObject(source.readString());
-            } catch (JSONException e) {
-                throw new GrowthbeatException("Failed to parse JSON. " + e.getMessage(), e);
-            }
-
-            return Message.getFromJsonObject(jsonObject);
-
-        }
-    };
+	public enum MessageType {
+		plain,
+		card,
+		swipe
+	}
 
 }

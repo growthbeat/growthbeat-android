@@ -4,17 +4,17 @@ import org.json.JSONObject;
 
 public abstract class Model {
 
-    public Model() {
-        super();
-    }
+	public Model() {
+		super();
+	}
 
-    public Model(JSONObject jsonObject) {
-        this();
-        setJsonObject(jsonObject);
-    }
+	public Model(JSONObject jsonObject) {
+		this();
+		setJsonObject(jsonObject);
+	}
 
-    public abstract JSONObject getJsonObject();
+	public abstract JSONObject getJsonObject();
 
-    public abstract void setJsonObject(JSONObject jsonObject);
+	public abstract void setJsonObject(JSONObject jsonObject);
 
 }
