@@ -1,9 +1,9 @@
 package com.growthbeat.message.handler;
 
-import com.growthbeat.message.MessageQueue;
+import com.growthbeat.message.model.Message;
 
 public interface MessageHandler {
 
-	boolean handle(MessageQueue messageJob);
+    public boolean handle(final Message message, ShowMessageHandler showMessageHandler);
 
 }
