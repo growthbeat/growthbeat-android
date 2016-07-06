@@ -1,8 +1,8 @@
 package com.growthbeat.message.handler;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.Button;
@@ -10,20 +10,25 @@ import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.CloseButton;
 import com.growthbeat.message.model.ImageButton;
 import com.growthbeat.message.model.Message;
+import com.growthbeat.message.model.Picture;
+import com.growthbeat.message.model.SwipeMessage;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ImageDownloader {
 
     private Message message = null;
     private Callback callback = null;
+    private float density;
 
-    public ImageDownloader(Context context, Message message, float density, Callback callback) {
+    public ImageDownloader(Message message, float density, Callback callback) {
         this.message = message;
         this.callback = callback;
+        this.density = density;
     }
 
     public void download() {
@@ -32,36 +37,88 @@ public class ImageDownloader {
                 download((CardMessage) message);
                 break;
             case swipe:
+                download((SwipeMessage) message);
                 break;
             default:
                 break;
         }
     }
 
-    private void download(CardMessage bannerMessage) {
+    private void download(CardMessage cardMessage) {
 
         List<String> urlStrings = new ArrayList<String>();
 
-        if (bannerMessage.getPicture().getUrl() != null) {
-            urlStrings.add(bannerMessage.getPicture().getUrl());
+        if (cardMessage.getPicture() != null && cardMessage.getPicture().getUrl() != null) {
+            String pictureUrl = addDensityByPictureUrl(cardMessage.getPicture().getUrl());
+            cardMessage.getPicture().setUrl(pictureUrl);
+            urlStrings.add(pictureUrl);
         }
 
-        for (Button button : bannerMessage.getButtons()) {
+        List<String> buttonUrl = download(cardMessage.getButtons());
+        urlStrings.addAll(buttonUrl);
+
+        AsyncImageLoader loader = new AsyncImageLoader(callback);
+        loader.execute(urlStrings.toArray(new String[0]));
+
+    }
+
+    private void download(SwipeMessage swipeMessage) {
+
+        List<String> urlStrings = new ArrayList<String>();
+
+        for (Picture picture : swipeMessage.getPictures()) {
+            String pictureUrl = addDensityByPictureUrl(picture.getUrl());
+            picture.setUrl(pictureUrl);
+            urlStrings.add(pictureUrl);
+        }
+
+        List<String> buttonUrl = download(swipeMessage.getButtons());
+        urlStrings.addAll(buttonUrl);
+
+        AsyncImageLoader loader = new AsyncImageLoader(callback);
+        loader.execute(urlStrings.toArray(new String[0]));
+
+    }
+
+    private List<String> download(List<Button> buttons) {
+
+        List<String> urlStrings = new ArrayList<String>();
+
+        for (Button button : buttons) {
+
             switch (button.getType()) {
                 case image:
-                    urlStrings.add(((ImageButton) button).getPicture().getUrl());
+                    String imageButtonUrl = addDensityByPictureUrl(((ImageButton) button).getPicture().getUrl());
+                    urlStrings.add(imageButtonUrl);
+                    ((ImageButton) button).getPicture().setUrl(imageButtonUrl);
                     break;
                 case close:
-                    urlStrings.add(((CloseButton) button).getPicture().getUrl());
+                    String closeButtonUrl = addDensityByPictureUrl(((CloseButton) button).getPicture().getUrl());
+                    urlStrings.add(closeButtonUrl);
+                    ((CloseButton) button).getPicture().setUrl(closeButtonUrl);
                     break;
                 default:
                     continue;
             }
         }
 
-        AsyncImageLoader loader = new AsyncImageLoader(callback);
-        loader.execute(urlStrings.toArray(new String[0]));
+        return urlStrings;
 
+    }
+
+    private String addDensityByPictureUrl(String originUrl) {
+
+        if ((int) density <= 1)
+            return originUrl;
+
+        String url = originUrl;
+        String[] paths = url.split("/");
+        String filename = paths[paths.length - 1];
+        String[] extension = filename.split("\\.");
+        String resultFileName = String.format("%s@%dx.%s", extension[0], (int) density, extension[1]);
+        paths = Arrays.copyOf(paths, paths.length - 1);
+        String pathString = TextUtils.join("/", paths);
+        return String.format("%s/%s", pathString, resultFileName);
     }
 
     private static class AsyncImageLoader extends AsyncTask<String, Integer, Boolean> {

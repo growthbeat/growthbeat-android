@@ -8,16 +8,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.growthbeat.message.GrowthMessage;
-import com.growthbeat.message.MessageImageDownloader;
-import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.message.model.Background;
-import com.growthbeat.message.model.Message;
 import com.growthbeat.utils.BitmapUtilis;
 
 /**
  * Created by tabatakatsutoshi on 2016/06/02.
  */
-public class BaseMessageFragment extends Fragment {
+public class BaseImageMessageFragment extends Fragment {
 
     protected static final int BASE_CLOSE_PADDING = 8;
 
@@ -44,35 +41,6 @@ public class BaseMessageFragment extends Fragment {
         }
 
         return baseLayout;
-
-    }
-
-    protected void layoutMessage(final Message message, final String uuid,
-                                 final ShowMessageHandler.MessageRenderHandler messageRenderHandler) {
-
-        MessageImageDownloader.Callback callback = new MessageImageDownloader.Callback() {
-
-            @Override
-            public void success() {
-
-                ShowMessageHandler showMessageHandler = GrowthMessage.getInstance().findShowMessageHandler(uuid);
-
-                if (showMessageHandler != null) {
-                    showMessageHandler.complete(messageRenderHandler);
-                } else {
-                    messageRenderHandler.render();
-                }
-            }
-
-            @Override
-            public void failure() {
-                finishActivity();
-            }
-        };
-
-        MessageImageDownloader messageImageDonwloader = new MessageImageDownloader(getActivity().getSupportLoaderManager(), getActivity(),
-            message, displayMetrics.density, callback);
-        messageImageDonwloader.download();
 
     }
 

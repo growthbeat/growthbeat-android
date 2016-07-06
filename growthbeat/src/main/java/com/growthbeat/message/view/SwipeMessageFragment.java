@@ -1,18 +1,5 @@
 package com.growthbeat.message.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-
-import com.growthbeat.message.GrowthMessage;
-import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.message.model.Button;
-import com.growthbeat.message.model.CloseButton;
-import com.growthbeat.message.model.ImageButton;
-import com.growthbeat.message.model.Picture;
-import com.growthbeat.message.model.SwipeMessage;
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -27,7 +14,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
-public class SwipeMessageFragment extends BaseMessageFragment {
+import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.model.Button;
+import com.growthbeat.message.model.CloseButton;
+import com.growthbeat.message.model.ImageButton;
+import com.growthbeat.message.model.Picture;
+import com.growthbeat.message.model.SwipeMessage;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+
+public class SwipeMessageFragment extends BaseImageMessageFragment {
 
     private static final int INDICATOR_HEIGHT = 8;
     private static final int INDICATOR_TOP_MARGIN = 16;
@@ -42,17 +41,9 @@ public class SwipeMessageFragment extends BaseMessageFragment {
         if (message == null || !(message instanceof SwipeMessage))
             return null;
 
-        final String uuid = getArguments().getString("uuid");
         this.swipeMessage = (SwipeMessage) message;
         this.baseLayout = generateBaseLayout(swipeMessage.getBackground());
-
-        layoutMessage(swipeMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
-            @Override
-            public void render() {
-                renderMessage();
-            }
-        });
-
+        this.renderMessage();
         return baseLayout;
 
     }

@@ -27,7 +27,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
             }
         };
 
-        ImageDownloader imageDownloader = new ImageDownloader(context, message, context.getResources().getDisplayMetrics().density, new ImageDownloader.Callback() {
+        ImageDownloader imageDownloader = new ImageDownloader(message, context.getResources().getDisplayMetrics().density, new ImageDownloader.Callback() {
 
             @Override
             public void success() {
