@@ -276,7 +276,7 @@ public class GrowthPush {
 	}
 
 	public void setTag(final String name) {
-		setTag(name, null);
+		setTag(name, "");
 	}
 
 	public void setTag(final String name, final String value) {
