@@ -12,7 +12,7 @@ public class PlainMessageHandler extends BaseMessageHandler {
     }
 
     @Override
-    public boolean handle(final Message message, ShowMessageHandler showMessageHandler) {
+    public boolean handle(final Message message, MessageHandler.MessageDonwloadHandler downloadHandler) {
 
         if (message.getType() != Message.MessageType.plain)
             return false;
@@ -26,10 +26,7 @@ public class PlainMessageHandler extends BaseMessageHandler {
             }
         };
 
-        if (showMessageHandler != null)
-            showMessageHandler.complete(renderHandler);
-        else
-            renderHandler.render();
+        downloadHandler.complete(renderHandler);
 
         return true;
 

@@ -12,14 +12,14 @@ public class SwipeMessageHandler extends BaseMessageHandler {
     }
 
     @Override
-    public boolean handle(final Message message, ShowMessageHandler showMessageHandler) {
+    public boolean handle(final Message message, MessageHandler.MessageDonwloadHandler downloadHandler) {
 
         if (message.getType() != Message.MessageType.swipe)
             return false;
         if (!(message instanceof SwipeMessage))
             return false;
 
-        showMessage(message, showMessageHandler);
+        showMessage(message, downloadHandler);
 
         return true;
 

@@ -16,9 +16,9 @@ public abstract class BaseMessageHandler implements MessageHandler {
     }
 
     @Override
-    public abstract boolean handle(final Message message, ShowMessageHandler showMessageHandler);
+    public abstract boolean handle(final Message message, MessageHandler.MessageDonwloadHandler downloadHandler);
 
-    protected void showMessage(final Message message, final ShowMessageHandler showMessageHandler) {
+    protected void showMessage(final Message message, final MessageDonwloadHandler downloadHandler) {
 
         this.renderHandler = new ShowMessageHandler.MessageRenderHandler() {
             @Override
@@ -31,12 +31,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
 
             @Override
             public void success() {
-
-                if (showMessageHandler != null) {
-                    showMessageHandler.complete(renderHandler);
-                } else {
-                    renderHandler.render();
-                }
+                downloadHandler.complete(renderHandler);
             }
 
             @Override

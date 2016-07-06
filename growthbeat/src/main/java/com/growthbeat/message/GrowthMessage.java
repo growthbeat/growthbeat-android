@@ -132,21 +132,35 @@ public class GrowthMessage {
 
     private void openMessage(final MessageQueue messageJob) {
 
-        ShowMessageHandler showMessageHandler = showMessageHandlers.get(messageJob.getUuid());
+        MessageHandler.MessageDonwloadHandler downloadHandler = new MessageHandler.MessageDonwloadHandler() {
+
+            @Override
+            public void complete(ShowMessageHandler.MessageRenderHandler renderHandler) {
+
+                Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Client client = Growthbeat.getInstance().waitClient();
+                        int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
+                            messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
+                        logger.info(String.format("Success show message (count : %d)", incrementCount));
+                    }
+                });
+
+                ShowMessageHandler showMessageHandler = showMessageHandlers.get(messageJob.getUuid());
+
+                if (showMessageHandler != null) {
+                    showMessageHandler.complete(renderHandler);
+                } else {
+                    renderHandler.render();
+                }
+                
+            }
+        };
 
         for (MessageHandler messageHandler : messageHandlers) {
-            if (!messageHandler.handle(messageJob.getMessage(), showMessageHandler))
+            if (!messageHandler.handle(messageJob.getMessage(), downloadHandler))
                 continue;
-
-            Growthbeat.getInstance().getExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    Client client = Growthbeat.getInstance().waitClient();
-                    int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
-                        messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
-                    logger.info(String.format("Success show message (count : %d)", incrementCount));
-                }
-            });
 
             break;
         }

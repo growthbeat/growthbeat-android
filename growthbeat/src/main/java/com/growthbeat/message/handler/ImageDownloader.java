@@ -108,9 +108,9 @@ public class ImageDownloader {
 
     public interface Callback {
 
-        public void success();
+        void success();
 
-        public void failure();
+        void failure();
 
     }
 

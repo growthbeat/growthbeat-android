@@ -12,14 +12,14 @@ public class CardMessageHandler extends BaseMessageHandler {
     }
 
     @Override
-    public boolean handle(final Message message, ShowMessageHandler showMessageHandler) {
+    public boolean handle(final Message message, final MessageHandler.MessageDonwloadHandler downloadHandler) {
 
         if (message.getType() != Message.MessageType.card)
             return false;
         if (!(message instanceof CardMessage))
             return false;
 
-        showMessage(message, showMessageHandler);
+        showMessage(message, downloadHandler);
 
         return true;
 
