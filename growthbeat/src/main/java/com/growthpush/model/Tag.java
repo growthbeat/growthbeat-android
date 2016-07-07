@@ -68,17 +68,18 @@ public class Tag extends Model {
 		if (name == null || name.length() == 0)
 			return null;
 
-		Tag tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT_V4, type.toString(), name)));
-		if (tag != null)
-			return tag;
+        JSONObject v4FormatJSONObject = GrowthPush.getInstance().getPreference().get(String.format(TAG_KEY_FORMAT_V4, type.toString(), name));
+        if (v4FormatJSONObject != null)
+            return new Tag(v4FormatJSONObject);
 
-		final String old_key_format = "tags:%s";
-		tag = new Tag(GrowthPush.getInstance().getPreference().get(String.format(old_key_format, name)));
-		if (tag == null)
-			return null;
+        final String old_key_format = "tags:%s";
+        JSONObject oldFormatJSONObject = GrowthPush.getInstance().getPreference().get(String.format(old_key_format, name));
+        if (oldFormatJSONObject == null)
+            return null;
 
-		save(tag, type, name);
-		return tag;
+        Tag tag = new Tag(oldFormatJSONObject);
+        save(tag, type, name);
+        return tag;
 
 	}
 
