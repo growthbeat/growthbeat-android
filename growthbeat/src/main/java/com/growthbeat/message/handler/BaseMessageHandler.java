@@ -3,6 +3,7 @@ package com.growthbeat.message.handler;
 import android.content.Context;
 import android.content.Intent;
 
+import com.growthbeat.message.MessageImageDownloader;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.view.MessageActivity;
 
@@ -27,7 +28,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
             }
         };
 
-        ImageDownloader imageDownloader = new ImageDownloader(message, context.getResources().getDisplayMetrics().density, new ImageDownloader.Callback() {
+        MessageImageDownloader messageImageDownloader = new MessageImageDownloader(message, context.getResources().getDisplayMetrics().density, new MessageImageDownloader.Callback() {
 
             @Override
             public void success() {
@@ -40,7 +41,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
 
         });
 
-        imageDownloader.download();
+        messageImageDownloader.download();
 
     }
 
