@@ -1,20 +1,5 @@
 package com.growthbeat.message.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.StringTokenizer;
-
-import com.growthbeat.message.GrowthMessage;
-import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.message.model.Button;
-import com.growthbeat.message.model.CardMessage;
-import com.growthbeat.message.model.CloseButton;
-import com.growthbeat.message.model.ImageButton;
-import com.growthbeat.message.model.ScreenButton;
-import com.growthbeat.message.model.Task;
-
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,9 +9,19 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 
-public class CardMessageFragment extends BaseMessageFragment {
+import com.growthbeat.message.GrowthMessage;
+import com.growthbeat.message.model.Button;
+import com.growthbeat.message.model.CardMessage;
+import com.growthbeat.message.model.CloseButton;
+import com.growthbeat.message.model.ImageButton;
+import com.growthbeat.message.model.ScreenButton;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class CardMessageFragment extends BaseImageMessageFragment {
 
     private CardMessage cardMessage = null;
 
@@ -40,14 +35,7 @@ public class CardMessageFragment extends BaseMessageFragment {
         final String uuid = getArguments().getString("uuid");
         this.cardMessage = (CardMessage) message;
         this.baseLayout = generateBaseLayout(cardMessage.getBackground());
-
-        layoutMessage(cardMessage, uuid, new ShowMessageHandler.MessageRenderHandler() {
-            @Override
-            public void render() {
-                renderMessage();
-            }
-        });
-
+        this.renderMessage();
         return baseLayout;
 
     }

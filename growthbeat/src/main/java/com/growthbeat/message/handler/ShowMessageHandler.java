@@ -5,14 +5,14 @@ package com.growthbeat.message.handler;
  */
 public interface ShowMessageHandler {
 
-	void complete(MessageRenderHandler run);
+    void complete(MessageRenderHandler renderHandler);
 
-	void error(String error);
+    void error(String error);
 
-	public static interface MessageRenderHandler {
+    public static interface MessageRenderHandler {
 
-		abstract void render();
+        abstract void render();
 
-	}
+    }
 
 }

@@ -1,22 +1,13 @@
 package com.growthbeat.message;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
 import com.growthbeat.Logger;
+import com.growthbeat.message.handler.BaseMessageHandler;
 import com.growthbeat.message.handler.CardMessageHandler;
 import com.growthbeat.message.handler.MessageHandler;
 import com.growthbeat.message.handler.PlainMessageHandler;
@@ -30,9 +21,19 @@ import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Event;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class GrowthMessage {
 
@@ -42,7 +43,7 @@ public class GrowthMessage {
     private String applicationId = null;
     private String credentialId = null;
     private boolean initialized = false;
-    private List<MessageHandler> messageHandlers = new ArrayList<MessageHandler>();
+    private List<BaseMessageHandler> messageHandlers = new ArrayList<BaseMessageHandler>();
     private Semaphore messageSemaphore = new Semaphore(1);
     private long lastMessageOpenedTimeMills;
     private boolean showingMessage;
@@ -97,7 +98,7 @@ public class GrowthMessage {
                         return;
 
                 } catch (GrowthbeatException e) {
-                    if(handler != null)
+                    if (handler != null)
                         handler.error("Failed to get tasks.");
                     logger.info(String.format("Failed to get tasks. %s", e.getMessage()));
                 }
@@ -131,19 +132,35 @@ public class GrowthMessage {
 
     private void openMessage(final MessageQueue messageJob) {
 
-        for (MessageHandler messageHandler : messageHandlers) {
-            if (!messageHandler.handle(messageJob))
-                continue;
+        MessageHandler.MessageDonwloadHandler downloadHandler = new MessageHandler.MessageDonwloadHandler() {
 
-            Growthbeat.getInstance().getExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    Client client = Growthbeat.getInstance().waitClient();
-                    int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
-                        messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
-                    logger.info(String.format("Success show message (count : %d)", incrementCount));
+            @Override
+            public void complete(ShowMessageHandler.MessageRenderHandler renderHandler) {
+
+                Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        Client client = Growthbeat.getInstance().waitClient();
+                        int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
+                            messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
+                        logger.info(String.format("Success show message (count : %d)", incrementCount));
+                    }
+                });
+
+                ShowMessageHandler showMessageHandler = showMessageHandlers.get(messageJob.getUuid());
+
+                if (showMessageHandler != null) {
+                    showMessageHandler.complete(renderHandler);
+                } else {
+                    renderHandler.render();
                 }
-            });
+                
+            }
+        };
+
+        for (MessageHandler messageHandler : messageHandlers) {
+            if (!messageHandler.handle(messageJob.getMessage(), downloadHandler))
+                continue;
 
             break;
         }
@@ -210,10 +227,6 @@ public class GrowthMessage {
         });
     }
 
-    public ShowMessageHandler findShowMessageHandler(String messageId) {
-        return showMessageHandlers.get(messageId);
-    }
-
     public void notifyPopNextMessage() {
         scheduledThreadPoolExecutor.schedule(new Runnable() {
             @Override
@@ -236,11 +249,11 @@ public class GrowthMessage {
         return logger;
     }
 
-    public void setMessageHandlers(List<MessageHandler> messageHandlers) {
+    public void setMessageHandlers(List<BaseMessageHandler> messageHandlers) {
         this.messageHandlers = messageHandlers;
     }
 
-    public void addMessageHandler(MessageHandler messageHandler) {
+    public void addMessageHandler(BaseMessageHandler messageHandler) {
         this.messageHandlers.add(messageHandler);
     }
 
