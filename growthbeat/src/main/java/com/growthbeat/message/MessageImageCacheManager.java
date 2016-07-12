@@ -9,7 +9,7 @@ import android.util.LruCache;
 public class MessageImageCacheManager extends LruCache<String, Bitmap> {
 
     public MessageImageCacheManager() {
-        this((int) (Runtime.getRuntime().maxMemory() / 10));
+        this((int) (Runtime.getRuntime().maxMemory() / 5));
     }
 
     public MessageImageCacheManager(int maxSize) {
