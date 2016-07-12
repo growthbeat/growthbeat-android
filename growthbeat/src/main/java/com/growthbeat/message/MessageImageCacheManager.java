@@ -1,6 +1,7 @@
 package com.growthbeat.message;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.LruCache;
 
 /**
@@ -9,7 +10,7 @@ import android.util.LruCache;
 public class MessageImageCacheManager extends LruCache<String, Bitmap> {
 
     public MessageImageCacheManager() {
-        this((int) (Runtime.getRuntime().maxMemory() / 5));
+        this((int) (Runtime.getRuntime().maxMemory() / 4));
     }
 
     public MessageImageCacheManager(int maxSize) {
@@ -18,7 +19,9 @@ public class MessageImageCacheManager extends LruCache<String, Bitmap> {
 
     @Override
     protected int sizeOf(String key, Bitmap bitmap) {
-        return bitmap.getByteCount();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+            return bitmap.getByteCount();
+        return bitmap.getAllocationByteCount();
     }
 
 }
