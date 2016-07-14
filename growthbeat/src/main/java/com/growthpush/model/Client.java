@@ -1,44 +1,44 @@
 package com.growthpush.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import com.growthbeat.model.Model;
+import com.growthbeat.utils.DateUtils;
+import com.growthpush.GrowthPush;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.growthbeat.model.Model;
-import com.growthbeat.utils.DateUtils;
-import com.growthpush.GrowthPush;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Shigeru Ogawa on 13/08/12.
  */
 public class Client extends Model {
 
-	private String id;
-	private String applicationId;
-	private String token;
-	private Environment environment;
-	private Date created;
+    private String id;
+    private String applicationId;
+    private String token;
+    private Environment environment;
+    private Date created;
 
-	public Client() {
-		super();
-	}
+    public Client() {
+        super();
+    }
 
-	public Client(JSONObject jsonObject) {
-		super();
-		setJsonObject(jsonObject);
-	}
+    public Client(JSONObject jsonObject) {
+        super();
+        setJsonObject(jsonObject);
+    }
 
-	public static Client load() {
+    public static Client load() {
 
-		JSONObject clientJsonObject = GrowthPush.getInstance().getPreference().get(Client.class.getName());
-		if (clientJsonObject == null)
-			return null;
+        JSONObject clientJsonObject = GrowthPush.getInstance().getPreference().get(Client.class.getName());
+        if (clientJsonObject == null)
+            return null;
 
         Client client = new Client();
-        if(clientJsonObject.has("growthbeatClientId")) {
+        if (clientJsonObject.has("growthbeatClientId")) {
             try {
                 client.setId(clientJsonObject.getString("growthbeatClientId"));
                 client.setToken(clientJsonObject.getString("token"));
@@ -46,143 +46,143 @@ public class Client extends Model {
             } catch (JSONException e) {
             }
         } else
-		    client.setJsonObject(clientJsonObject);
+            client.setJsonObject(clientJsonObject);
 
-		return client;
+        return client;
 
-	}
+    }
 
-	public static synchronized void save(Client client) {
+    public static synchronized void save(Client client) {
 
-		if (client == null)
-			throw new IllegalArgumentException("Argument client cannot be null.");
+        if (client == null)
+            throw new IllegalArgumentException("Argument client cannot be null.");
 
-		GrowthPush.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
+        GrowthPush.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
 
-	}
+    }
 
-	public static void clear() {
-		GrowthPush.getInstance().getPreference().remove(Client.class.getName());
-	}
+    public static void clear() {
+        GrowthPush.getInstance().getPreference().remove(Client.class.getName());
+    }
 
-	public static Client create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
+    public static Client create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		if (clientId != null)
-			params.put("clientId", clientId);
-		if (applicationId != null)
-			params.put("applicationId", applicationId);
-		if (credentialId != null)
-			params.put("credentialId", credentialId);
-		if (token != null)
-			params.put("token", token);
-		if (environment != null)
-			params.put("environment", environment.toString());
-		params.put("os", "android");
-		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/clients", params);
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (clientId != null)
+            params.put("clientId", clientId);
+        if (applicationId != null)
+            params.put("applicationId", applicationId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+        if (token != null)
+            params.put("token", token);
+        if (environment != null)
+            params.put("environment", environment.toString());
+        params.put("os", "android");
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/clients", params);
 
-		return new Client(jsonObject);
+        return new Client(jsonObject);
 
-	}
+    }
 
-	public static Client update(String clientId, String applicationId, String credentialId, String token, Environment environment) {
+    public static Client update(String clientId, String applicationId, String credentialId, String token, Environment environment) {
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		if (applicationId != null)
-			params.put("applicationId", applicationId);
-		if (credentialId != null)
-			params.put("credentialId", credentialId);
-		if (token != null)
-			params.put("token", token);
-		if (environment != null)
-			params.put("environment", environment.toString());
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (applicationId != null)
+            params.put("applicationId", applicationId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+        if (token != null)
+            params.put("token", token);
+        if (environment != null)
+            params.put("environment", environment.toString());
 
-		JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("4/clients/" + clientId, params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("4/clients/" + clientId, params);
 
-		return new Client(jsonObject);
-	}
+        return new Client(jsonObject);
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getApplicationId() {
-		return applicationId;
-	}
+    public String getApplicationId() {
+        return applicationId;
+    }
 
-	public void setApplicationId(String applicationId) {
-		this.applicationId = applicationId;
-	}
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
 
-	public String getToken() {
-		return token;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public Environment getEnvironment() {
-		return environment;
-	}
+    public Environment getEnvironment() {
+        return environment;
+    }
 
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-	}
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
 
-	public Date getCreated() {
-		return created;
-	}
+    public Date getCreated() {
+        return created;
+    }
 
-	public void setCreated(Date created) {
-		this.created = created;
-	}
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
-	@Override
-	public JSONObject getJsonObject() {
+    @Override
+    public JSONObject getJsonObject() {
 
-		JSONObject jsonObject = new JSONObject();
-		try {
-			jsonObject.put("id", getId());
-			jsonObject.put("applicationId", getApplicationId());
-			jsonObject.put("token", getToken());
-			if (getEnvironment() != null)
-				jsonObject.put("environment", getEnvironment().toString());
-			if (getCreated() != null)
-				jsonObject.put("created", DateUtils.formatToDateTimeString(getCreated()));
-		} catch (JSONException e) {
-			return null;
-		}
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("applicationId", getApplicationId());
+            jsonObject.put("token", getToken());
+            if (getEnvironment() != null)
+                jsonObject.put("environment", getEnvironment().toString());
+            if (getCreated() != null)
+                jsonObject.put("created", DateUtils.formatToDateTimeString(getCreated()));
+        } catch (JSONException e) {
+            return null;
+        }
 
-		return jsonObject;
+        return jsonObject;
 
-	}
+    }
 
-	@Override
-	public void setJsonObject(JSONObject jsonObject) {
+    @Override
+    public void setJsonObject(JSONObject jsonObject) {
 
-		if (jsonObject == null)
-			return;
+        if (jsonObject == null)
+            return;
 
-		try {
-			if (jsonObject.has("id"))
-				setId(jsonObject.getString("id"));
-			if (jsonObject.has("applicationId"))
-				setApplicationId(jsonObject.getString("applicationId"));
-			if (jsonObject.has("token"))
-				setToken(jsonObject.getString("token"));
-			if (jsonObject.has("environment"))
-				setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
-			if (jsonObject.has("created"))
-				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
-		} catch (JSONException e) {
-			throw new IllegalArgumentException("Failed to parse JSON.");
-		}
+        try {
+            if (jsonObject.has("id"))
+                setId(jsonObject.getString("id"));
+            if (jsonObject.has("applicationId"))
+                setApplicationId(jsonObject.getString("applicationId"));
+            if (jsonObject.has("token"))
+                setToken(jsonObject.getString("token"));
+            if (jsonObject.has("environment"))
+                setEnvironment(Environment.valueOf(jsonObject.getString("environment")));
+            if (jsonObject.has("created"))
+                setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse JSON.");
+        }
 
-	}
+    }
 
 }

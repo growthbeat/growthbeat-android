@@ -1,38 +1,28 @@
 package com.growthbeat.message.handler;
 
-import com.growthbeat.message.MessageQueue;
+import android.content.Context;
+
 import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.Message;
-import com.growthbeat.message.view.MessageActivity;
 
-import android.content.Context;
-import android.content.Intent;
+public class CardMessageHandler extends BaseMessageHandler {
 
-public class CardMessageHandler implements MessageHandler {
+    public CardMessageHandler(Context context) {
+        super(context);
+    }
 
-	private Context context;
+    @Override
+    public boolean handle(final Message message, final MessageHandler.MessageDonwloadHandler downloadHandler) {
 
-	public CardMessageHandler(Context context) {
-		this.context = context;
-	}
+        if (message.getType() != Message.MessageType.card)
+            return false;
+        if (!(message instanceof CardMessage))
+            return false;
 
-	@Override
-	public boolean handle(final MessageQueue messageJob) {
+        showMessage(message, downloadHandler);
 
-        Message message = messageJob.getMessage();
-		if (message.getType() != Message.MessageType.card)
-			return false;
-		if (!(message instanceof CardMessage))
-			return false;
+        return true;
 
-		Intent intent = new Intent(context, MessageActivity.class);
-		intent.putExtra("message", (CardMessage) message);
-        intent.putExtra("uuid", messageJob.getUuid());
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		context.startActivity(intent);
-
-		return true;
-
-	}
+    }
 
 }
