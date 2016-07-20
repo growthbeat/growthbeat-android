@@ -81,7 +81,7 @@ public class GrowthMessage {
 
     }
 
-    public void recevieMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
+    public void receiveMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
         Growthbeat.getInstance().getExecutor().execute(new Runnable() {
             @Override
@@ -154,7 +154,7 @@ public class GrowthMessage {
                 } else {
                     renderHandler.render();
                 }
-                
+
             }
         };
 

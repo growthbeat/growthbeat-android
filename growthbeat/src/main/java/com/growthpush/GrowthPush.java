@@ -259,7 +259,7 @@ public class GrowthPush {
                     logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
 
                     if (type != Event.EventType.message)
-                        GrowthMessage.getInstance().recevieMessage(event.getGoalId(), client.getId(), handler);
+                        GrowthMessage.getInstance().receiveMessage(event.getGoalId(), client.getId(), handler);
 
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending event fail. %s", e.getMessage()));
