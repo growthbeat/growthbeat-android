@@ -150,12 +150,7 @@ public class GrowthPush {
         }
     }
 
-    public void registerClient(final String registrationId, Environment environment) {
-        this.environment = environment;
-        registerClient(registrationId);
-    }
-
-    protected void registerClient(final String registrationId) {
+    public void registerClient(final String registrationId) {
         Growthbeat.getInstance().getExecutor().execute(new Runnable() {
 
             @Override
