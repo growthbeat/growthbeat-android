@@ -11,12 +11,12 @@ import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.model.GrowthPushClient;
 import com.growthbeat.utils.AppUtils;
 import com.growthbeat.utils.DeviceUtils;
 import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.handler.ReceiveHandler;
 import com.growthpush.model.Client;
+import com.growthpush.model.ClientV4;
 import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
@@ -32,7 +32,7 @@ public class GrowthPush {
         GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
 
-    private Client client = null;
+    private ClientV4 client = null;
     private Semaphore semaphore = new Semaphore(1);
     private CountDownLatch latch = new CountDownLatch(1);
     private ReceiveHandler receiveHandler = new DefaultReceiveHandler();
@@ -87,22 +87,37 @@ public class GrowthPush {
             @Override
             public void run() {
 
-                GrowthPushClient oldClient = GrowthPushClient.load();
                 com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
-                client = Client.load();
+                Client oldClient = Client.load();
 
                 if (oldClient != null) {
-                    client = new Client();
-                    client.setId(growthbeatClient.getId());
-                    client.setToken(oldClient.getToken());
-                    updateClient(oldClient.getToken());
+                    if (oldClient.getGrowthbeatClientId() != null &&
+                        oldClient.getGrowthbeatClientId().equals(growthbeatClient.getId())) {
 
+                        logger.info(String.format("Client found. To Convert the Client to ClientV4. (id:%s)", growthbeatClient.getId()));
+                        createClient(growthbeatClient.getId(), oldClient.getToken());
+                    } else {
+                        logger.info(String.format("Disabled Client found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
+                        createClient(growthbeatClient.getId(), null);
+                    }
+                    Client.clear();
                 } else {
+                    ClientV4 clientV4 = ClientV4.load();
 
-                    if (client != null && client.getId() != null && !client.getId().equals(growthbeatClient.getId()))
+                    if (clientV4 == null) {
+                        logger.info(String.format("Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
+                        createClient(growthbeatClient.getId(), null);
+                    } else if (!clientV4.getId().equals(growthbeatClient.getId())) {
+                        logger.info(String.format("Disabled ClientV4 found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         GrowthPush.this.clearClient();
-
-                    createClient(growthbeatClient.getId(), null);
+                        createClient(growthbeatClient.getId(), null);
+                    } else if (environment != clientV4.getEnvironment()) {
+                        logger.info(String.format("ClientV4 found. Update environment. (environment:%s)", environment.toString()));
+                        updateClient(clientV4.getToken());
+                    } else {
+                        logger.info(String.format("ClientV4 found. (id:%s)", clientV4.getId()));
+                        client = clientV4;
+                    }
                 }
 
                 if (adInfoEnabled) {
@@ -119,7 +134,7 @@ public class GrowthPush {
     public void requestRegistrationId(final String senderId) {
 
         if (!initialized) {
-            logger.warning("Growth Push must be initilaize.");
+            logger.warning("Growth Push must be initialize.");
             return;
         }
 
@@ -155,19 +170,17 @@ public class GrowthPush {
 
             @Override
             public void run() {
-
-                com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
-                createClient(growthbeatClient.getId(), registrationId);
-
-                if ((registrationId != null && !registrationId.equals(client.getToken())) || environment != client.getEnvironment()) {
-                    updateClient(registrationId);
+                if (registrationId == null)
                     return;
+
+                waitClientRegistration();
+
+                if (client.getToken() == null ||
+                    (client.getToken() != null && !registrationId.equals(client.getToken()))) {
+
+                    updateClient(registrationId);
                 }
-
-                logger.info("Client already registered.");
-
             }
-
         });
     }
 
@@ -177,19 +190,19 @@ public class GrowthPush {
 
             semaphore.acquire();
 
-            Client loadClient = Client.load();
+            ClientV4 loadClient = ClientV4.load();
             if (loadClient != null) {
                 this.client = loadClient;
-                logger.info(String.format("Client already Created... (growthbeatClientId: %s, token: %s, environment: %s",
+                logger.info(String.format("ClientV4 already Created... (growthbeatClientId: %s, token: %s, environment: %s",
                     growthbeatClientId, loadClient.getToken(), environment));
                 return;
             }
 
             logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
                 registrationId, environment));
-            client = Client.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+            client = ClientV4.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Create client success (clientId: %s)", client.getId()));
-            Client.save(client);
+            ClientV4.save(client);
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
@@ -207,10 +220,10 @@ public class GrowthPush {
 
             logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getId(),
                 registrationId, environment));
-            Client updatedClient = Client.update(client.getId(), applicationId, credentialId, registrationId, environment);
+            ClientV4 updatedClient = ClientV4.update(client.getId(), applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Update client success (clientId: %s)", client.getId()));
 
-            Client.save(updatedClient);
+            ClientV4.save(updatedClient);
             this.client = updatedClient;
 
         } catch (GrowthPushException e) {
@@ -389,7 +402,7 @@ public class GrowthPush {
     private void clearClient() {
 
         this.client = null;
-        Client.clear();
+        ClientV4.clear();
 
     }
 }
