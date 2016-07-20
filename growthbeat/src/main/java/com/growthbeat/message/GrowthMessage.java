@@ -75,7 +75,6 @@ public class GrowthMessage {
         this.showingMessage = false;
         this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
-        Growthbeat.getInstance().initialize(context, applicationId, credentialId);
         setMessageHandlers(
             Arrays.asList(new PlainMessageHandler(context), new CardMessageHandler(context), new SwipeMessageHandler(context)));
 
