@@ -193,12 +193,12 @@ public class GrowthPush {
             ClientV4 loadClient = ClientV4.load();
             if (loadClient != null) {
                 this.client = loadClient;
-                logger.info(String.format("ClientV4 already Created... (growthbeatClientId: %s, token: %s, environment: %s",
+                logger.info(String.format("ClientV4 already Created... (growthbeatClientId: %s, token: %s, environment: %s)",
                     growthbeatClientId, loadClient.getToken(), environment));
                 return;
             }
 
-            logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s", growthbeatClientId,
+            logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
                 registrationId, environment));
             client = ClientV4.create(growthbeatClientId, applicationId, credentialId, registrationId, environment);
             logger.info(String.format("Create client success (clientId: %s)", client.getId()));
