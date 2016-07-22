@@ -113,7 +113,7 @@ public class GrowthPush {
                         createClient(growthbeatClient.getId(), null);
                     } else if (environment != clientV4.getEnvironment()) {
                         logger.info(String.format("ClientV4 found. Update environment. (environment:%s)", environment.toString()));
-                        updateClient(clientV4.getToken());
+                        updateClient(growthbeatClient.getId(), clientV4.getToken());
                     } else {
                         logger.info(String.format("ClientV4 found. (id:%s)", clientV4.getId()));
                         client = clientV4;
@@ -178,7 +178,7 @@ public class GrowthPush {
                 if (client.getToken() == null ||
                     (client.getToken() != null && !registrationId.equals(client.getToken()))) {
 
-                    updateClient(registrationId);
+                    updateClient(client.getId(), registrationId);
                 }
             }
         });
@@ -214,14 +214,14 @@ public class GrowthPush {
 
     }
 
-    private void updateClient(final String registrationId) {
+    private void updateClient(final String growthbeatClientId, final String registrationId) {
 
         try {
 
-            logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", client.getId(),
+            logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
                 registrationId, environment));
-            ClientV4 updatedClient = ClientV4.update(client.getId(), applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Update client success (clientId: %s)", client.getId()));
+            ClientV4 updatedClient = ClientV4.update(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+            logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
 
             ClientV4.save(updatedClient);
             this.client = updatedClient;
