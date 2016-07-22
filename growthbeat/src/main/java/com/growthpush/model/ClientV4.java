@@ -57,11 +57,9 @@ public class ClientV4 extends Model {
         GrowthPush.getInstance().getPreference().remove(ClientV4.class.getName());
     }
 
-    public static ClientV4 create(String clientId, String applicationId, String credentialId, String token, Environment environment) {
+    public static ClientV4 attach(String id, String applicationId, String credentialId, String token, Environment environment) {
 
         Map<String, Object> params = new HashMap<String, Object>();
-        if (clientId != null)
-            params.put("clientId", clientId);
         if (applicationId != null)
             params.put("applicationId", applicationId);
         if (credentialId != null)
@@ -71,25 +69,8 @@ public class ClientV4 extends Model {
         if (environment != null)
             params.put("environment", environment.toString());
         params.put("os", "android");
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/clients", params);
 
-        return new ClientV4(jsonObject);
-
-    }
-
-    public static ClientV4 update(String clientId, String applicationId, String credentialId, String token, Environment environment) {
-
-        Map<String, Object> params = new HashMap<String, Object>();
-        if (applicationId != null)
-            params.put("applicationId", applicationId);
-        if (credentialId != null)
-            params.put("credentialId", credentialId);
-        if (token != null)
-            params.put("token", token);
-        if (environment != null)
-            params.put("environment", environment.toString());
-
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("4/clients/" + clientId, params);
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().put("4/clients/" + id + "/attach", params);
 
         return new ClientV4(jsonObject);
     }
