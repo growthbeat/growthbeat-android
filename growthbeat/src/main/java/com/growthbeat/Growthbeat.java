@@ -65,24 +65,11 @@ public class Growthbeat {
 
         preference.setContext(Growthbeat.this.context);
 
-        final GrowthPushClient growthPushClient = GrowthPushClient.load();
         final Client existingClient = Client.load();
-
-        if (growthPushClient != null) {
-            if (existingClient != null && existingClient.getId().equals(growthPushClient.getGrowthbeatClientId())
-                && existingClient.getApplication().getId().equals(growthPushClient.getGrowthbeatApplicationId())
-                && existingClient.getApplication().getId().equals(applicationId)) {
-                logger.info(String.format("Client already exists. (id:%s)", existingClient.getId()));
-                client = existingClient;
-                GrowthPushClient.removePreference();
-                return;
-            }
-        } else {
-            if (existingClient != null && existingClient.getApplication().getId().equals(applicationId)) {
-                logger.info(String.format("Client already exists. (id:%s)", existingClient.getId()));
-                client = existingClient;
-                return;
-            }
+        if (existingClient != null && existingClient.getApplication().getId().equals(applicationId)) {
+            logger.info(String.format("Client already exists. (id:%s)", existingClient.getId()));
+            client = existingClient;
+            return;
         }
 
         preference.removeAll();
