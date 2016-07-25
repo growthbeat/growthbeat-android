@@ -246,7 +246,7 @@ public class GrowthPush {
         trackEvent(Event.EventType.custom, name, value, handler);
     }
 
-    private void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
+    public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
 
         if (!initialized) {
             logger.info("call after initialized.");

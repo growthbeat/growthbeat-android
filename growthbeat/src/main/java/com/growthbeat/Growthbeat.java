@@ -65,8 +65,8 @@ public class Growthbeat {
 
         preference.setContext(Growthbeat.this.context);
 
-        GrowthPushClient growthPushClient = GrowthPushClient.load();
-        Client existingClient = Client.load();
+        final GrowthPushClient growthPushClient = GrowthPushClient.load();
+        final Client existingClient = Client.load();
 
         if (growthPushClient != null) {
             if (existingClient != null && existingClient.getId().equals(growthPushClient.getGrowthbeatClientId())
@@ -101,11 +101,11 @@ public class Growthbeat {
                             growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
 
                     Client convertedClient = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
-                    if (client == null) {
+                    if (convertedClient == null) {
                         logger.info("Failed to convert existingClient.");
                     } else {
-                        Client.save(client);
-                        logger.info(String.format("Client converted. (id:%s)", client.getId()));
+                        Client.save(convertedClient);
+                        logger.info(String.format("Client converted. (id:%s)", convertedClient.getId()));
                     }
 
                     client = convertedClient;
