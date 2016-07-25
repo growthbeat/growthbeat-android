@@ -1,7 +1,7 @@
 package com.growthpush;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Semaphore;
+import android.content.Context;
+import android.os.Build;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -21,8 +21,8 @@ import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 
-import android.content.Context;
-import android.os.Build;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 public class GrowthPush {
 
@@ -239,14 +239,14 @@ public class GrowthPush {
     }
 
     public void trackEvent(final String name, final String value) {
-        trackEvent(name, null, null);
+        trackEvent(name, value, null);
     }
 
     public void trackEvent(final String name, final String value, final ShowMessageHandler handler) {
         trackEvent(Event.EventType.custom, name, value, handler);
     }
 
-    public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
+    private void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
 
         if (!initialized) {
             logger.info("call after initialized.");
