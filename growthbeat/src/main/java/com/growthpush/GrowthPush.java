@@ -265,11 +265,11 @@ public class GrowthPush {
 
                 waitClientRegistration();
 
-                logger.info(String.format("Sending event ... (name: %s)", name));
+                logger.info(String.format("Sending event ... (name: %s, value: %s)", name, value));
                 try {
                     Event event = Event.create(GrowthPush.getInstance().client.getId(), applicationId,
                         GrowthPush.getInstance().credentialId, type, name, value);
-                    logger.info(String.format("Sending event success. (timestamp: %s)", event.getTimestamp()));
+                    logger.info(String.format("Sending event success. (name: %s, value: %s)", name, value));
 
                     if (type != Event.EventType.message)
                         GrowthMessage.getInstance().receiveMessage(event.getGoalId(), client.getId(), handler);

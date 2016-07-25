@@ -89,7 +89,7 @@ public class Growthbeat {
 
                     Client convertedClient = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
                     if (convertedClient == null) {
-                        logger.info("Failed to convert existingClient.");
+                        logger.info("Failed to convert client.");
                     } else {
                         Client.save(convertedClient);
                         logger.info(String.format("Client converted. (id:%s)", convertedClient.getId()));
@@ -99,11 +99,11 @@ public class Growthbeat {
                     GrowthPushClient.removePreference();
 
                 } else {
-                    logger.info(String.format("Creating existingClient... (applicationId:%s)", applicationId));
+                    logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
                     Client newClient = Client.create(applicationId, credentialId);
 
                     if (newClient == null) {
-                        logger.info("Failed to create existingClient.");
+                        logger.info("Failed to create client.");
                         return;
                     }
 
