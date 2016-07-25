@@ -65,22 +65,11 @@ public class Growthbeat {
 
         preference.setContext(Growthbeat.this.context);
 
-        GrowthPushClient growthPushClient = GrowthPushClient.load();
-        client = Client.load();
-
-        if (growthPushClient != null) {
-            if (client != null && client.getId().equals(growthPushClient.getGrowthbeatClientId())
-                && client.getApplication().getId().equals(growthPushClient.getGrowthbeatApplicationId())
-                && client.getApplication().getId().equals(applicationId)) {
-                logger.info(String.format("Client already exists. (id:%s)", client.getId()));
-                GrowthPushClient.removePreference();
-                return;
-            }
-        } else {
-            if (client != null && client.getApplication().getId().equals(applicationId)) {
-                logger.info(String.format("Client already exists. (id:%s)", client.getId()));
-                return;
-            }
+        final Client existingClient = Client.load();
+        if (existingClient != null && existingClient.getApplication().getId().equals(applicationId)) {
+            logger.info(String.format("Client already exists. (id:%s)", existingClient.getId()));
+            client = existingClient;
+            return;
         }
 
         preference.removeAll();
@@ -98,28 +87,29 @@ public class Growthbeat {
                         .format("Growth Push Client found. Convert GrowthPush Client into Growthbeat Client. (GrowthPushClientId:%d, GrowthbeatClientId:%s)",
                             growthPushClient.getId(), growthPushClient.getGrowthbeatClientId()));
 
-                    client = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
-                    if (client == null) {
+                    Client convertedClient = Client.findById(growthPushClient.getGrowthbeatClientId(), credentialId);
+                    if (convertedClient == null) {
                         logger.info("Failed to convert client.");
-                        client = null;
                     } else {
-                        Client.save(client);
-                        logger.info(String.format("Client converted. (id:%s)", client.getId()));
+                        Client.save(convertedClient);
+                        logger.info(String.format("Client converted. (id:%s)", convertedClient.getId()));
                     }
 
+                    client = convertedClient;
                     GrowthPushClient.removePreference();
 
                 } else {
                     logger.info(String.format("Creating client... (applicationId:%s)", applicationId));
-                    client = Client.create(applicationId, credentialId);
+                    Client newClient = Client.create(applicationId, credentialId);
 
-                    if (client == null) {
+                    if (newClient == null) {
                         logger.info("Failed to create client.");
                         return;
                     }
 
-                    Client.save(client);
-                    logger.info(String.format("Client created. (id:%s)", client.getId()));
+                    Client.save(newClient);
+                    client = newClient;
+                    logger.info(String.format("Client created. (id:%s)", newClient.getId()));
                 }
             }
 
