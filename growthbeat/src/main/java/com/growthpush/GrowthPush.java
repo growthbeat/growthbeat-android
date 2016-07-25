@@ -109,7 +109,7 @@ public class GrowthPush {
                         createClient(growthbeatClient.getId(), null);
                     } else if (!clientV4.getId().equals(growthbeatClient.getId())) {
                         logger.info(String.format("Disabled ClientV4 found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
-                        GrowthPush.this.clearClient();
+                        clearClient();
                         createClient(growthbeatClient.getId(), null);
                     } else if (environment != clientV4.getEnvironment()) {
                         logger.info(String.format("ClientV4 found. Update environment. (environment:%s)", environment.toString()));
