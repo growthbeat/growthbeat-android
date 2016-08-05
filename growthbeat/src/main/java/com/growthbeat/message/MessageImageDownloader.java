@@ -4,7 +4,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.CardMessage;
 import com.growthbeat.message.model.CloseButton;
@@ -108,14 +107,15 @@ public class MessageImageDownloader {
 
     private String addDensityByPictureUrl(String originUrl) {
 
-        if ((int) density <= 1)
+        int ceilDensity = (int) Math.ceil(density);
+        if (ceilDensity <= 1)
             return originUrl;
 
         String url = originUrl;
         String[] paths = url.split("/");
         String filename = paths[paths.length - 1];
         String[] extension = filename.split("\\.");
-        String resultFileName = String.format("%s@%dx.%s", extension[0], (int) density, extension[1]);
+        String resultFileName = String.format("%s@%dx.%s", extension[0], ceilDensity, extension[1]);
         paths = Arrays.copyOf(paths, paths.length - 1);
         String pathString = TextUtils.join("/", paths);
         return String.format("%s/%s", pathString, resultFileName);

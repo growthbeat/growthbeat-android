@@ -1,5 +1,6 @@
 package com.growthbeat.message.view;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -32,7 +33,6 @@ public class CardMessageFragment extends BaseImageMessageFragment {
         if (message == null || !(message instanceof CardMessage))
             return null;
 
-        final String uuid = getArguments().getString("uuid");
         this.cardMessage = (CardMessage) message;
         this.baseLayout = generateBaseLayout(cardMessage.getBackground());
         this.renderMessage();
@@ -54,19 +54,13 @@ public class CardMessageFragment extends BaseImageMessageFragment {
 
         addCloseButton(cardLayout);
 
-        FrameLayout buttonLayout = createButtonLayout();
-
-        int messageWidth = (int) (Math.max(cardLayout.getLayoutParams().width, buttonLayout.getLayoutParams().width));
-        int messageHeight = (int) (Math.max(cardLayout.getLayoutParams().height, buttonLayout.getLayoutParams().height));
+        FrameLayout buttonLayout = createButtonLayout(cardLayout.getLayoutParams().width, cardLayout.getLayoutParams().height);
 
         FrameLayout messageLayout = new FrameLayout(getActivity().getApplicationContext());
         FrameLayout.LayoutParams messageLayoutParams = new FrameLayout.LayoutParams(
-            messageWidth, messageHeight);
+            Math.max(cardLayout.getLayoutParams().width, buttonLayout.getLayoutParams().width), Math.max(cardLayout.getLayoutParams().height, buttonLayout.getLayoutParams().height));
         messageLayoutParams.gravity = Gravity.CENTER;
         messageLayout.setLayoutParams(messageLayoutParams);
-
-        buttonLayout.setX((int) ((messageWidth - buttonLayout.getLayoutParams().width) * 0.5));
-        buttonLayout.setY(messageHeight - buttonLayout.getLayoutParams().height);
 
         messageLayout.addView(cardLayout);
         messageLayout.addView(buttonLayout);
@@ -144,7 +138,7 @@ public class CardMessageFragment extends BaseImageMessageFragment {
         return cardLayout;
     }
 
-    private FrameLayout createButtonLayout() {
+    private FrameLayout createButtonLayout(int cardLayoutWidth, int cardLayoutHeight) {
 
         List<Button> buttons = extractButtons(Button.ButtonType.image);
         Collections.reverse(buttons);
@@ -157,35 +151,50 @@ public class CardMessageFragment extends BaseImageMessageFragment {
             return buttonLayout;
         }
 
-        final ImageButton imageButton = (ImageButton) buttons.get(0);
+        for (Button button : buttons) {
 
-        int buttonBaseWidth = (int) (imageButton.getBaseWidth() * displayMetrics.density);
-        int buttonBaseHeight = (int) (imageButton.getBaseHeight() * displayMetrics.density);
+            final ImageButton imageButton = (ImageButton) button;
+            int buttonBaseWidth = (int) (imageButton.getBaseWidth() * displayMetrics.density);
+            int buttonBaseHeight = (int) (imageButton.getBaseHeight() * displayMetrics.density);
 
-        TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
-        touchableImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GrowthMessage.getInstance().selectButton(imageButton, cardMessage);
-                finishActivity();
+            TouchableImageView touchableImageView = new TouchableImageView(getActivity().getApplicationContext());
+            touchableImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GrowthMessage.getInstance().selectButton(imageButton, cardMessage);
+                    finishActivity();
+                }
+            });
+            touchableImageView.setImageBitmap(getImageResource(imageButton.getPicture().getUrl()));
+            touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
+
+            touchableImageView.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+
+            float imageRatio = Math.min(1.0f, Math.min(
+                (float) buttonBaseWidth / touchableImageView.getMeasuredWidth(), (float) buttonBaseHeight / touchableImageView.getMeasuredHeight()));
+
+            FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
+                (int) (touchableImageView.getMeasuredWidth() * imageRatio),
+                (int) (touchableImageView.getMeasuredHeight() * imageRatio));
+
+            final int buttonWidth = Math.max(cardLayoutWidth, buttonLayoutParams.width);
+            final int buttonHeight = Math.max(cardLayoutHeight, buttonLayoutParams.height);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                buttonLayoutParams.gravity = Gravity.TOP;
+                buttonLayoutParams.leftMargin = (int) ((buttonWidth - buttonLayoutParams.width) * 0.5);
+                buttonLayoutParams.topMargin = buttonHeight - buttonLayoutParams.height;
+            } else {
+                buttonLayout.setX((int) ((buttonWidth - buttonLayoutParams.width) * 0.5));
+                buttonLayout.setY(buttonHeight - buttonLayoutParams.height);
             }
-        });
-        touchableImageView.setImageBitmap(getImageResource(imageButton.getPicture().getUrl()));
-        touchableImageView.setScaleType(ScaleType.CENTER_INSIDE);
 
-        touchableImageView.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            buttonLayout.setLayoutParams(buttonLayoutParams);
 
-        float imageRatio = Math.min(1.0f, Math.min(
-            (float) buttonBaseWidth / touchableImageView.getMeasuredWidth(), (float) buttonBaseHeight / touchableImageView.getMeasuredHeight()));
+            buttonLayout.addView(touchableImageView);
 
-        FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
-            (int) (touchableImageView.getMeasuredWidth() * imageRatio),
-            (int) (touchableImageView.getMeasuredHeight() * imageRatio));
-        buttonLayout.setLayoutParams(buttonLayoutParams);
-
-        buttonLayout.addView(touchableImageView);
+        }
 
         return buttonLayout;
     }
