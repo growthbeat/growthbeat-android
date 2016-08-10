@@ -1,7 +1,6 @@
 package com.growthpush;
 
 import android.content.Context;
-import android.os.Build;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -61,13 +60,8 @@ public class GrowthPush {
 
         if (initialized)
             return;
-
+        
         initialized = true;
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            logger.warning("This SDK not supported this os.");
-            return;
-        }
 
         if (context == null) {
             logger.warning("The context parameter cannot be null.");

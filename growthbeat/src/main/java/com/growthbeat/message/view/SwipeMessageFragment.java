@@ -3,6 +3,7 @@ package com.growthbeat.message.view;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -56,12 +57,13 @@ public class SwipeMessageFragment extends BaseImageMessageFragment {
 
         FrameLayout buttonLayout = createButtonLayout();
         int buttonHeight = buttonLayout.getLayoutParams().height;
-        buttonLayout.setY(swipeHeight);
 
         FrameLayout indicatorLayout = createIndicatorLayout();
         FrameLayout.LayoutParams indicatorLayoutParams = new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT, (int) (INDICATOR_HEIGHT * displayMetrics.density));
         int indicatorTopMargin = (int) (INDICATOR_TOP_MARGIN * displayMetrics.density);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+            indicatorLayoutParams.gravity = Gravity.TOP;
         indicatorLayoutParams.setMargins(0, swipeHeight + buttonHeight + indicatorTopMargin, 0, 0);
         indicatorLayout.setLayoutParams(indicatorLayoutParams);
 
@@ -240,9 +242,19 @@ public class SwipeMessageFragment extends BaseImageMessageFragment {
         FrameLayout.LayoutParams buttonLayoutParams = new FrameLayout.LayoutParams(
             buttonBaseWidth,
             (int) (touchableImageView.getMeasuredHeight() * imageRatio));
+
+        float swipeHeight = swipeMessage.getBaseHeight() * displayMetrics.density;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            buttonLayoutParams.gravity = Gravity.TOP;
+            buttonLayoutParams.setMargins(0, (int) swipeHeight, 0, 0);
+        } else {
+            buttonLayout.setY(swipeHeight);
+        }
+
         buttonLayout.setLayoutParams(buttonLayoutParams);
 
         buttonLayout.addView(innerButtonLayout);
+
 
         return buttonLayout;
     }
