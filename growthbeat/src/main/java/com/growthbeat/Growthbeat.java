@@ -28,7 +28,7 @@ public class Growthbeat {
     private final Logger logger = new Logger(LOGGER_DEFAULT_TAG);
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_DEFAULT_BASE_URL,
         HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
-    private final GrowthbeatThreadExecutor executor = new GrowthbeatThreadExecutor();
+    private final GrowthbeatThreadExecutor executor = new GrowthbeatThreadExecutor(6);
     private final Preference preference = new Preference(PREFERENCE_DEFAULT_FILE_NAME);
 
     private Context context = null;

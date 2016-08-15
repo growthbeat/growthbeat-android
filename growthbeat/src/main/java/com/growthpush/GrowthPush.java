@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.growthbeat.Growthbeat;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.Preference;
 import com.growthbeat.http.GrowthbeatHttpClient;
@@ -30,6 +31,8 @@ public class GrowthPush {
     private final GrowthbeatHttpClient httpClient = new GrowthbeatHttpClient(GrowthPushConstants.HTTP_CLIENT_DEFAULT_BASE_URL,
         GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
+    private final GrowthbeatThreadExecutor pushExecutor = new GrowthbeatThreadExecutor();
+    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor();
 
     private ClientV4 client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -77,7 +80,7 @@ public class GrowthPush {
 
         this.preference.setContext(Growthbeat.getInstance().getContext());
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -134,7 +137,7 @@ public class GrowthPush {
 
         this.senderId = senderId;
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 String token = registerGCM(Growthbeat.getInstance().getContext());
@@ -160,7 +163,7 @@ public class GrowthPush {
     }
 
     public void registerClient(final String registrationId) {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        pushExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -247,7 +250,7 @@ public class GrowthPush {
             return;
         }
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        analyticsExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -292,7 +295,7 @@ public class GrowthPush {
             return;
         }
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        analyticsExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -334,7 +337,7 @@ public class GrowthPush {
     }
 
     private void setAdvertisingId() {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        analyticsExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -349,7 +352,7 @@ public class GrowthPush {
     }
 
     private void setTrackingEnabled() {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        analyticsExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
