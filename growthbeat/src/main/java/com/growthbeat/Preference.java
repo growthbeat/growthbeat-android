@@ -113,6 +113,7 @@ public class Preference {
 				FileOutputStream fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
 				fileOutputStream.write(preferences.toString().getBytes());
 				fileOutputStream.flush();
+                fileOutputStream.close();
 			} catch (IOException e) {
 			}
 		}
