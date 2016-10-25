@@ -94,7 +94,8 @@ public class GrowthMessage {
                     tasks = Task.getTasks(applicationId, credentialId, goalId);
                     logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
                     if (tasks.isEmpty()) {
-                        handler.error("Task is not available.");
+                        if (handler != null)
+                            handler.error("Task is not available.");
                         return;
                     }
 
