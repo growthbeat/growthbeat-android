@@ -117,7 +117,19 @@ public class GrowthMessage {
                         if (message != null)
                             messageQueue.add(new MessageQueue(uuid, message));
                     } catch (GrowthbeatException e) {
-                        logger.info(String.format("Failed to get messages. %s", e.getMessage()));
+
+                        switch (e.getCode()) {
+                            case 1611:
+                            case 1701:
+                            case 1702:
+                            case 1703:
+                                logger.info(e.getMessage());
+                                break;
+                            default:
+                                logger.info(String.format("Failed to get messages. %s", e.getMessage()));
+                                break;
+                        }
+
                     }
 
                 }
