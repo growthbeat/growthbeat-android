@@ -93,17 +93,22 @@ public class GrowthMessage {
 
                     tasks = Task.getTasks(applicationId, credentialId, goalId);
                     logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
-                    if (tasks.isEmpty())
+                    if (tasks.isEmpty()) {
+                        handler.error("Task is not available.");
                         return;
+                    }
 
                 } catch (GrowthbeatException e) {
-                    if (handler != null)
-                        handler.error("Failed to get tasks.");
                     logger.info(String.format("Failed to get tasks. %s", e.getMessage()));
+                    if (handler != null) {
+                        handler.error("Failed to get tasks.");
+                        return;
+                    }
                 }
 
                 String uuid = UUID.randomUUID().toString();
-                showMessageHandlers.put(uuid, handler);
+                if (handler != null)
+                    showMessageHandlers.put(uuid, handler);
 
                 for (Task task : tasks) {
 
