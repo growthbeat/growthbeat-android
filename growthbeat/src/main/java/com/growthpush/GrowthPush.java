@@ -343,7 +343,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.custom, "AdvertisingID", advertisingId);
+                        setTag("AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
@@ -358,7 +358,7 @@ public class GrowthPush {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
                     if (trackingEnabled != null)
-                        setTag(Tag.TagType.custom, "TrackingEnabled", String.valueOf(trackingEnabled));
+                        setTag("TrackingEnabled", String.valueOf(trackingEnabled));
                 } catch (Exception e) {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }

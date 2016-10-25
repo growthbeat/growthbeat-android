@@ -128,10 +128,10 @@ public class GrowthMessage {
                             case 1701:
                             case 1702:
                             case 1703:
-                                logger.info(e.getMessage());
+                                logger.info(String.format("%s, code: %d", e.getMessage(), e.getCode()));
                                 break;
                             default:
-                                logger.info(String.format("Failed to get messages. %s", e.getMessage()));
+                                logger.info(String.format("Failed to get messages. %s, code: %d", e.getMessage(), e.getCode()));
                                 break;
                         }
 
