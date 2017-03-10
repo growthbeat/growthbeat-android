@@ -1,19 +1,18 @@
 package com.growthbeat.sample;
 
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.EditText;
+
 import com.growthbeat.Growthbeat;
 import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Environment;
-
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +38,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-        GrowthPush.getInstance().trackEvent("AllowPushPermission");
+        GrowthPush.getInstance().trackEvent("AllowPushPermission", null, new ShowMessageHandler() {
+            @Override
+            public void complete(MessageRenderHandler renderHandler) {
+
+            }
+
+            @Override
+            public void error(String error) {
+                Log.d("GrowthMessage", error);
+            }
+        });
 
         findViewById(R.id.set_tag_button).setOnClickListener(new OnClickListener() {
             @Override
