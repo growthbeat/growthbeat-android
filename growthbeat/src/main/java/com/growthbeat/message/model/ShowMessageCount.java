@@ -1,10 +1,15 @@
 package com.growthbeat.message.model;
 
+import com.growthbeat.GrowthbeatException;
 import com.growthbeat.model.Model;
 import com.growthbeat.utils.JSONObjectUtils;
+import com.growthpush.GrowthPush;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by a13048 on 2017/03/10.
@@ -49,6 +54,33 @@ public class ShowMessageCount extends Model {
         this.count = count;
     }
 
+    public ShowMessageCount(JSONObject jsonObject) {
+        super(jsonObject);
+    }
+
+    public static ShowMessageCount receiveCount(String clientId, String applicationId, String credentialId, String taskId, String messageId) {
+
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        if (clientId != null)
+            params.put("clientId", clientId);
+        if (applicationId != null)
+            params.put("applicationId", applicationId);
+        if (credentialId != null)
+            params.put("credentialId", credentialId);
+        if (taskId != null)
+            params.put("taskId", taskId);
+        if (messageId != null)
+            params.put("messageId", messageId);
+
+        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive/count", params);
+        if (jsonObject == null)
+            throw new GrowthbeatException("Failed to count up message.");
+
+        return new ShowMessageCount(jsonObject);
+
+    }
+
     @Override
     public JSONObject getJsonObject() {
 
@@ -81,5 +113,5 @@ public class ShowMessageCount extends Model {
             throw new IllegalArgumentException("Failed to parse JSON.", e);
         }
     }
-    
+
 }
