@@ -1,51 +1,66 @@
 package com.growthbeat;
 
+import android.util.Log;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import android.util.Log;
 
 /**
  * Created by Shotaro Watanabe on 2015/10/27.
  */
 public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
-	private static final String TAG = "Growthbeat";
-	private static final String THREAD_NAME = "growthbeat-thread";
-	private static final int DEFAULT_THREAD_COUNT = 3;
+    private static final String TAG = "Growthbeat";
+    private static final String THREAD_NAME = "growthbeat-thread";
+    private static final int DEFAULT_THREAD_COUNT = 3;
+    private ScheduledExecutorService scheduledExecutorService;
 
-	public GrowthbeatThreadExecutor() {
-		this(DEFAULT_THREAD_COUNT);
-	}
+    public GrowthbeatThreadExecutor() {
+        this(DEFAULT_THREAD_COUNT);
+    }
 
-	public GrowthbeatThreadExecutor(int poolSize) {
-		super(poolSize, poolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new GrowthbeatThreadFactory());
-	}
+    public GrowthbeatThreadExecutor(int poolSize) {
+        super(poolSize, poolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new GrowthbeatThreadFactory());
+        scheduledExecutorService = Executors.newScheduledThreadPool(poolSize, new GrowthbeatThreadFactory());
+    }
 
-	private static class GrowthbeatThreadFactory implements ThreadFactory {
+    public void executeScheduledTimeout(Runnable runnable, int duration, TimeUnit timeUnit) {
+        final Future<?> task = super.submit(runnable);
+        scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                task.cancel(false);
+            }
+        }, duration, timeUnit);
+    }
 
-		@Override
-		public Thread newThread(Runnable r) {
-			return new GrowthbeatThread(r);
-		}
-	}
+    private static class GrowthbeatThreadFactory implements ThreadFactory {
 
-	private static class GrowthbeatThread extends CatchableThread {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new GrowthbeatThread(r);
+        }
+    }
 
-		public GrowthbeatThread(Runnable runnable) {
-			super(runnable, THREAD_NAME);
-		}
+    private static class GrowthbeatThread extends CatchableThread {
 
-		@Override
-		public void uncaughtException(java.lang.Thread thread, Throwable e) {
-			String message = "Uncaught Exception: " + e.getClass().getName();
-			if (e.getMessage() != null)
-				message += "; " + e.getMessage();
-			Log.w(TAG, message);
-			e.printStackTrace();
-		}
+        public GrowthbeatThread(Runnable runnable) {
+            super(runnable, THREAD_NAME);
+        }
 
-	}
+        @Override
+        public void uncaughtException(java.lang.Thread thread, Throwable e) {
+            String message = "Uncaught Exception: " + e.getClass().getName();
+            if (e.getMessage() != null)
+                message += "; " + e.getMessage();
+            Log.w(TAG, message);
+            e.printStackTrace();
+        }
+
+    }
 
 }

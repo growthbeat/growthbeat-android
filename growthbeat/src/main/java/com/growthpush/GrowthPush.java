@@ -23,6 +23,7 @@ import com.growthpush.model.Tag;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class GrowthPush {
 
@@ -63,7 +64,7 @@ public class GrowthPush {
 
         if (initialized)
             return;
-        
+
         initialized = true;
 
         if (context == null) {
@@ -170,11 +171,13 @@ public class GrowthPush {
                 if (registrationId == null)
                     return;
 
-                waitClientRegistration();
+                if (!waitClientRegistration()) {
+                    logger.error(String.format("registerClient initialize client timeout."));
+                    return;
+                }
 
                 if (client.getToken() == null ||
                     (client.getToken() != null && !registrationId.equals(client.getToken()))) {
-
                     updateClient(client.getId(), registrationId);
                 }
             }
@@ -250,7 +253,7 @@ public class GrowthPush {
             return;
         }
 
-        analyticsExecutor.execute(new Runnable() {
+        analyticsExecutor.executeScheduledTimeout(new Runnable() {
 
             @Override
             public void run() {
@@ -260,7 +263,10 @@ public class GrowthPush {
                     return;
                 }
 
-                waitClientRegistration();
+                if (!waitClientRegistration()) {
+                    logger.error(String.format("trackEvent registering client timeout. (name: %s, value: %s)", name, value));
+                    return;
+                }
 
                 logger.info(String.format("Sending event ... (name: %s, value: %s)", name, value));
                 try {
@@ -277,7 +283,7 @@ public class GrowthPush {
 
             }
 
-        });
+        }, 90, TimeUnit.SECONDS);
     }
 
     public void setTag(final String name) {
@@ -295,7 +301,7 @@ public class GrowthPush {
             return;
         }
 
-        analyticsExecutor.execute(new Runnable() {
+        analyticsExecutor.executeScheduledTimeout(new Runnable() {
 
             @Override
             public void run() {
@@ -311,12 +317,15 @@ public class GrowthPush {
                     return;
                 }
 
-                waitClientRegistration();
+                if (!waitClientRegistration()) {
+                    logger.error(String.format("setTag registering client timeout. (name: %s, value: %s)", name, value));
+                    return;
+                }
 
-                logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
+                logger.info(String.format("Sending tag... (name: %s, value: %s)", name, value));
                 try {
                     Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
-                    logger.info(String.format("Sending tag success"));
+                    logger.info(String.format("Sending tag success (name: %s, value: %s)", name, value));
                     Tag.save(createdTag, type, name);
                 } catch (GrowthPushException e) {
                     logger.error(String.format("Sending tag fail. %s", e.getMessage()));
@@ -324,7 +333,7 @@ public class GrowthPush {
 
             }
 
-        });
+        }, 90, TimeUnit.SECONDS);
     }
 
     public void setDeviceTags() {
@@ -367,12 +376,15 @@ public class GrowthPush {
         });
     }
 
-    private void waitClientRegistration() {
+    private boolean waitClientRegistration() {
         if (client == null) {
             try {
-                latch.await();
+                return latch.await(1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
+                return false;
             }
+        } else {
+            return true;
         }
     }
 
