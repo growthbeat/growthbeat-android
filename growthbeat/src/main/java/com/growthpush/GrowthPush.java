@@ -21,6 +21,8 @@ import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -248,11 +250,6 @@ public class GrowthPush {
 
     public void trackEvent(final Event.EventType type, final String name, final String value, final ShowMessageHandler handler) {
 
-        if (!initialized) {
-            logger.info("call after initialized.");
-            return;
-        }
-
         analyticsExecutor.executeScheduledTimeout(new Runnable() {
 
             @Override
@@ -302,47 +299,66 @@ public class GrowthPush {
         }
 
         analyticsExecutor.executeScheduledTimeout(new Runnable() {
-
             @Override
             public void run() {
-
-                if (name == null) {
-                    logger.warning("Tag name cannot be null.");
-                    return;
-                }
-
-                Tag tag = Tag.load(type, name);
-                if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
-                    logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
-                    return;
-                }
-
-                if (!waitClientRegistration()) {
-                    logger.error(String.format("setTag registering client timeout. (name: %s, value: %s)", name, value));
-                    return;
-                }
-
-                logger.info(String.format("Sending tag... (name: %s, value: %s)", name, value));
-                try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
-                    logger.info(String.format("Sending tag success (name: %s, value: %s)", name, value));
-                    Tag.save(createdTag, type, name);
-                } catch (GrowthPushException e) {
-                    logger.error(String.format("Sending tag fail. %s", e.getMessage()));
-                }
-
+                synchronizeSetTag(type, name, value);
             }
-
         }, 90, TimeUnit.SECONDS);
     }
 
-    public void setDeviceTags() {
-        setTag("Device", DeviceUtils.getModel());
-        setTag("OS", "Android " + DeviceUtils.getOsVersion());
-        setTag("Language", DeviceUtils.getLanguage());
-        setTag("Time Zone", DeviceUtils.getTimeZone());
-        setTag("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
-        setTag("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
+    private void synchronizeSetTag(final Tag.TagType type, final String name, final String value) {
+        if (name == null) {
+            logger.warning("Tag name cannot be null.");
+            return;
+        }
+
+        Tag tag = Tag.load(type, name);
+        if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
+            logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
+            return;
+        }
+
+        if (!waitClientRegistration()) {
+            logger.error(String.format("setTag registering client timeout. (name: %s, value: %s)", name, value));
+            return;
+        }
+
+        logger.info(String.format("Sending tag... (name: %s, value: %s)", name, value));
+        try {
+            Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
+            logger.info(String.format("Sending tag success (name: %s, value: %s)", name, value));
+            Tag.save(createdTag, type, name);
+        } catch (GrowthPushException e) {
+            logger.error(String.format("Sending tag fail. %s", e.getMessage()));
+        }
+    }
+
+    private void setDeviceTags() {
+        final Map<String, String> params = new HashMap<>();
+        params.put("Device", DeviceUtils.getModel());
+        params.put("OS", "Android " + DeviceUtils.getOsVersion());
+        params.put("Language", DeviceUtils.getLanguage());
+        params.put("Time Zone", DeviceUtils.getTimeZone());
+        params.put("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
+        params.put("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
+        analyticsExecutor.executeScheduledTimeout(new Runnable() {
+            @Override
+            public void run() {
+
+                if (!waitClientRegistration()) {
+                    logger.error("setDeviceTags registering client timeout.");
+                    return;
+                }
+
+                for (Map.Entry<String, String> param : params.entrySet()) {
+                    synchronizeSetTag(Tag.TagType.custom, param.getKey(), param.getValue());
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }, 90 * params.size(), TimeUnit.SECONDS);
     }
 
     private void setAdvertisingId() {
@@ -352,7 +368,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.custom, "AdvertisingID", advertisingId);
+                        setTag("AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
@@ -367,7 +383,7 @@ public class GrowthPush {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
                     if (trackingEnabled != null)
-                        setTag(Tag.TagType.custom, "TrackingEnabled", String.valueOf(trackingEnabled));
+                        setTag("TrackingEnabled", String.valueOf(trackingEnabled));
                 } catch (Exception e) {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }
