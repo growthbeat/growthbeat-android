@@ -16,6 +16,7 @@ import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.NoContentMessage;
+import com.growthbeat.message.model.ShowMessageCount;
 import com.growthbeat.message.model.Task;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -158,9 +159,9 @@ public class GrowthMessage {
                     @Override
                     public void run() {
                         Client client = Growthbeat.getInstance().waitClient();
-                        int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
+                        ShowMessageCount showMessageCount = ShowMessageCount.receiveCount(client.getId(), applicationId, credentialId,
                             messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
-                        logger.info(String.format("Success show message (count : %d)", incrementCount));
+                        logger.info(String.format("Success show message (count : %d)", showMessageCount.getCount()));
                     }
                 });
 
