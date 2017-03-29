@@ -90,7 +90,7 @@ public class GrowthPush {
                 if (oldClient != null) {
                     if (oldClient.getGrowthbeatClientId() != null &&
                         oldClient.getGrowthbeatClientId().equals(growthbeatClient.getId())) {
-
+                        preference.removeAll();
                         logger.info(String.format("Client found. To Convert the Client to ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), oldClient.getToken());
                     } else {
@@ -102,9 +102,11 @@ public class GrowthPush {
                     ClientV4 clientV4 = ClientV4.load();
 
                     if (clientV4 == null) {
+                        preference.removeAll();
                         logger.info(String.format("Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), null);
                     } else if (!clientV4.getId().equals(growthbeatClient.getId())) {
+                        preference.removeAll();
                         logger.info(String.format("Disabled ClientV4 found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         clearClient();
                         createClient(growthbeatClient.getId(), null);
