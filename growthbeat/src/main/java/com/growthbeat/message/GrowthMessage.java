@@ -6,6 +6,7 @@ import android.os.Looper;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.message.handler.BaseMessageHandler;
 import com.growthbeat.message.handler.CardMessageHandler;
@@ -52,6 +53,8 @@ public class GrowthMessage {
     private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
     private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
+    private final GrowthbeatThreadExecutor messageExecutor = new GrowthbeatThreadExecutor();
+
     private GrowthMessage() {
         super();
     }
@@ -83,7 +86,7 @@ public class GrowthMessage {
 
     public void receiveMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        messageExecutor.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -155,7 +158,7 @@ public class GrowthMessage {
             @Override
             public void complete(ShowMessageHandler.MessageRenderHandler renderHandler) {
 
-                Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+                messageExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         Client client = Growthbeat.getInstance().waitClient();
@@ -206,7 +209,7 @@ public class GrowthMessage {
     }
 
     public void openMessageIfExists() {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        messageExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -231,7 +234,7 @@ public class GrowthMessage {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            GrowthMessage.getInstance().openMessage(messageJob);
+                            openMessage(messageJob);
                         }
                     });
                     lastMessageOpenedTimeMills = System.currentTimeMillis();
