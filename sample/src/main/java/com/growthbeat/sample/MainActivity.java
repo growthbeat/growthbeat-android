@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
         GrowthPush.getInstance().trackEvent("AllowPushPermission", null, new ShowMessageHandler() {
             @Override
             public void complete(MessageRenderHandler renderHandler) {
-
+                Log.i("GrowthMessage", "run renderHandler, show message.");
+                renderHandler.render();
             }
 
             @Override
