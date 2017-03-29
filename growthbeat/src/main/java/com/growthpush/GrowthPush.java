@@ -63,7 +63,7 @@ public class GrowthPush {
 
         if (initialized)
             return;
-        
+
         initialized = true;
 
         if (context == null) {
@@ -203,7 +203,7 @@ public class GrowthPush {
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
-            logger.error(String.format("Create client fail. %s", e.getMessage()));
+            logger.error(String.format("Create client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             semaphore.release();
             latch.countDown();
@@ -224,7 +224,7 @@ public class GrowthPush {
             this.client = updatedClient;
 
         } catch (GrowthPushException e) {
-            logger.error(String.format("Update client fail. %s", e.getMessage()));
+            logger.error(String.format("Update client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             latch.countDown();
         }
@@ -250,15 +250,15 @@ public class GrowthPush {
             return;
         }
 
+        if (name == null) {
+            logger.warning("Event name cannot be null.");
+            return;
+        }
+
         analyticsExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
-
-                if (name == null) {
-                    logger.warning("Event name cannot be null.");
-                    return;
-                }
 
                 waitClientRegistration();
 
@@ -272,7 +272,7 @@ public class GrowthPush {
                         GrowthMessage.getInstance().receiveMessage(event.getGoalId(), client.getId(), handler);
 
                 } catch (GrowthPushException e) {
-                    logger.error(String.format("Sending event fail. %s", e.getMessage()));
+                    logger.error(String.format("Sending event fail. %s, code: %d", e.getMessage(), e.getCode()));
                 }
 
             }
@@ -295,15 +295,15 @@ public class GrowthPush {
             return;
         }
 
+        if (name == null) {
+            logger.warning("Tag name cannot be null.");
+            return;
+        }
+
         analyticsExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
-
-                if (name == null) {
-                    logger.warning("Tag name cannot be null.");
-                    return;
-                }
 
                 Tag tag = Tag.load(type, name);
                 if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
@@ -319,7 +319,7 @@ public class GrowthPush {
                     logger.info(String.format("Sending tag success"));
                     Tag.save(createdTag, type, name);
                 } catch (GrowthPushException e) {
-                    logger.error(String.format("Sending tag fail. %s", e.getMessage()));
+                    logger.error(String.format("Sending tag fail. %s, code: %d", e.getMessage(), e.getCode()));
                 }
 
             }
@@ -343,7 +343,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.custom, "AdvertisingID", advertisingId);
+                        setTag("AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
@@ -358,7 +358,7 @@ public class GrowthPush {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
                     if (trackingEnabled != null)
-                        setTag(Tag.TagType.custom, "TrackingEnabled", String.valueOf(trackingEnabled));
+                        setTag("TrackingEnabled", String.valueOf(trackingEnabled));
                 } catch (Exception e) {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }
