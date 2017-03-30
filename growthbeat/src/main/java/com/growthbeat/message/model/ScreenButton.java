@@ -4,30 +4,30 @@ import org.json.JSONObject;
 
 public class ScreenButton extends Button {
 
-	public ScreenButton() {
-		super();
-	}
+    public ScreenButton() {
+        super();
+    }
 
-	public ScreenButton(JSONObject jsonObject) {
-		super(jsonObject);
-	}
+    public ScreenButton(JSONObject jsonObject) {
+        super(jsonObject);
+    }
 
-	@Override
-	public JSONObject getJsonObject() {
+    @Override
+    public JSONObject getJsonObject() {
 
-		JSONObject jsonObject = super.getJsonObject();
-		return jsonObject;
+        JSONObject jsonObject = super.getJsonObject();
+        return jsonObject;
 
-	}
+    }
 
-	@Override
-	public void setJsonObject(JSONObject jsonObject) {
+    @Override
+    public void setJsonObject(JSONObject jsonObject) {
 
-		if (jsonObject == null)
-			return;
+        if (jsonObject == null)
+            return;
 
-		super.setJsonObject(jsonObject);
+        super.setJsonObject(jsonObject);
 
-	}
+    }
 
 }

@@ -5,33 +5,33 @@ import com.growthbeat.link.model.Synchronization;
 
 public class DefaultSynchronizationCallback implements SynchronizationCallback {
 
-	private SynchronizationHandler synchronizationHandler;
+    private SynchronizationHandler synchronizationHandler;
 
-	public DefaultSynchronizationCallback() {
-		synchronizationHandler = new SynchronizationHandler();
-	}
+    public DefaultSynchronizationCallback() {
+        synchronizationHandler = new SynchronizationHandler();
+    }
 
-	@Override
-	public void onComplete(final Synchronization synchronization) {
+    @Override
+    public void onComplete(final Synchronization synchronization) {
 
-		if (synchronization == null)
-			return;
+        if (synchronization == null)
+            return;
 
-		if (synchronization.getInstallReferrer()) {
-			synchronizationHandler.synchronizeWithInstallReferrer(synchronization);
-			return;
-		}
+        if (synchronization.getInstallReferrer()) {
+            synchronizationHandler.synchronizeWithInstallReferrer(synchronization);
+            return;
+        }
 
-		if (synchronization.getCookieTracking()) {
-			synchronizationHandler.synchronizeWithCookieTracking(synchronization);
-			return;
-		}
+        if (synchronization.getCookieTracking()) {
+            synchronizationHandler.synchronizeWithCookieTracking(synchronization);
+            return;
+        }
 
-		if (synchronization.getDeviceFingerprint()) {
-			synchronizationHandler.synchronizeWithDeviceFingerprint(synchronization);
-			return;
-		}
+        if (synchronization.getDeviceFingerprint()) {
+            synchronizationHandler.synchronizeWithDeviceFingerprint(synchronization);
+            return;
+        }
 
-	}
+    }
 
 }

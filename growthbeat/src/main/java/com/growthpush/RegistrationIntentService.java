@@ -5,16 +5,16 @@ import android.content.Intent;
 
 public class RegistrationIntentService extends IntentService {
 
-	public RegistrationIntentService() {
-		super("RegistrationIntentService");
-	}
+    public RegistrationIntentService() {
+        super("RegistrationIntentService");
+    }
 
-	@Override
-	protected void onHandleIntent(Intent intent) {
-		String token = GrowthPush.getInstance().registerGCM(this);
-		if (token != null) {
-			GrowthPush.getInstance().getLogger().info("GCM registration token: " + token);
-			GrowthPush.getInstance().registerClient(token);
-		}
-	}
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        String token = GrowthPush.getInstance().registerGCM(this);
+        if (token != null) {
+            GrowthPush.getInstance().getLogger().info("GCM registration token: " + token);
+            GrowthPush.getInstance().registerClient(token);
+        }
+    }
 }

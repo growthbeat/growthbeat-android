@@ -1,15 +1,15 @@
 package com.growthpush.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import com.growthbeat.model.Model;
+import com.growthbeat.utils.DateUtils;
+import com.growthpush.GrowthPush;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.growthbeat.model.Model;
-import com.growthbeat.utils.DateUtils;
-import com.growthpush.GrowthPush;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client extends Model {
 

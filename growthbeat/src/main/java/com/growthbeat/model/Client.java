@@ -1,136 +1,136 @@
 package com.growthbeat.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.growthbeat.Growthbeat;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Client extends Model {
 
-	private String id;
-	private Date created;
-	private Application application;
+    private String id;
+    private Date created;
+    private Application application;
 
-	public Client() {
-		super();
-	}
+    public Client() {
+        super();
+    }
 
-	public Client(JSONObject jsonObject) {
-		super(jsonObject);
-	}
+    public Client(JSONObject jsonObject) {
+        super(jsonObject);
+    }
 
-	public static Client load() {
+    public static Client load() {
 
-		JSONObject jsonObject = Growthbeat.getInstance().getPreference().get(Client.class.getName());
-		if (jsonObject == null)
-			return null;
+        JSONObject jsonObject = Growthbeat.getInstance().getPreference().get(Client.class.getName());
+        if (jsonObject == null)
+            return null;
 
-		return new Client(jsonObject);
+        return new Client(jsonObject);
 
-	}
+    }
 
-	public static synchronized void save(Client client) {
+    public static synchronized void save(Client client) {
 
-		if (client == null)
-			throw new IllegalArgumentException("Argument client cannot be null.");
+        if (client == null)
+            throw new IllegalArgumentException("Argument client cannot be null.");
 
-		Growthbeat.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
+        Growthbeat.getInstance().getPreference().save(Client.class.getName(), client.getJsonObject());
 
-	}
+    }
 
-	public static Client create(String applicationId, String credentialId) {
+    public static Client create(String applicationId, String credentialId) {
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("applicationId", applicationId);
-		params.put("credentialId", credentialId);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("applicationId", applicationId);
+        params.put("credentialId", credentialId);
 
-		JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().post("1/clients", params);
-		if (jsonObject == null)
-			return null;
+        JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().post("1/clients", params);
+        if (jsonObject == null)
+            return null;
 
-		return new Client(jsonObject);
+        return new Client(jsonObject);
 
-	}
+    }
 
-	public static Client findById(String id, String credentialId) {
+    public static Client findById(String id, String credentialId) {
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("credentialId", credentialId);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("credentialId", credentialId);
 
-		JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().get("1/clients/" + id, params);
-		if (jsonObject == null)
-			return null;
+        JSONObject jsonObject = Growthbeat.getInstance().getHttpClient().get("1/clients/" + id, params);
+        if (jsonObject == null)
+            return null;
 
-		return new Client(jsonObject);
+        return new Client(jsonObject);
 
-	}
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public Date getCreated() {
-		return created;
-	}
+    public Date getCreated() {
+        return created;
+    }
 
-	public void setCreated(Date created) {
-		this.created = created;
-	}
+    public void setCreated(Date created) {
+        this.created = created;
+    }
 
-	public Application getApplication() {
-		return application;
-	}
+    public Application getApplication() {
+        return application;
+    }
 
-	public void setApplication(Application application) {
-		this.application = application;
-	}
+    public void setApplication(Application application) {
+        this.application = application;
+    }
 
-	@Override
-	public JSONObject getJsonObject() {
+    @Override
+    public JSONObject getJsonObject() {
 
-		JSONObject jsonObject = new JSONObject();
-		try {
-			if (id != null)
-				jsonObject.put("id", id);
-			if (created != null)
-				jsonObject.put("created", DateUtils.formatToDateTimeString(created));
-			if (application != null)
-				jsonObject.put("application", application.getJsonObject());
-		} catch (JSONException e) {
-			return null;
-		}
+        JSONObject jsonObject = new JSONObject();
+        try {
+            if (id != null)
+                jsonObject.put("id", id);
+            if (created != null)
+                jsonObject.put("created", DateUtils.formatToDateTimeString(created));
+            if (application != null)
+                jsonObject.put("application", application.getJsonObject());
+        } catch (JSONException e) {
+            return null;
+        }
 
-		return jsonObject;
+        return jsonObject;
 
-	}
+    }
 
-	@Override
-	public void setJsonObject(JSONObject jsonObject) {
+    @Override
+    public void setJsonObject(JSONObject jsonObject) {
 
-		if (jsonObject == null)
-			return;
+        if (jsonObject == null)
+            return;
 
-		try {
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
-				setId(jsonObject.getString("id"));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
-				setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
-			if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "application"))
-				setApplication(new Application(jsonObject.getJSONObject("application")));
-		} catch (JSONException e) {
-			throw new IllegalArgumentException("Failed to parse JSON.");
-		}
+        try {
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "id"))
+                setId(jsonObject.getString("id"));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "created"))
+                setCreated(DateUtils.parseFromDateTimeString(jsonObject.getString("created")));
+            if (JSONObjectUtils.hasAndIsNotNull(jsonObject, "application"))
+                setApplication(new Application(jsonObject.getJSONObject("application")));
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse JSON.");
+        }
 
-	}
+    }
 
 }

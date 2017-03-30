@@ -9,51 +9,51 @@ import android.view.WindowManager;
 
 public final class SystemServiceUtils {
 
-	public static WindowManager getWindowManager(Context context) {
+    public static WindowManager getWindowManager(Context context) {
 
-		try {
-			return (WindowManager) context.getSystemService(Service.WINDOW_SERVICE);
-		} catch (SecurityException e) {
-		} catch (ClassCastException e) {
-		}
+        try {
+            return (WindowManager) context.getSystemService(Service.WINDOW_SERVICE);
+        } catch (SecurityException e) {
+        } catch (ClassCastException e) {
+        }
 
-		return null;
+        return null;
 
-	}
+    }
 
-	public static PowerManager getPowerManager(Context context) {
+    public static PowerManager getPowerManager(Context context) {
 
-		try {
-			return (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-		} catch (SecurityException e) {
-		} catch (ClassCastException e) {
-		}
+        try {
+            return (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        } catch (SecurityException e) {
+        } catch (ClassCastException e) {
+        }
 
-		return null;
+        return null;
 
-	}
+    }
 
-	public static ActivityManager getActivityManager(Context context) {
+    public static ActivityManager getActivityManager(Context context) {
 
-		try {
-			return (ActivityManager) context.getSystemService(Service.ACTIVITY_SERVICE);
-		} catch (SecurityException e) {
-		} catch (ClassCastException e) {
-		}
+        try {
+            return (ActivityManager) context.getSystemService(Service.ACTIVITY_SERVICE);
+        } catch (SecurityException e) {
+        } catch (ClassCastException e) {
+        }
 
-		return null;
+        return null;
 
-	}
+    }
 
-	public static ConnectivityManager getConnectivityManager(Context context) {
+    public static ConnectivityManager getConnectivityManager(Context context) {
 
-		try {
-			return (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		} catch (SecurityException e) {
-		} catch (ClassCastException e) {
-		}
+        try {
+            return (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        } catch (SecurityException e) {
+        } catch (ClassCastException e) {
+        }
 
-		return null;
-	}
+        return null;
+    }
 
 }

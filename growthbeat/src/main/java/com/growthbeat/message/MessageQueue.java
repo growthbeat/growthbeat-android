@@ -37,6 +37,8 @@ public class MessageQueue {
 
         }
     };
+    private String uuid;
+    private Message message;
 
     public MessageQueue() {
     }
@@ -45,7 +47,6 @@ public class MessageQueue {
         setUuid(uuid);
         setMessage(message);
     }
-
     public MessageQueue(JSONObject jsonObject) {
 
         try {
@@ -57,9 +58,6 @@ public class MessageQueue {
         }
 
     }
-
-    private String uuid;
-    private Message message;
 
     public String getUuid() {
         return uuid;

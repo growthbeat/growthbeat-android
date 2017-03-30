@@ -121,6 +121,14 @@ public class MessageImageDownloader {
         return String.format("%s/%s", pathString, resultFileName);
     }
 
+    public interface Callback {
+
+        void success();
+
+        void failure();
+
+    }
+
     private static class AsyncImageLoader extends AsyncTask<String, Integer, Boolean> {
 
         private static final int IMAGE_DOWNLOAD_TIMEOUT = 10 * 1000;
@@ -160,14 +168,6 @@ public class MessageImageDownloader {
             if (result)
                 callback.success();
         }
-
-    }
-
-    public interface Callback {
-
-        void success();
-
-        void failure();
 
     }
 
