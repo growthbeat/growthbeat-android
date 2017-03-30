@@ -5,21 +5,18 @@ import com.growthbeat.Preference;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 import com.growthpush.GrowthPush;
-import com.growthpush.model.Tag;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class GrowthPushClient extends Model {
 
     private static final String PREFERENCE_DEFAULT_FILE_NAME = "growthpush-preferences";
     private static final String PREFERENCE_CLIENT_KEY = "client";
-    private static final String PREFERENCE_TAG_KEY = "tags";
     private static final Preference preference = new Preference(Growthbeat.getInstance().getContext(), PREFERENCE_DEFAULT_FILE_NAME);
 
     private long id;
@@ -47,22 +44,6 @@ public class GrowthPushClient extends Model {
     }
 
     public static void removePreference() {
-
-        JSONObject loadedTags = preference.get(PREFERENCE_TAG_KEY);
-        if (loadedTags != null) {
-            Iterator<String> keys = loadedTags.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                try {
-                    Tag tag = new Tag(loadedTags.getJSONObject(key));
-                    if (tag != null)
-                        Tag.save(tag, Tag.TagType.custom, key);
-                } catch (JSONException e) {
-                    GrowthPush.getInstance().getLogger().warning(String.format("Parsed error. tag (name: %s)", key));
-                }
-            }
-        }
-
         preference.removeAll();
     }
 
