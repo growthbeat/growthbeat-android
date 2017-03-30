@@ -1,19 +1,17 @@
 package com.growthbeat.sample;
 
-import com.growthbeat.Growthbeat;
-import com.growthbeat.link.GrowthLink;
-import com.growthbeat.message.handler.ShowMessageHandler;
-import com.growthbeat.model.Client;
-import com.growthpush.GrowthPush;
-import com.growthpush.model.Environment;
-
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.EditText;
+
+import com.growthbeat.Growthbeat;
+import com.growthbeat.link.GrowthLink;
+import com.growthbeat.model.Client;
+import com.growthpush.GrowthPush;
+import com.growthpush.model.Environment;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -8,7 +8,7 @@ import android.test.ApplicationTestCase;
  * Fundamentals</a>
  */
 public class ApplicationTest extends ApplicationTestCase<Application> {
-	public ApplicationTest() {
-		super(Application.class);
-	}
+    public ApplicationTest() {
+        super(Application.class);
+    }
 }

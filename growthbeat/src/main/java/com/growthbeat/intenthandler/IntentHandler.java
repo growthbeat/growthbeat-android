@@ -4,6 +4,6 @@ import com.growthbeat.model.Intent;
 
 public interface IntentHandler {
 
-	boolean handle(Intent intent);
+    boolean handle(Intent intent);
 
 }

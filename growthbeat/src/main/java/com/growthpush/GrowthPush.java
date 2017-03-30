@@ -63,7 +63,7 @@ public class GrowthPush {
 
         if (initialized)
             return;
-        
+
         initialized = true;
 
         if (context == null) {

@@ -1,14 +1,14 @@
 package com.growthbeat;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import android.content.Context;
+
+import com.growthbeat.utils.IOUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.growthbeat.utils.IOUtils;
-
-import android.content.Context;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class Preference {
 
