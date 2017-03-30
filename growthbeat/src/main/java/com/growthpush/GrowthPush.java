@@ -93,10 +93,10 @@ public class GrowthPush {
                 if (oldClient != null) {
                     if (oldClient.getGrowthbeatClientId() != null &&
                         oldClient.getGrowthbeatClientId().equals(growthbeatClient.getId())) {
-                        clearPreference();
                         logger.info(String.format("Client found. To Convert the Client to ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), oldClient.getToken());
                     } else {
+                        preference.removeAll();
                         logger.info(String.format("Disabled Client found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), null);
                     }
@@ -106,11 +106,11 @@ public class GrowthPush {
 
                     if (clientV4 == null) {
                         logger.info(String.format("Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
-                        clearPreference();
+                        preference.removeAll();
                         createClient(growthbeatClient.getId(), null);
                     } else if (!clientV4.getId().equals(growthbeatClient.getId())) {
                         logger.info(String.format("Disabled ClientV4 found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
-                        clearPreference();
+                        preference.removeAll();
                         createClient(growthbeatClient.getId(), null);
                     } else if (environment != clientV4.getEnvironment()) {
                         logger.info(String.format("ClientV4 found. Update environment. (environment:%s)", environment.toString()));
@@ -446,8 +446,4 @@ public class GrowthPush {
         return preference;
     }
 
-    private void clearPreference() {
-        this.client = null;
-        preference.removeAll();
-    }
 }
