@@ -193,19 +193,21 @@ public class GrowthPush {
 
             semaphore.acquire();
 
-            ClientV4 loadClient = ClientV4.load();
-            if (loadClient != null) {
-                this.client = loadClient;
-                logger.info(String.format("ClientV4 already Created... (growthbeatClientId: %s, token: %s, environment: %s)",
-                    growthbeatClientId, loadClient.getToken(), environment));
-                return;
-            }
+            synchronized (this) {
+                ClientV4 loadClient = ClientV4.load();
+                if (loadClient != null) {
+                    this.client = loadClient;
+                    logger.info(String.format("ClientV4 already created... (id: %s, token: %s, environment: %s)",
+                        growthbeatClientId, loadClient.getToken(), environment));
+                    return;
+                }
 
-            logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
-                registrationId, environment));
-            client = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Create client success (clientId: %s)", client.getId()));
-            ClientV4.save(client);
+                logger.info(String.format("Create client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                    registrationId, environment));
+                client = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+                logger.info(String.format("Create client success (id: %s)", client.getId()));
+                ClientV4.save(client);
+            }
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
@@ -221,13 +223,23 @@ public class GrowthPush {
 
         try {
 
-            logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
-                registrationId, environment));
-            ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
+            synchronized (this) {
 
-            ClientV4.save(updatedClient);
-            this.client = updatedClient;
+                ClientV4 clientV4 = ClientV4.load();
+                if (clientV4 != null && clientV4.getEnvironment() == this.environment && registrationId != null && registrationId.equals(clientV4.getToken())) {
+                    logger.info(String.format("ClientV4 already updated. (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                        registrationId, environment));
+                    return;
+                }
+
+                logger.info(String.format("Updating client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                    registrationId, environment));
+                ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+                logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
+
+                ClientV4.save(updatedClient);
+                this.client = updatedClient;
+            }
 
         } catch (GrowthPushException e) {
             logger.error(String.format("Update client fail. %s, code: %d", e.getMessage(), e.getCode()));
