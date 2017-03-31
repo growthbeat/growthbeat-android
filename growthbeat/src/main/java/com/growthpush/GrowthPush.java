@@ -177,6 +177,12 @@ public class GrowthPush {
                     return;
                 }
 
+                if (client == null) {
+                    com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
+                    createClient(growthbeatClient.getId(), registrationId);
+                    return;
+                }
+
                 if (client.getToken() == null ||
                     (client.getToken() != null && !registrationId.equals(client.getToken()))) {
                     updateClient(client.getId(), registrationId);
@@ -201,16 +207,17 @@ public class GrowthPush {
 
             logger.info(String.format("Create client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
                 registrationId, environment));
-            client = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Create client success (id: %s)", client.getId()));
-            ClientV4.save(client);
+            ClientV4 createdClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+            logger.info(String.format("Create client success (id: %s)", createdClient.getId()));
+            ClientV4.save(createdClient);
+            this.client = createdClient;
+            latch.countDown();
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
             logger.error(String.format("Create client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             semaphore.release();
-            latch.countDown();
         }
 
     }
@@ -235,13 +242,13 @@ public class GrowthPush {
 
             ClientV4.save(updatedClient);
             this.client = updatedClient;
+            latch.countDown();
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
             logger.error(String.format("Update client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             semaphore.release();
-            latch.countDown();
         }
 
     }
