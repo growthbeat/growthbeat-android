@@ -96,7 +96,7 @@ public class BaseHttpClient {
         try {
             httpURLConnection.connect();
 
-            if (httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_GATEWAY_TIMEOUT || httpURLConnection.getResponseCode() == HttpURLConnection.HTTP_UNAVAILABLE) {
+            if (httpURLConnection.getResponseCode() >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
                 throw new GrowthbeatException(httpURLConnection.getResponseMessage());
             } else {
                 inputStream = new BufferedInputStream(httpURLConnection.getInputStream());
