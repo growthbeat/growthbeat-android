@@ -30,7 +30,7 @@ public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
 
     public GrowthbeatThreadExecutor(int poolSize, int maxPoolSize) {
         super(poolSize, maxPoolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new GrowthbeatThreadFactory());
-        scheduledExecutorService = Executors.newScheduledThreadPool(poolSize, new GrowthbeatThreadFactory());
+        scheduledExecutorService = Executors.newScheduledThreadPool(maxPoolSize, new GrowthbeatThreadFactory());
     }
 
     public void executeScheduledTimeout(Runnable runnable, int duration, TimeUnit timeUnit) {

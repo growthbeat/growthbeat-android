@@ -320,12 +320,12 @@ public class GrowthPush {
         analyticsExecutor.executeScheduledTimeout(new Runnable() {
             @Override
             public void run() {
-                synchronizeSetTag(type, name, value);
+                setTagSynchronously(type, name, value);
             }
         }, 90, TimeUnit.SECONDS);
     }
 
-    private void synchronizeSetTag(final Tag.TagType type, final String name, final String value) {
+    private void setTagSynchronously(final Tag.TagType type, final String name, final String value) {
         if (name == null) {
             logger.warning("Tag name cannot be null.");
             return;
