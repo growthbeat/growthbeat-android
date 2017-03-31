@@ -21,8 +21,6 @@ import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -355,31 +353,12 @@ public class GrowthPush {
     }
 
     private void setDeviceTags() {
-        final Map<String, String> params = new HashMap<>();
-        params.put("Device", DeviceUtils.getModel());
-        params.put("OS", "Android " + DeviceUtils.getOsVersion());
-        params.put("Language", DeviceUtils.getLanguage());
-        params.put("Time Zone", DeviceUtils.getTimeZone());
-        params.put("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
-        params.put("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
-        analyticsExecutor.executeScheduledTimeout(new Runnable() {
-            @Override
-            public void run() {
-
-                if (!waitClientRegistration()) {
-                    logger.error("setDeviceTags registering client timeout.");
-                    return;
-                }
-
-                for (Map.Entry<String, String> param : params.entrySet()) {
-                    synchronizeSetTag(Tag.TagType.custom, param.getKey(), param.getValue());
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }, 90 * params.size(), TimeUnit.SECONDS);
+        setTag("Device", DeviceUtils.getModel());
+        setTag("OS", "Android " + DeviceUtils.getOsVersion());
+        setTag("Language", DeviceUtils.getLanguage());
+        setTag("Time Zone", DeviceUtils.getTimeZone());
+        setTag("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
+        setTag("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
     }
 
     private void setAdvertisingId() {
