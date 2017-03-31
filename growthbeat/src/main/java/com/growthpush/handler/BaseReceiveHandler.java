@@ -17,6 +17,8 @@ import com.growthpush.GrowthPushConstants;
 import com.growthpush.view.AlertActivity;
 import com.growthpush.view.DialogType;
 
+import java.util.Random;
+
 public class BaseReceiveHandler implements ReceiveHandler {
 
     private Callback callback = new Callback();
@@ -80,15 +82,22 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (message == null || message.length() <= 0 || message.equals(""))
             return;
 
+        String endTimestamp = String.valueOf(System.currentTimeMillis());
+        int maxIdRange = Integer.valueOf(endTimestamp.substring(endTimestamp.length() - 9, endTimestamp.length()));
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify("GrowthPush" + context.getPackageName(), 1, generateNotification(context, intent.getExtras()));
+        notificationManager.notify("GrowthPush" + context.getPackageName(), new Random().nextInt(maxIdRange), generateNotification(context, intent.getExtras()));
 
     }
 
-    private Notification generateNotification(Context context, Bundle extras) {
-        PackageManager packageManager = context.getPackageManager();
+    public void addNotification(Context context, int notificationId, Notification notification) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify("GrowthPush" + context.getPackageName(), notificationId, notification);
+    }
 
+    public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        PackageManager packageManager = context.getPackageManager();
 
         try {
             ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
@@ -122,6 +131,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
+        builder.setDefaults(Notification.PRIORITY_DEFAULT);
         builder.setContentText(message);
         builder.setContentIntent(pendingIntent);
         builder.setWhen(System.currentTimeMillis());
@@ -130,8 +140,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (sound && PermissionUtils.permitted(context, "android.permission.VIBRATE"))
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS);
 
-        return builder.build();
+        return builder;
+    }
 
+    private Notification generateNotification(Context context, Bundle extras) {
+        return defaultNotificationBuilder(context, extras).build();
     }
 
     public Callback getCallback() {
