@@ -33,7 +33,7 @@ public class GrowthPush {
         GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
     private final GrowthbeatThreadExecutor pushExecutor = new GrowthbeatThreadExecutor();
-    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor();
+    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor(1, 100);
 
     private ClientV4 client = null;
     private Semaphore semaphore = new Semaphore(1);
