@@ -21,8 +21,6 @@ import com.growthpush.model.Environment;
 import com.growthpush.model.Event;
 import com.growthpush.model.Tag;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +33,7 @@ public class GrowthPush {
         GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
     private final GrowthbeatThreadExecutor pushExecutor = new GrowthbeatThreadExecutor();
-    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor();
+    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor(1, 100);
 
     private ClientV4 client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -179,6 +177,12 @@ public class GrowthPush {
                     return;
                 }
 
+                if (client == null) {
+                    com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
+                    createClient(growthbeatClient.getId(), registrationId);
+                    return;
+                }
+
                 if (client.getToken() == null ||
                     (client.getToken() != null && !registrationId.equals(client.getToken()))) {
                     updateClient(client.getId(), registrationId);
@@ -193,28 +197,27 @@ public class GrowthPush {
 
             semaphore.acquire();
 
-            synchronized (this) {
-                ClientV4 loadClient = ClientV4.load();
-                if (loadClient != null) {
-                    this.client = loadClient;
-                    logger.info(String.format("ClientV4 already created... (id: %s, token: %s, environment: %s)",
-                        growthbeatClientId, loadClient.getToken(), environment));
-                    return;
-                }
-
-                logger.info(String.format("Create client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
-                    registrationId, environment));
-                client = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-                logger.info(String.format("Create client success (id: %s)", client.getId()));
-                ClientV4.save(client);
+            ClientV4 loadClient = ClientV4.load();
+            if (loadClient != null) {
+                this.client = loadClient;
+                logger.info(String.format("ClientV4 already created... (id: %s, token: %s, environment: %s)",
+                    growthbeatClientId, loadClient.getToken(), environment));
+                return;
             }
+
+            logger.info(String.format("Create client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                registrationId, environment));
+            ClientV4 createdClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+            logger.info(String.format("Create client success (id: %s)", createdClient.getId()));
+            ClientV4.save(createdClient);
+            this.client = createdClient;
+            latch.countDown();
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
             logger.error(String.format("Create client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             semaphore.release();
-            latch.countDown();
         }
 
     }
@@ -223,28 +226,29 @@ public class GrowthPush {
 
         try {
 
-            synchronized (this) {
+            semaphore.acquire();
 
-                ClientV4 clientV4 = ClientV4.load();
-                if (clientV4 != null && clientV4.getEnvironment() == this.environment && registrationId != null && registrationId.equals(clientV4.getToken())) {
-                    logger.info(String.format("ClientV4 already updated. (id: %s, token: %s, environment: %s)", growthbeatClientId,
-                        registrationId, environment));
-                    return;
-                }
-
-                logger.info(String.format("Updating client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+            ClientV4 clientV4 = ClientV4.load();
+            if (clientV4 != null && clientV4.getEnvironment() == this.environment && registrationId != null && registrationId.equals(clientV4.getToken())) {
+                logger.info(String.format("ClientV4 already updated. (id: %s, token: %s, environment: %s)", growthbeatClientId,
                     registrationId, environment));
-                ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-                logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
-
-                ClientV4.save(updatedClient);
-                this.client = updatedClient;
+                return;
             }
 
+            logger.info(String.format("Updating client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                registrationId, environment));
+            ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+            logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
+
+            ClientV4.save(updatedClient);
+            this.client = updatedClient;
+            latch.countDown();
+
+        } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
             logger.error(String.format("Update client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
-            latch.countDown();
+            semaphore.release();
         }
 
     }
@@ -323,12 +327,12 @@ public class GrowthPush {
         analyticsExecutor.executeScheduledTimeout(new Runnable() {
             @Override
             public void run() {
-                synchronizeSetTag(type, name, value);
+                setTagSynchronously(type, name, value);
             }
         }, 90, TimeUnit.SECONDS);
     }
 
-    private void synchronizeSetTag(final Tag.TagType type, final String name, final String value) {
+    private void setTagSynchronously(final Tag.TagType type, final String name, final String value) {
         if (name == null) {
             logger.warning("Tag name cannot be null.");
             return;
@@ -356,31 +360,12 @@ public class GrowthPush {
     }
 
     private void setDeviceTags() {
-        final Map<String, String> params = new HashMap<>();
-        params.put("Device", DeviceUtils.getModel());
-        params.put("OS", "Android " + DeviceUtils.getOsVersion());
-        params.put("Language", DeviceUtils.getLanguage());
-        params.put("Time Zone", DeviceUtils.getTimeZone());
-        params.put("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
-        params.put("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
-        analyticsExecutor.executeScheduledTimeout(new Runnable() {
-            @Override
-            public void run() {
-
-                if (!waitClientRegistration()) {
-                    logger.error("setDeviceTags registering client timeout.");
-                    return;
-                }
-
-                for (Map.Entry<String, String> param : params.entrySet()) {
-                    synchronizeSetTag(Tag.TagType.custom, param.getKey(), param.getValue());
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }, 90 * params.size(), TimeUnit.SECONDS);
+        setTag("Device", DeviceUtils.getModel());
+        setTag("OS", "Android " + DeviceUtils.getOsVersion());
+        setTag("Language", DeviceUtils.getLanguage());
+        setTag("Time Zone", DeviceUtils.getTimeZone());
+        setTag("Version", AppUtils.getaAppVersion(Growthbeat.getInstance().getContext()));
+        setTag("Build", AppUtils.getAppBuild(Growthbeat.getInstance().getContext()));
     }
 
     private void setAdvertisingId() {
