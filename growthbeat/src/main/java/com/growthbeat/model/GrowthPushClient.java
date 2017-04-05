@@ -47,6 +47,10 @@ public class GrowthPushClient extends Model {
         preference.removeAll();
     }
 
+    public static void removeClient() {
+        preference.remove(PREFERENCE_CLIENT_KEY);
+    }
+
     public static GrowthPushClient findByGrowthPushClientId(long growthpushClientId, String code) {
 
         Map<String, Object> params = new HashMap<String, Object>();
