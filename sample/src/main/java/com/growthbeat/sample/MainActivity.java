@@ -8,7 +8,6 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
-import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -24,9 +23,6 @@ public class MainActivity extends AppCompatActivity {
         GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId("186415479559");
-
-        GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-        GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
 
         GrowthPush.getInstance().trackEvent("Launch");
 
