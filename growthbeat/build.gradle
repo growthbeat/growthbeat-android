@@ -27,12 +27,18 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+task clearJar(type: Delete) {
+    delete '../release/' + 'growthbeat-' + VERSION_NAME + '.jar'
+}
+
 task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('../release/')
     include('classes.jar')
     rename('classes.jar', 'growthbeat-' + VERSION_NAME + '.jar')
 }
+
+makeJar.dependsOn(clearJar, build);
 
 apply from: 'android-artifacts.gradle'
 apply from: 'bintray-publish.gradle'
