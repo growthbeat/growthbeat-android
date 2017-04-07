@@ -6,6 +6,7 @@ import android.os.Looper;
 
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatException;
+import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
 import com.growthbeat.message.handler.BaseMessageHandler;
 import com.growthbeat.message.handler.CardMessageHandler;
@@ -16,6 +17,7 @@ import com.growthbeat.message.handler.SwipeMessageHandler;
 import com.growthbeat.message.model.Button;
 import com.growthbeat.message.model.Message;
 import com.growthbeat.message.model.NoContentMessage;
+import com.growthbeat.message.model.ShowMessageCount;
 import com.growthbeat.message.model.Task;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
@@ -51,6 +53,8 @@ public class GrowthMessage {
     private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
     private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
 
+    private final GrowthbeatThreadExecutor messageExecutor = new GrowthbeatThreadExecutor();
+
     private GrowthMessage() {
         super();
     }
@@ -82,7 +86,7 @@ public class GrowthMessage {
 
     public void receiveMessage(final int goalId, final String clientId, final ShowMessageHandler handler) {
 
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        messageExecutor.execute(new Runnable() {
             @Override
             public void run() {
 
@@ -93,17 +97,23 @@ public class GrowthMessage {
 
                     tasks = Task.getTasks(applicationId, credentialId, goalId);
                     logger.info(String.format("Task exist %d for goalId : %d", tasks.size(), goalId));
-                    if (tasks.isEmpty())
+                    if (tasks.isEmpty()) {
+                        if (handler != null)
+                            handler.error("Task is not available.");
                         return;
+                    }
 
                 } catch (GrowthbeatException e) {
-                    if (handler != null)
-                        handler.error("Failed to get tasks.");
                     logger.info(String.format("Failed to get tasks. %s", e.getMessage()));
+                    if (handler != null) {
+                        handler.error("Failed to get tasks.");
+                        return;
+                    }
                 }
 
                 String uuid = UUID.randomUUID().toString();
-                showMessageHandlers.put(uuid, handler);
+                if (handler != null)
+                    showMessageHandlers.put(uuid, handler);
 
                 for (Task task : tasks) {
 
@@ -117,7 +127,19 @@ public class GrowthMessage {
                         if (message != null)
                             messageQueue.add(new MessageQueue(uuid, message));
                     } catch (GrowthbeatException e) {
-                        logger.info(String.format("Failed to get messages. %s", e.getMessage()));
+
+                        switch (e.getCode()) {
+                            case 1611:
+                            case 1701:
+                            case 1702:
+                            case 1703:
+                                logger.info(String.format("%s, code: %d", e.getMessage(), e.getCode()));
+                                break;
+                            default:
+                                logger.info(String.format("Failed to get messages. %s, code: %d", e.getMessage(), e.getCode()));
+                                break;
+                        }
+
                     }
 
                 }
@@ -136,13 +158,13 @@ public class GrowthMessage {
             @Override
             public void complete(ShowMessageHandler.MessageRenderHandler renderHandler) {
 
-                Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+                messageExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         Client client = Growthbeat.getInstance().waitClient();
-                        int incrementCount = Message.receiveCount(client.getId(), applicationId, credentialId,
+                        ShowMessageCount showMessageCount = ShowMessageCount.receiveCount(client.getId(), applicationId, credentialId,
                             messageJob.getMessage().getTask().getId(), messageJob.getMessage().getId());
-                        logger.info(String.format("Success show message (count : %d)", incrementCount));
+                        logger.info(String.format("Success show message (count : %d)", showMessageCount.getCount()));
                     }
                 });
 
@@ -187,7 +209,7 @@ public class GrowthMessage {
     }
 
     public void openMessageIfExists() {
-        Growthbeat.getInstance().getExecutor().execute(new Runnable() {
+        messageExecutor.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -212,7 +234,7 @@ public class GrowthMessage {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            GrowthMessage.getInstance().openMessage(messageJob);
+                            openMessage(messageJob);
                         }
                     });
                     lastMessageOpenedTimeMills = System.currentTimeMillis();

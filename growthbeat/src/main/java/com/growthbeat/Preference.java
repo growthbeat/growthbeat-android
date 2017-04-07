@@ -103,17 +103,21 @@ public class Preference {
     }
 
     public void removeAll() {
-        context.deleteFile(fileName);
+        synchronized (this) {
+            context.deleteFile(fileName);
+            this.preferences = new JSONObject();
+        }
     }
 
-    private void saveFile(JSONObject jsonObject) {
+    private void saveFile(final JSONObject jsonObject) {
 
         synchronized (this) {
             try {
                 FileOutputStream fileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE);
-                fileOutputStream.write(preferences.toString().getBytes());
+                fileOutputStream.write(jsonObject.toString().getBytes());
                 fileOutputStream.flush();
                 fileOutputStream.close();
+                this.preferences = jsonObject;
             } catch (IOException e) {
             }
         }

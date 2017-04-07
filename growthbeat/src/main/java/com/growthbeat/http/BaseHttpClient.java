@@ -4,8 +4,12 @@ import android.os.Build;
 
 import com.growthbeat.GrowthbeatException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -92,21 +96,15 @@ public class BaseHttpClient {
         try {
             httpURLConnection.connect();
 
-            if (httpURLConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            if (httpURLConnection.getResponseCode() >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
                 throw new GrowthbeatException(httpURLConnection.getResponseMessage());
             } else {
                 inputStream = new BufferedInputStream(httpURLConnection.getInputStream());
-                String line = "";
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, CONTENT_CHARSET));
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-
-                bufferedReader.close();
-                response = stringBuilder.toString();
+                response = convertResponse(inputStream);
             }
+        } catch (FileNotFoundException e) {
+            inputStream = httpURLConnection.getErrorStream();
+            throw generateGrowthbeatExceptionByErrorResponse(convertResponse(inputStream));
         } catch (IOException e) {
             throw new GrowthbeatException("Failed to connection. " + e.getMessage(), e);
         } finally {
@@ -170,6 +168,38 @@ public class BaseHttpClient {
         }
 
         throw new GrowthbeatException("Failed create HttpURLConnection");
+
+    }
+
+    private String convertResponse(InputStream inputStream) {
+
+        if (inputStream == null)
+            return "";
+
+        try {
+            String line = "";
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, CONTENT_CHARSET));
+            StringBuilder stringBuilder = new StringBuilder();
+
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            bufferedReader.close();
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            throw new GrowthbeatException("Failed to convert server response.");
+        }
+    }
+
+    private GrowthbeatException generateGrowthbeatExceptionByErrorResponse(String result) {
+
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            return new GrowthbeatException(jsonObject.getString("message"), jsonObject.getInt("code"));
+        } catch (JSONException e) {
+            throw new GrowthbeatException(String.format("Failed to parse response JSON. %s \n%s", e.getMessage(), result), e);
+        }
 
     }
 

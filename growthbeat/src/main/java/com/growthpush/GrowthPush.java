@@ -23,6 +23,7 @@ import com.growthpush.model.Tag;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class GrowthPush {
 
@@ -32,7 +33,7 @@ public class GrowthPush {
         GrowthPushConstants.HTTP_CLIENT_DEFAULT_CONNECT_TIMEOUT, GrowthPushConstants.HTTP_CLIENT_DEFAULT_READ_TIMEOUT);
     private final Preference preference = new Preference(GrowthPushConstants.PREFERENCE_DEFAULT_FILE_NAME);
     private final GrowthbeatThreadExecutor pushExecutor = new GrowthbeatThreadExecutor();
-    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor();
+    private final GrowthbeatThreadExecutor analyticsExecutor = new GrowthbeatThreadExecutor(1, 100);
 
     private ClientV4 client = null;
     private Semaphore semaphore = new Semaphore(1);
@@ -90,10 +91,10 @@ public class GrowthPush {
                 if (oldClient != null) {
                     if (oldClient.getGrowthbeatClientId() != null &&
                         oldClient.getGrowthbeatClientId().equals(growthbeatClient.getId())) {
-
                         logger.info(String.format("Client found. To Convert the Client to ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), oldClient.getToken());
                     } else {
+                        preference.removeAll();
                         logger.info(String.format("Disabled Client found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), null);
                     }
@@ -102,11 +103,12 @@ public class GrowthPush {
                     ClientV4 clientV4 = ClientV4.load();
 
                     if (clientV4 == null) {
+                        preference.removeAll();
                         logger.info(String.format("Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
                         createClient(growthbeatClient.getId(), null);
                     } else if (!clientV4.getId().equals(growthbeatClient.getId())) {
+                        preference.removeAll();
                         logger.info(String.format("Disabled ClientV4 found. Create a new ClientV4. (id:%s)", growthbeatClient.getId()));
-                        clearClient();
                         createClient(growthbeatClient.getId(), null);
                     } else if (environment != clientV4.getEnvironment()) {
                         logger.info(String.format("ClientV4 found. Update environment. (environment:%s)", environment.toString()));
@@ -170,11 +172,19 @@ public class GrowthPush {
                 if (registrationId == null)
                     return;
 
-                waitClientRegistration();
+                if (!waitClientRegistration()) {
+                    logger.error(String.format("registerClient initialize client timeout."));
+                    return;
+                }
+
+                if (client == null) {
+                    com.growthbeat.model.Client growthbeatClient = Growthbeat.getInstance().waitClient();
+                    createClient(growthbeatClient.getId(), registrationId);
+                    return;
+                }
 
                 if (client.getToken() == null ||
                     (client.getToken() != null && !registrationId.equals(client.getToken()))) {
-
                     updateClient(client.getId(), registrationId);
                 }
             }
@@ -188,25 +198,26 @@ public class GrowthPush {
             semaphore.acquire();
 
             ClientV4 loadClient = ClientV4.load();
-            if (loadClient != null) {
+            if (loadClient != null && loadClient.getId().equals(growthbeatClientId)) {
                 this.client = loadClient;
-                logger.info(String.format("ClientV4 already Created... (growthbeatClientId: %s, token: %s, environment: %s)",
-                    growthbeatClientId, loadClient.getToken(), environment));
-                return;
+                logger.info(String.format("ClientV4 already created... (id: %s, token: %s, environment: %s)",
+                    loadClient.getId(), loadClient.getToken(), environment));
+            } else {
+                logger.info(String.format("Create client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                    registrationId, environment));
+                ClientV4 createdClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+                logger.info(String.format("Create client success (id: %s)", createdClient.getId()));
+                ClientV4.save(createdClient);
+                this.client = createdClient;
             }
 
-            logger.info(String.format("Create client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
-                registrationId, environment));
-            client = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Create client success (clientId: %s)", client.getId()));
-            ClientV4.save(client);
+            latch.countDown();
 
         } catch (InterruptedException e) {
         } catch (GrowthPushException e) {
-            logger.error(String.format("Create client fail. %s", e.getMessage()));
+            logger.error(String.format("Create client fail. %s, code: %d", e.getMessage(), e.getCode()));
         } finally {
             semaphore.release();
-            latch.countDown();
         }
 
     }
@@ -215,18 +226,31 @@ public class GrowthPush {
 
         try {
 
-            logger.info(String.format("Updating client... (growthbeatClientId: %s, token: %s, environment: %s)", growthbeatClientId,
-                registrationId, environment));
-            ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
-            logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
+            semaphore.acquire();
 
-            ClientV4.save(updatedClient);
-            this.client = updatedClient;
+            ClientV4 clientV4 = ClientV4.load();
+            if (clientV4 != null && clientV4.getEnvironment() == this.environment && registrationId != null && registrationId.equals(clientV4.getToken())) {
+                logger.info(String.format("ClientV4 already updated. (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                    registrationId, environment));
+                this.client = clientV4;
+            } else {
 
-        } catch (GrowthPushException e) {
-            logger.error(String.format("Update client fail. %s", e.getMessage()));
-        } finally {
+                logger.info(String.format("Updating client... (id: %s, token: %s, environment: %s)", growthbeatClientId,
+                    registrationId, environment));
+                ClientV4 updatedClient = ClientV4.attach(growthbeatClientId, applicationId, credentialId, registrationId, environment);
+                logger.info(String.format("Update client success (clientId: %s)", growthbeatClientId));
+
+                ClientV4.save(updatedClient);
+                this.client = updatedClient;
+            }
+
             latch.countDown();
+
+        } catch (InterruptedException e) {
+        } catch (GrowthPushException e) {
+            logger.error(String.format("Update client fail. %s, code: %d", e.getMessage(), e.getCode()));
+        } finally {
+            semaphore.release();
         }
 
     }
@@ -250,17 +274,19 @@ public class GrowthPush {
             return;
         }
 
-        analyticsExecutor.execute(new Runnable() {
+        if (name == null) {
+            logger.warning("Event name cannot be null.");
+            return;
+        }
 
+        analyticsExecutor.executeScheduledTimeout(new Runnable() {
             @Override
             public void run() {
 
-                if (name == null) {
-                    logger.warning("Event name cannot be null.");
+                if (!waitClientRegistration()) {
+                    logger.error(String.format("trackEvent registering client timeout. (name: %s, value: %s)", name, value));
                     return;
                 }
-
-                waitClientRegistration();
 
                 logger.info(String.format("Sending event ... (name: %s, value: %s)", name, value));
                 try {
@@ -272,12 +298,12 @@ public class GrowthPush {
                         GrowthMessage.getInstance().receiveMessage(event.getGoalId(), client.getId(), handler);
 
                 } catch (GrowthPushException e) {
-                    logger.error(String.format("Sending event fail. %s", e.getMessage()));
+                    logger.error(String.format("Sending event fail. %s, code: %d", e.getMessage(), e.getCode()));
                 }
 
             }
 
-        });
+        }, 90, TimeUnit.SECONDS);
     }
 
     public void setTag(final String name) {
@@ -295,39 +321,47 @@ public class GrowthPush {
             return;
         }
 
-        analyticsExecutor.execute(new Runnable() {
+        if (name == null) {
+            logger.warning("Tag name cannot be null.");
+            return;
+        }
 
+        analyticsExecutor.executeScheduledTimeout(new Runnable() {
             @Override
             public void run() {
-
-                if (name == null) {
-                    logger.warning("Tag name cannot be null.");
-                    return;
-                }
-
-                Tag tag = Tag.load(type, name);
-                if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
-                    logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
-                    return;
-                }
-
-                waitClientRegistration();
-
-                logger.info(String.format("Sending tag... (key: %s, value: %s)", name, value));
-                try {
-                    Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
-                    logger.info(String.format("Sending tag success"));
-                    Tag.save(createdTag, type, name);
-                } catch (GrowthPushException e) {
-                    logger.error(String.format("Sending tag fail. %s", e.getMessage()));
-                }
-
+                setTagSynchronously(type, name, value);
             }
-
-        });
+        }, 90, TimeUnit.SECONDS);
     }
 
-    public void setDeviceTags() {
+    private void setTagSynchronously(final Tag.TagType type, final String name, final String value) {
+        if (name == null) {
+            logger.warning("Tag name cannot be null.");
+            return;
+        }
+
+        Tag tag = Tag.load(type, name);
+        if (tag != null && (value == null || value.equalsIgnoreCase(tag.getValue()))) {
+            logger.info(String.format("Tag exists with the same value. (name: %s, value: %s)", name, value));
+            return;
+        }
+
+        if (!waitClientRegistration()) {
+            logger.error(String.format("setTag registering client timeout. (name: %s, value: %s)", name, value));
+            return;
+        }
+
+        logger.info(String.format("Sending tag... (name: %s, value: %s)", name, value));
+        try {
+            Tag createdTag = Tag.create(GrowthPush.getInstance().client.getId(), applicationId, credentialId, type, name, value);
+            logger.info(String.format("Sending tag success (name: %s, value: %s)", name, value));
+            Tag.save(createdTag, type, name);
+        } catch (GrowthPushException e) {
+            logger.error(String.format("Sending tag fail. %s", e.getMessage()));
+        }
+    }
+
+    private void setDeviceTags() {
         setTag("Device", DeviceUtils.getModel());
         setTag("OS", "Android " + DeviceUtils.getOsVersion());
         setTag("Language", DeviceUtils.getLanguage());
@@ -343,7 +377,7 @@ public class GrowthPush {
                 try {
                     String advertisingId = DeviceUtils.getAdvertisingId().get();
                     if (advertisingId != null)
-                        setTag(Tag.TagType.custom, "AdvertisingID", advertisingId);
+                        setTag("AdvertisingID", advertisingId);
                 } catch (Exception e) {
                     logger.warning("Failed to get advertisingId: " + e.getMessage());
                 }
@@ -358,7 +392,7 @@ public class GrowthPush {
                 try {
                     Boolean trackingEnabled = DeviceUtils.getTrackingEnabled().get();
                     if (trackingEnabled != null)
-                        setTag(Tag.TagType.custom, "TrackingEnabled", String.valueOf(trackingEnabled));
+                        setTag("TrackingEnabled", String.valueOf(trackingEnabled));
                 } catch (Exception e) {
                     logger.warning("Failed to get trackingEnabled: " + e.getMessage());
                 }
@@ -367,12 +401,15 @@ public class GrowthPush {
         });
     }
 
-    private void waitClientRegistration() {
+    private boolean waitClientRegistration() {
         if (client == null) {
             try {
-                latch.await();
+                return latch.await(1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
+                return false;
             }
+        } else {
+            return true;
         }
     }
 
@@ -396,10 +433,4 @@ public class GrowthPush {
         return preference;
     }
 
-    private void clearClient() {
-
-        this.client = null;
-        ClientV4.clear();
-
-    }
 }

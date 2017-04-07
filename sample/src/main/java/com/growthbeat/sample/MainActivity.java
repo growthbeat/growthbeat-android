@@ -8,7 +8,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 
 import com.growthbeat.Growthbeat;
-import com.growthbeat.link.GrowthLink;
+import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
 import com.growthpush.model.Environment;
@@ -24,9 +24,6 @@ public class MainActivity extends AppCompatActivity {
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId("186415479559");
 
-        GrowthLink.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo");
-        GrowthLink.getInstance().handleOpenUrl(getIntent().getData());
-
         GrowthPush.getInstance().trackEvent("Launch");
 
         new Thread(new Runnable() {
@@ -37,7 +34,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
-        GrowthPush.getInstance().trackEvent("AllowPushPermission");
+        GrowthPush.getInstance().trackEvent("AllowPushPermission", null, new ShowMessageHandler() {
+            @Override
+            public void complete(MessageRenderHandler renderHandler) {
+                Log.i("GrowthMessage", "run renderHandler, show message.");
+                renderHandler.render();
+            }
+
+            @Override
+            public void error(String error) {
+                Log.d("GrowthMessage", error);
+            }
+        });
 
         findViewById(R.id.set_tag_button).setOnClickListener(new OnClickListener() {
             @Override

@@ -15,6 +15,9 @@ public class TouchableImageView extends ImageView {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 ImageView imageView = (ImageView) view;
+                if (view == null)
+                    return false;
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         imageView.setColorFilter(Color.argb(128, 0, 0, 0), PorterDuff.Mode.SRC_ATOP);

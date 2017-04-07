@@ -8,7 +8,6 @@ import com.growthbeat.model.Model;
 import com.growthbeat.utils.DateUtils;
 import com.growthbeat.utils.JSONObjectUtils;
 import com.growthpush.GrowthPush;
-import com.growthpush.model.Tag;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,35 +95,6 @@ public class Message extends Model implements Parcelable {
             return null;
 
         return Message.getFromJsonObject(jsonObject);
-    }
-
-    public static int receiveCount(String clientId, String applicationId, String credentialId, String taskId, String messageId) {
-
-        Map<String, Object> params = new HashMap<String, Object>();
-
-        if (clientId != null)
-            params.put("clientId", clientId);
-        if (applicationId != null)
-            params.put("applicationId", applicationId);
-        if (credentialId != null)
-            params.put("credentialId", credentialId);
-        if (taskId != null)
-            params.put("taskId", taskId);
-        if (messageId != null)
-            params.put("messageId", messageId);
-
-        JSONObject jsonObject = GrowthPush.getInstance().getHttpClient().post("4/receive/count", params);
-        if (jsonObject == null)
-            throw new GrowthbeatException("Failed to count up message.");
-
-        Tag tag = new Tag(jsonObject);
-
-        try {
-            return Integer.valueOf(tag.getValue());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-
     }
 
     public String getId() {

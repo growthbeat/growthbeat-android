@@ -2,7 +2,10 @@ package com.growthbeat;
 
 import android.util.Log;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +17,7 @@ public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
     private static final String TAG = "Growthbeat";
     private static final String THREAD_NAME = "growthbeat-thread";
     private static final int DEFAULT_THREAD_COUNT = 3;
+    private ScheduledExecutorService scheduledExecutorService;
 
     public GrowthbeatThreadExecutor() {
         this(DEFAULT_THREAD_COUNT);
@@ -21,6 +25,22 @@ public class GrowthbeatThreadExecutor extends ThreadPoolExecutor {
 
     public GrowthbeatThreadExecutor(int poolSize) {
         super(poolSize, poolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new GrowthbeatThreadFactory());
+        scheduledExecutorService = Executors.newScheduledThreadPool(poolSize, new GrowthbeatThreadFactory());
+    }
+
+    public GrowthbeatThreadExecutor(int poolSize, int maxPoolSize) {
+        super(poolSize, maxPoolSize, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new GrowthbeatThreadFactory());
+        scheduledExecutorService = Executors.newScheduledThreadPool(maxPoolSize, new GrowthbeatThreadFactory());
+    }
+
+    public void executeScheduledTimeout(Runnable runnable, int duration, TimeUnit timeUnit) {
+        final Future<?> task = super.submit(runnable);
+        scheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                task.cancel(true);
+            }
+        }, duration, timeUnit);
     }
 
     private static class GrowthbeatThreadFactory implements ThreadFactory {

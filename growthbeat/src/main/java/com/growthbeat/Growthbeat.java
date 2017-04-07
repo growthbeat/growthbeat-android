@@ -67,6 +67,7 @@ public class Growthbeat {
 
         final Client existingClient = Client.load();
         if (existingClient != null && existingClient.getApplication().getId().equals(applicationId)) {
+            GrowthPushClient.removeClient();
             logger.info(String.format("Client already exists. (id:%s)", existingClient.getId()));
             client = existingClient;
             return;
