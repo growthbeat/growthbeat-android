@@ -1,6 +1,11 @@
 package com.growthbeat.sample;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -11,7 +16,11 @@ import com.growthbeat.Growthbeat;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
+import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.model.Environment;
+
+import java.io.InputStream;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +32,28 @@ public class MainActivity extends AppCompatActivity {
         GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId("186415479559");
+
+        GrowthPush.getInstance().setReceiveHandler(new DefaultReceiveHandler() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                NotificationCompat.Builder builder = super.defaultNotificationBuilder(context, extras, null);
+                String url = extras.getString("image");
+                if (url != null) {
+                    try {
+                        URL image = new URL(url);
+                        InputStream istream = image.openStream();
+                        Bitmap iBmp = BitmapFactory.decodeStream(istream);
+                        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(builder);
+                        builder.setStyle(bigPictureStyle.bigPicture(iBmp));
+                        istream.close();
+                        builder.setStyle(bigPictureStyle.setSummaryText(extras.getString("message")));
+                    } catch (Exception e) {
+                    }
+                }
+                super.addNotification(context, 1, builder.build());
+            }
+        });
 
         GrowthPush.getInstance().trackEvent("Launch");
 
