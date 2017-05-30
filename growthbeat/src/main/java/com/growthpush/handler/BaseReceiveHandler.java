@@ -84,9 +84,10 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
         String endTimestamp = String.valueOf(System.currentTimeMillis());
         int maxIdRange = Integer.valueOf(endTimestamp.substring(endTimestamp.length() - 9, endTimestamp.length()));
+        int randomNotificationId = new Random().nextInt(maxIdRange);
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify("GrowthPush" + context.getPackageName(), new Random().nextInt(maxIdRange), generateNotification(context, intent.getExtras()));
+        NotificationCompat.Builder builder = defaultNotificationBuilder(context, intent.getExtras(), defaultLaunchPendingIntent(randomNotificationId, context, intent.getExtras()));
+        addNotification(context, randomNotificationId, builder.build());
 
     }
 
@@ -95,7 +96,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         notificationManager.notify("GrowthPush" + context.getPackageName(), notificationId, notification);
     }
 
-    public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras) {
+    public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         PackageManager packageManager = context.getPackageManager();
 
@@ -124,16 +125,9 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (extras.containsKey("sound"))
             sound = Boolean.valueOf(extras.getString("sound"));
 
-        Intent intent = new Intent(context, AlertActivity.class);
-        intent.putExtras(extras);
-        intent.putExtra("dialogType", DialogType.none.toString());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+        builder.setContentIntent(contextIntent == null ? defaultLaunchPendingIntent(0, context, extras) : contextIntent);
         builder.setDefaults(Notification.PRIORITY_DEFAULT);
         builder.setContentText(message);
-        builder.setContentIntent(pendingIntent);
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(true);
 
@@ -143,8 +137,12 @@ public class BaseReceiveHandler implements ReceiveHandler {
         return builder;
     }
 
-    private Notification generateNotification(Context context, Bundle extras) {
-        return defaultNotificationBuilder(context, extras).build();
+    private PendingIntent defaultLaunchPendingIntent(int requestCode, Context context, Bundle extras) {
+        Intent intent = new Intent(context, AlertActivity.class);
+        intent.putExtras(extras);
+        intent.putExtra("dialogType", DialogType.none.toString());
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
     public Callback getCallback() {
