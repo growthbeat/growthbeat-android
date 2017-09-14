@@ -1,6 +1,7 @@
 package com.growthpush.handler;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,7 +9,10 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -22,6 +26,7 @@ import java.util.Random;
 public class BaseReceiveHandler implements ReceiveHandler {
 
     private Callback callback = new Callback();
+    private static final String DEFAULT_NOTIFICAITON_CHANNEL_ID = "com.growthpush.notification.remote";
 
     public BaseReceiveHandler() {
         super();
@@ -88,16 +93,24 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
         NotificationCompat.Builder builder = defaultNotificationBuilder(context, intent.getExtras(), defaultLaunchPendingIntent(randomNotificationId, context, intent.getExtras()));
         addNotification(context, randomNotificationId, builder.build());
-
     }
 
     public void addNotification(Context context, int notificationId, Notification notification) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify("GrowthPush" + context.getPackageName(), notificationId, notification);
+        if (notificationManager != null) {
+            notificationManager.notify("GrowthPush" + context.getPackageName(), notificationId, notification);
+        }
     }
 
+
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder builder = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel(context);
+            builder = new NotificationCompat.Builder(context, BaseReceiveHandler.DEFAULT_NOTIFICAITON_CHANNEL_ID);
+        } else {
+            builder = new NotificationCompat.Builder(context);
+        }
         PackageManager packageManager = context.getPackageManager();
 
         try {
@@ -126,7 +139,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
             sound = Boolean.valueOf(extras.getString("sound"));
 
         builder.setContentIntent(contextIntent == null ? defaultLaunchPendingIntent(0, context, extras) : contextIntent);
-        builder.setDefaults(Notification.PRIORITY_DEFAULT);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            builder.setDefaults(Notification.PRIORITY_DEFAULT);
+        }
         builder.setContentText(message);
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(true);
@@ -143,6 +160,20 @@ public class BaseReceiveHandler implements ReceiveHandler {
         intent.putExtra("dialogType", DialogType.none.toString());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void createNotificationChannel(Context context) {
+        NotificationChannel notificationChannelChannel = new NotificationChannel(BaseReceiveHandler.DEFAULT_NOTIFICAITON_CHANNEL_ID,
+            "GrowthPush-" + context.getPackageName(), NotificationManager.IMPORTANCE_DEFAULT);
+        notificationChannelChannel.enableLights(true);
+        notificationChannelChannel.enableVibration(true);
+        notificationChannelChannel.setLightColor(Color.GREEN);
+        notificationChannelChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(notificationChannelChannel);
+        }
     }
 
     public Callback getCallback() {

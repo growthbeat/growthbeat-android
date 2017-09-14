@@ -24,6 +24,37 @@ public class MainActivity extends AppCompatActivity {
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId("186415479559");
 
+//        GrowthPush.getInstance().setReceiveHandler(new DefaultReceiveHandler() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                Bundle extras = intent.getExtras();
+//
+//                NotificationCompat.Builder builder = super.defaultNotificationBuilder(context, extras, generate(context, extras, 1));
+//                String url = extras.getString("image");
+//                if (url != null) {
+//                    try {
+//                        URL image = new URL(url);
+//                        InputStream istream = image.openStream();
+//                        Bitmap iBmp = BitmapFactory.decodeStream(istream);
+//                        NotificationCompat.BigPictureStyle bigPictureStyle = new NotificationCompat.BigPictureStyle(builder);
+//                        builder.setStyle(bigPictureStyle.bigPicture(iBmp));
+//                        istream.close();
+//                        builder.setStyle(bigPictureStyle.setSummaryText(extras.getString("message")));
+//                    } catch (Exception e) {
+//                    }
+//                }
+//                super.addNotification(context, 1, builder.build());
+//            }
+//
+//            private PendingIntent generate(Context context, Bundle extras, int requestCode) {
+//                Intent intent = new Intent(context, AlertActivity.class);
+//                intent.putExtras(extras);
+//                intent.putExtra("dialogType", DialogType.none.toString());
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//            }
+//        });
+
         GrowthPush.getInstance().trackEvent("Launch");
 
         new Thread(new Runnable() {
