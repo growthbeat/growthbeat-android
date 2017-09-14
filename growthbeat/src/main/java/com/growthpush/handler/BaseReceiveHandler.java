@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -87,9 +88,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (message == null || message.length() <= 0 || message.equals(""))
             return;
 
-        String endTimestamp = String.valueOf(System.currentTimeMillis());
-        int maxIdRange = Integer.valueOf(endTimestamp.substring(endTimestamp.length() - 9, endTimestamp.length()));
-        int randomNotificationId = new Random().nextInt(maxIdRange);
+        int randomNotificationId = randomIntNumber();
 
         NotificationCompat.Builder builder = defaultNotificationBuilder(context, intent.getExtras(), defaultLaunchPendingIntent(randomNotificationId, context, intent.getExtras()));
         addNotification(context, randomNotificationId, builder.build());
@@ -113,22 +112,28 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
         PackageManager packageManager = context.getPackageManager();
 
+        NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
         try {
             ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
 
             int icon = packageManager.getApplicationInfo(context.getPackageName(), 0).icon;
             if (applicationInfo.metaData != null && applicationInfo.metaData.containsKey(GrowthPushConstants.NOTIFICATION_ICON_META_KEY))
-                icon = Integer.valueOf(applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_META_KEY));
+                icon = applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_META_KEY);
             String title = packageManager.getApplicationLabel(applicationInfo).toString();
 
             builder.setTicker(title);
             builder.setSmallIcon(icon);
             builder.setContentTitle(title);
+            bigTextStyle.setBigContentTitle(title);
+
             if (applicationInfo.metaData != null
                 && applicationInfo.metaData.containsKey(GrowthPushConstants.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)) {
-                builder.setColor(ContextCompat.getColor(context,
-                    Integer.valueOf(applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY))));
+                builder.setColor(ContextCompat.getColor(context, applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY)));
+            }
 
+            if (applicationInfo.metaData != null
+                && applicationInfo.metaData.containsKey(GrowthPushConstants.NOTIFICATION_BIG_ICON_META_KEY)) {
+                builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), applicationInfo.metaData.getInt(GrowthPushConstants.NOTIFICATION_BIG_ICON_META_KEY)));
             }
         } catch (NameNotFoundException e) {
         }
@@ -138,18 +143,21 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (extras.containsKey("sound"))
             sound = Boolean.valueOf(extras.getString("sound"));
 
-        builder.setContentIntent(contextIntent == null ? defaultLaunchPendingIntent(0, context, extras) : contextIntent);
+        builder.setContentIntent(contextIntent == null ? defaultLaunchPendingIntent(randomIntNumber(), context, extras) : contextIntent);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             builder.setDefaults(Notification.PRIORITY_DEFAULT);
         }
         builder.setContentText(message);
+        bigTextStyle.setSummaryText(message);
+        bigTextStyle.bigText(message);
+        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(true);
 
         if (sound && PermissionUtils.permitted(context, "android.permission.VIBRATE"))
-            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS);
+            builder.setDefaults(NotificationCompat.DEFAULT_ALL);
 
         return builder;
     }
@@ -174,6 +182,12 @@ public class BaseReceiveHandler implements ReceiveHandler {
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(notificationChannelChannel);
         }
+    }
+
+    private int randomIntNumber() {
+        String endTimestamp = String.valueOf(System.currentTimeMillis());
+        int maxIdRange = Integer.valueOf(endTimestamp.substring(endTimestamp.length() - 9, endTimestamp.length()));
+        return new Random().nextInt(maxIdRange);
     }
 
     public Callback getCallback() {

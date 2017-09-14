@@ -14,5 +14,6 @@ public class GrowthPushConstants {
     public static final String NOTIFICATION_ICON_META_KEY = "com.growthpush.notification.icon";
     public static final String NOTIFICATION_ICON_BACKGROUND_COLOR_META_KEY = "com.growthpush.notification.icon.background.color";
     public static final String DIALOG_ICON_META_KEY = "com.growthpush.dialog.icon";
+    public static final String NOTIFICATION_BIG_ICON_META_KEY = "com.growthpush.notification.big_icon";
 
 }
