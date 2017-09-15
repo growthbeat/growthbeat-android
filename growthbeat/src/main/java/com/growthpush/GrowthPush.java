@@ -44,6 +44,7 @@ public class GrowthPush {
     private String credentialId;
     private String senderId;
     private Environment environment = null;
+    private String channelId = null;
 
     private boolean initialized = false;
 
@@ -56,11 +57,17 @@ public class GrowthPush {
     }
 
     public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment) {
-        this.initialize(context, applicationId, credentialId, environment, true);
+        this.initialize(context, applicationId, credentialId, environment, true, null);
+    }
+
+    ;
+
+    public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment, String channelId) {
+        this.initialize(context, applicationId, credentialId, environment, true, channelId);
     }
 
     public void initialize(final Context context, final String applicationId, final String credentialId, final Environment environment,
-                           final boolean adInfoEnabled) {
+                           final boolean adInfoEnabled, final String channelId) {
 
         if (initialized)
             return;
@@ -75,6 +82,7 @@ public class GrowthPush {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
         this.environment = environment;
+        this.channelId = channelId;
 
         Growthbeat.getInstance().initialize(context, applicationId, credentialId);
         GrowthMessage.getInstance().initialize(context, applicationId, credentialId);
@@ -419,6 +427,14 @@ public class GrowthPush {
 
     public void setReceiveHandler(ReceiveHandler receiveHandler) {
         this.receiveHandler = receiveHandler;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 
     public Logger getLogger() {

@@ -1,10 +1,6 @@
 package com.growthbeat.sample;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,10 +11,7 @@ import com.growthbeat.Growthbeat;
 import com.growthbeat.message.handler.ShowMessageHandler;
 import com.growthbeat.model.Client;
 import com.growthpush.GrowthPush;
-import com.growthpush.handler.DefaultReceiveHandler;
 import com.growthpush.model.Environment;
-import com.growthpush.view.AlertActivity;
-import com.growthpush.view.DialogType;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,24 +23,24 @@ public class MainActivity extends AppCompatActivity {
         GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId("186415479559");
-        GrowthPush.getInstance().setReceiveHandler(new DefaultReceiveHandler() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Bundle extras = intent.getExtras();
-
-                NotificationCompat.Builder builder = super.defaultNotificationBuilder(context, extras, generate(context, extras, 1));
-                builder.setChannelId("com.growthpush.notification.remote");
-                super.addNotification(context, 1, builder.build());
-            }
-
-            private PendingIntent generate(Context context, Bundle extras, int requestCode) {
-                Intent intent = new Intent(context, AlertActivity.class);
-                intent.putExtras(extras);
-                intent.putExtra("dialogType", DialogType.none.toString());
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-            }
-        });
+        GrowthPush.getInstance().setChannelId("com.growthpush.notification.remote");
+//        GrowthPush.getInstance().setReceiveHandler(new DefaultReceiveHandler() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                Bundle extras = intent.getExtras();
+//
+//                NotificationCompat.Builder builder = super.defaultNotificationBuilder(context, extras, generate(context, extras, 1));
+//                super.addNotification(context, 1, builder.build());
+//            }
+//
+//            private PendingIntent generate(Context context, Bundle extras, int requestCode) {
+//                Intent intent = new Intent(context, AlertActivity.class);
+//                intent.putExtras(extras);
+//                intent.putExtra("dialogType", DialogType.none.toString());
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//            }
+//        });
 
         GrowthPush.getInstance().trackEvent("Launch");
 

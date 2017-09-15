@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
 import com.growthbeat.utils.PermissionUtils;
+import com.growthpush.GrowthPush;
 import com.growthpush.GrowthPushConstants;
 import com.growthpush.view.AlertActivity;
 import com.growthpush.view.DialogType;
@@ -105,7 +106,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
         NotificationCompat.Builder builder = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder = builderDefaultNotificationChannel(context);
+            builder = builderWithNotificationChannel(context);
         } else {
             builder = new NotificationCompat.Builder(context);
         }
@@ -170,7 +171,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private NotificationCompat.Builder builderDefaultNotificationChannel(Context context) {
+    private NotificationCompat.Builder builderWithNotificationChannel(Context context) {
+
+        if (GrowthPush.getInstance().getChannelId() != null) {
+            return new NotificationCompat.Builder(context, GrowthPush.getInstance().getChannelId());
+        }
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel defaultChannel = notificationManager.getNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
