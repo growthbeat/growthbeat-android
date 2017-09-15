@@ -100,7 +100,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
     }
 
-
+    @SuppressWarnings("deprecation")
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
         NotificationCompat.Builder builder = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
