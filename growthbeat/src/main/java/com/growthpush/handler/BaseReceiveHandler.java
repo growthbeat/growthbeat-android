@@ -10,9 +10,9 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -145,8 +145,9 @@ public class BaseReceiveHandler implements ReceiveHandler {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            builder.setDefaults(Notification.PRIORITY_DEFAULT);
+            builder.setDefaults(Notification.PRIORITY_HIGH);
         }
+
         builder.setContentText(message);
         bigTextStyle.setSummaryText(message);
         bigTextStyle.bigText(message);
@@ -168,6 +169,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private NotificationCompat.Builder builderWithNotificationChannel(Context context) {
 
         if (GrowthPush.getInstance().getChannelId() != null) {
@@ -180,7 +182,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
             defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_HIGH);
             defaultChannel.enableLights(true);
             defaultChannel.enableVibration(true);
-            defaultChannel.setLightColor(Color.GREEN);
             defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         }
         notificationManager.createNotificationChannel(defaultChannel);

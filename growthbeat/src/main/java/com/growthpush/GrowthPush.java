@@ -3,7 +3,6 @@ package com.growthpush;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -438,7 +437,6 @@ public class GrowthPush {
         this.channelId = channelId;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void deleteDefaultNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = (NotificationManager) Growthbeat.getInstance().getContext().getSystemService(Context.NOTIFICATION_SERVICE);
