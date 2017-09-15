@@ -72,6 +72,7 @@ public class AlertFragment extends DialogFragment implements DialogInterface.OnC
         return dialog;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
