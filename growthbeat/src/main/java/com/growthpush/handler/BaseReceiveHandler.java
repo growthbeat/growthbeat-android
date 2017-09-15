@@ -13,7 +13,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -28,7 +27,6 @@ import java.util.Random;
 public class BaseReceiveHandler implements ReceiveHandler {
 
     private Callback callback = new Callback();
-    private static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "com.growthpush.notification";
 
     public BaseReceiveHandler() {
         super();
@@ -170,7 +168,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
         return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private NotificationCompat.Builder builderWithNotificationChannel(Context context) {
 
         if (GrowthPush.getInstance().getChannelId() != null) {
@@ -178,9 +175,9 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel defaultChannel = notificationManager.getNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
+        NotificationChannel defaultChannel = notificationManager.getNotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID);
         if (defaultChannel == null) {
-            defaultChannel = new NotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_HIGH);
+            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_HIGH);
             defaultChannel.enableLights(true);
             defaultChannel.enableVibration(true);
             defaultChannel.setLightColor(Color.GREEN);
@@ -188,7 +185,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
         notificationManager.createNotificationChannel(defaultChannel);
 
-        return new NotificationCompat.Builder(context, DEFAULT_NOTIFICATION_CHANNEL_ID);
+        return new NotificationCompat.Builder(context, GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID);
 
     }
 
