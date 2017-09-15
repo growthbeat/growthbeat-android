@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
 
-        <!-- for Growth Push -->
+        <!-- for Growth Push Custom Notification -->
         <meta-data
             android:name="com.growthpush.notification.icon"
             android:resource="@drawable/sample_notification_icon" />
@@ -50,7 +50,7 @@
             android:name="com.growthpush.dialog.icon"
             android:resource="@drawable/sample_notification_icon" />
         <meta-data
-            android:name="com.growthpush.notification.big_icon"
+            android:name="com.growthpush.notification.icon.large"
             android:resource="@mipmap/ic_launcher" />
 
         <activity

@@ -27,7 +27,7 @@ import java.util.Random;
 public class BaseReceiveHandler implements ReceiveHandler {
 
     private Callback callback = new Callback();
-    private static final String DEFAULT_NOTIFICAITON_CHANNEL_ID = "com.growthpush.notification.remote";
+    private static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "com.growthpush.notification";
 
     public BaseReceiveHandler() {
         super();
@@ -105,8 +105,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
         NotificationCompat.Builder builder = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel(context);
-            builder = new NotificationCompat.Builder(context, BaseReceiveHandler.DEFAULT_NOTIFICAITON_CHANNEL_ID);
+            builder = builderDefaultNotificationChannel(context);
         } else {
             builder = new NotificationCompat.Builder(context);
         }
@@ -171,17 +170,21 @@ public class BaseReceiveHandler implements ReceiveHandler {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void createNotificationChannel(Context context) {
-        NotificationChannel notificationChannelChannel = new NotificationChannel(BaseReceiveHandler.DEFAULT_NOTIFICAITON_CHANNEL_ID,
-            "GrowthPush-" + context.getPackageName(), NotificationManager.IMPORTANCE_DEFAULT);
-        notificationChannelChannel.enableLights(true);
-        notificationChannelChannel.enableVibration(true);
-        notificationChannelChannel.setLightColor(Color.GREEN);
-        notificationChannelChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+    private NotificationCompat.Builder builderDefaultNotificationChannel(Context context) {
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(notificationChannelChannel);
+        NotificationChannel defaultChannel = notificationManager.getNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
+        if (defaultChannel == null) {
+            defaultChannel = new NotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_HIGH);
+            defaultChannel.enableLights(true);
+            defaultChannel.enableVibration(true);
+            defaultChannel.setLightColor(Color.GREEN);
+            defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         }
+        notificationManager.createNotificationChannel(defaultChannel);
+
+        return new NotificationCompat.Builder(context, DEFAULT_NOTIFICATION_CHANNEL_ID);
+
     }
 
     private int randomIntNumber() {
