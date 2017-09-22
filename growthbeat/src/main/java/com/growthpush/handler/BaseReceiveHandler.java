@@ -146,7 +146,6 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
 
         builder.setContentText(message);
-        bigTextStyle.setSummaryText(message);
         bigTextStyle.bigText(message);
         builder.setStyle(bigTextStyle);
         builder.setWhen(System.currentTimeMillis());
