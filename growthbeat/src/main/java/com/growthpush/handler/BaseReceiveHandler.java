@@ -137,21 +137,18 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
 
         String message = extras.getString("message");
-        boolean sound = false;
-        if (extras.containsKey("sound"))
-            sound = Boolean.valueOf(extras.getString("sound"));
+        boolean sound = extras.containsKey("sound") ? Boolean.valueOf(extras.getString("sound")) : false;
 
         builder.setContentIntent(contextIntent == null ? defaultLaunchPendingIntent(randomIntNumber(), context, extras) : contextIntent);
 
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            builder.setDefaults(Notification.PRIORITY_HIGH);
+            builder.setDefaults(Notification.PRIORITY_DEFAULT);
         }
 
         builder.setContentText(message);
         bigTextStyle.setSummaryText(message);
         bigTextStyle.bigText(message);
-        builder.setStyle(new NotificationCompat.BigTextStyle().bigText(message));
+        builder.setStyle(bigTextStyle);
         builder.setWhen(System.currentTimeMillis());
         builder.setAutoCancel(true);
 
@@ -179,7 +176,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel defaultChannel = notificationManager.getNotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID);
         if (defaultChannel == null) {
-            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_HIGH);
+            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_DEFAULT);
             defaultChannel.enableLights(true);
             defaultChannel.enableVibration(true);
             defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
