@@ -1,5 +1,6 @@
 package com.growthbeat.utils;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Point;
@@ -91,6 +92,7 @@ public final class DeviceUtils {
         return TimeZone.getDefault().getRawOffset() / (60 * 60 * 1000);
     }
 
+    @SuppressLint("MissingPermission")
     public static boolean connectedToWiFi(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

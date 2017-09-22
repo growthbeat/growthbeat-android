@@ -22,8 +22,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
-    compile 'com.google.android.gms:play-services-ads:8.4.0'
+    compile "com.google.android.gms:play-services-gcm:$GOOGLE_PLAY_LIBRARY_VERSION"
+    compile "com.google.android.gms:play-services-ads:$GOOGLE_PLAY_LIBRARY_VERSION"
     testCompile 'junit:junit:4.12'
 }
 
@@ -32,7 +32,7 @@ task clearJar(type: Delete) {
 }
 
 task makeJar(type: Copy) {
-    from('build/intermediates/bundles/default/')
+    from('build/intermediates/bundles/release/')
     into('../release/')
     include('classes.jar')
     rename('classes.jar', 'growthbeat-' + VERSION_NAME + '.jar')

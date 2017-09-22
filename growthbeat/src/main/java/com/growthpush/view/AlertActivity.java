@@ -65,6 +65,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDestroy() {
 
@@ -98,6 +99,7 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
 
     }
 
+    @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
     protected void manageKeyguard() {
 

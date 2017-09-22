@@ -39,16 +39,19 @@
             </intent-filter>
         </activity>
 
-        <!-- for Growth Push -->
+        <!-- for Growth Push Custom Notification -->
         <meta-data
             android:name="com.growthpush.notification.icon"
             android:resource="@drawable/sample_notification_icon" />
         <meta-data
             android:name="com.growthpush.notification.icon.background.color"
-            android:resource="@android:color/white" />
+            android:resource="@android:color/darker_gray" />
         <meta-data
             android:name="com.growthpush.dialog.icon"
             android:resource="@drawable/sample_notification_icon" />
+        <meta-data
+            android:name="com.growthpush.notification.icon.large"
+            android:resource="@mipmap/ic_launcher" />
 
         <activity
             android:name="com.growthpush.view.AlertActivity"
