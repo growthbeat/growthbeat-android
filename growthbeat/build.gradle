@@ -16,7 +16,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    buildToolsVersion '25.0.0'
 }
 
 dependencies {
@@ -32,8 +31,8 @@ task clearJar(type: Delete) {
 }
 
 task makeJar(type: Copy) {
-    from('build/intermediates/bundles/release/')
-    into('../release/')
+    from('./build/intermediates/bundles/default/')
+    into('../release')
     include('classes.jar')
     rename('classes.jar', 'growthbeat-' + VERSION_NAME + '.jar')
 }
