@@ -124,6 +124,7 @@ public class GrowthPush {
                     } else {
                         logger.info(String.format("ClientV4 found. (id:%s)", clientV4.getId()));
                         client = clientV4;
+                        latch.countDown();
                     }
                 }
 
