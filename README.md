@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.growthbeat:growthbeat-android:2.0.7@aar'
+    compile 'com.growthbeat:growthbeat-android:2.0.8@aar'
 }
 ```
 
