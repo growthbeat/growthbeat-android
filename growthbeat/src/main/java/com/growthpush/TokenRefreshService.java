@@ -1,16 +1,13 @@
 package com.growthpush;
 
-import android.content.Intent;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import com.google.android.gms.iid.InstanceIDListenerService;
-
-public class TokenRefreshService extends InstanceIDListenerService {
+public class TokenRefreshService extends FirebaseInstanceIdService {
     @Override
     public void onTokenRefresh() {
-        super.onTokenRefresh();
-
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         GrowthPush.getInstance().getLogger().info("GCM registration token was refresh");
-        Intent intent = new Intent(this, RegistrationIntentService.class);
-        startService(intent);
+        GrowthPush.getInstance().registerClient(refreshedToken);
     }
 }

@@ -57,7 +57,7 @@
             android:name="com.growthpush.TokenRefreshService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
         <service android:name="com.growthpush.RegistrationIntentService" />

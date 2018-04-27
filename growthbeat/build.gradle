@@ -21,7 +21,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:support-v4:$SUPPORT_LIBRARY_VERSION"
-    compile "com.google.android.gms:play-services-gcm:$GOOGLE_PLAY_LIBRARY_VERSION"
+    compile "com.google.firebase:firebase-messaging:$FIREBASE_LIBRARY_VERSION"
     compile "com.google.android.gms:play-services-ads:$GOOGLE_PLAY_LIBRARY_VERSION"
     testCompile 'junit:junit:4.12'
 }
