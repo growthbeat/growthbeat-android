@@ -4,8 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
@@ -151,7 +150,7 @@ public class GrowthPush {
         pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                String token = registerGCM(Growthbeat.getInstance().getContext());
+                String token = registerFCM();
                 if (token != null) {
                     logger.info("GCM registration token: " + token);
                     registerClient(token);
@@ -161,13 +160,12 @@ public class GrowthPush {
 
     }
 
-    public String registerGCM(final Context context) {
+    public String registerFCM() {
         if (this.senderId == null)
             return null;
 
         try {
-            InstanceID instanceID = InstanceID.getInstance(context);
-            return instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            return FirebaseInstanceId.getInstance().getToken();
         } catch (Exception e) {
             return null;
         }
