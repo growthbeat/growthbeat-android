@@ -146,7 +146,6 @@ public class GrowthPush {
         }
 
         this.senderId = senderId;
-
         pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -167,6 +166,7 @@ public class GrowthPush {
         try {
             return FirebaseInstanceId.getInstance().getToken();
         } catch (Exception e) {
+            logger.info(e.getMessage());
             return null;
         }
     }
