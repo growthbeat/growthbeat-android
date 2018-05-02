@@ -166,7 +166,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private NotificationCompat.Builder builderWithNotificationChannel(Context context) {
+    public NotificationCompat.Builder builderWithNotificationChannel(Context context) {
 
         if (GrowthPush.getInstance().getChannelId() != null) {
             return new NotificationCompat.Builder(context, GrowthPush.getInstance().getChannelId());
@@ -175,7 +175,15 @@ public class BaseReceiveHandler implements ReceiveHandler {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel defaultChannel = notificationManager.getNotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID);
         if (defaultChannel == null) {
-            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_DEFAULT);
+            String channelName = "Notification";
+            try {
+                ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                if (applicationInfo.metaData.containsKey(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_NAME)) {
+                    channelName = applicationInfo.metaData.getString(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_NAME);
+                }
+            } catch (NameNotFoundException e) {
+            }
+            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
             defaultChannel.enableLights(true);
             defaultChannel.enableVibration(true);
             defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);

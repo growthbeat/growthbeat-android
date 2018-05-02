@@ -17,4 +17,5 @@ public class GrowthPushConstants {
     public static final String DIALOG_ICON_META_KEY = "com.growthpush.dialog.icon";
 
     public static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "com.growthpush.notification";
+    public static final String DEFAULT_NOTIFICATION_CHANNEL_NAME = "com.growthpush.notification.channel_name";
 }

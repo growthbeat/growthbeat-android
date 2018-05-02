@@ -47,7 +47,7 @@
             android:name="com.growthpush.notification.icon.large"
             android:resource="@mipmap/ic_launcher" />
         <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:name="com.growthpush.notification.channel_name"
             android:value="Notification" />
 
         <activity
