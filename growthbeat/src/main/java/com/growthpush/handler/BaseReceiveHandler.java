@@ -100,14 +100,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
-        NotificationCompat.Builder builder = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder = builderWithNotificationChannel(context);
-        } else {
-            builder = new NotificationCompat.Builder(context);
-        }
+        return defaultNotificationBuilder(getBuilder(context), context, extras, contextIntent);
+    }
+
+    public NotificationCompat.Builder defaultNotificationBuilder(NotificationCompat.Builder builder, Context context, Bundle extras, PendingIntent contextIntent) {
         PackageManager packageManager = context.getPackageManager();
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
@@ -163,6 +160,15 @@ public class BaseReceiveHandler implements ReceiveHandler {
         intent.putExtra("dialogType", DialogType.none.toString());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    @SuppressWarnings("deprecation")
+    public NotificationCompat.Builder getBuilder(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return builderWithNotificationChannel(context);
+        } else {
+            return new NotificationCompat.Builder(context);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
