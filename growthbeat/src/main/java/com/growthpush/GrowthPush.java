@@ -43,7 +43,6 @@ public class GrowthPush {
 
     private String applicationId;
     private String credentialId;
-    private String senderId;
     private Environment environment = null;
     private String channelId = null;
 
@@ -139,13 +138,16 @@ public class GrowthPush {
     }
 
     public void requestRegistrationId(final String senderId) {
+        // senderId not used. old interface.
+        this.requestRegistrationId();
+    }
 
+    public void requestRegistrationId() {
         if (!initialized) {
             logger.warning("Growth Push must be initialize.");
             return;
         }
 
-        this.senderId = senderId;
         pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -156,13 +158,9 @@ public class GrowthPush {
                 }
             }
         });
-
     }
 
     public String registerFCM() {
-        if (this.senderId == null)
-            return null;
-
         try {
             return FirebaseInstanceId.getInstance().getToken();
         } catch (Exception e) {
