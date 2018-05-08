@@ -137,8 +137,12 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated Now, senderId doesn't need.
+     * {@link #requestRegistrationId()}
+     */
+    @Deprecated
     public void requestRegistrationId(final String senderId) {
-        // senderId not used. old interface.
         this.requestRegistrationId();
     }
 

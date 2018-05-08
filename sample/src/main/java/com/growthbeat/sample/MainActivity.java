@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
         GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
             BuildConfig.DEBUG ? Environment.development : Environment.production);
-        GrowthPush.getInstance().requestRegistrationId("186415479559");
+        GrowthPush.getInstance().requestRegistrationId();
         GrowthPush.getInstance().trackEvent("Launch");
 
         new Thread(new Runnable() {
