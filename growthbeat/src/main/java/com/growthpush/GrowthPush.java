@@ -153,7 +153,7 @@ public class GrowthPush {
             public void run() {
                 String token = registerFCM();
                 if (token != null) {
-                    logger.info("GCM registration token: " + token);
+                    logger.info("FCM registration token: " + token);
                     registerClient(token);
                 }
             }
