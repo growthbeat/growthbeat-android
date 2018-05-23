@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion COMPILE_SDK_VERSION as int
     buildToolsVersion BUILD_TOOLS_VERSION
+    publishNonDefault true
 
     defaultConfig {
         minSdkVersion MIN_SDK_VERSION as int
@@ -21,7 +22,9 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     implementation group: "com.android.support", name: "appcompat-v7", version: "$SUPPORT_LIBRARY_VERSION"
-    implementation group: "com.google.firebase", name: "firebase-messaging", version: "$FIREBASE_LIBRARY_VERSION"
+    implementation(group: "com.google.firebase", name: "firebase-messaging", version: "$FIREBASE_LIBRARY_VERSION") {
+        exclude group: 'com.android.support'
+    }
     testImplementation 'junit:junit:4.12'
 }
 

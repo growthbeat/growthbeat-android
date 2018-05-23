@@ -21,9 +21,11 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':growthbeat')
+    api project(path: ':growthbeat', configuration: 'default')
     implementation group: "com.android.support", name: "appcompat-v7", version: "$SUPPORT_LIBRARY_VERSION"
-    implementation group: "com.google.firebase", name: "firebase-messaging", version: "$FIREBASE_LIBRARY_VERSION"
+    implementation(group: "com.google.firebase", name: "firebase-messaging", version: "$FIREBASE_LIBRARY_VERSION") {
+        exclude group: 'com.android.support'
+    }
     testImplementation 'junit:junit:4.12'
 }
 
