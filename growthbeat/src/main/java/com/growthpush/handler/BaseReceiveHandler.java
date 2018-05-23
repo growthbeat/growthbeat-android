@@ -104,6 +104,7 @@ public class BaseReceiveHandler implements ReceiveHandler {
         return defaultNotificationBuilder(getBuilder(context), context, extras, contextIntent);
     }
 
+    @SuppressWarnings("deprecation")
     public NotificationCompat.Builder defaultNotificationBuilder(NotificationCompat.Builder builder, Context context, Bundle extras, PendingIntent contextIntent) {
         PackageManager packageManager = context.getPackageManager();
 
