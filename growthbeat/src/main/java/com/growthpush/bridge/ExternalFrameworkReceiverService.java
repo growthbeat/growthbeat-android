@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.growthpush.GrowthPush;
-import com.growthpush.ReceiverService;
 import com.growthpush.handler.DefaultReceiveHandler;
 
-public class ExternalFrameworkReceiverService extends ReceiverService {
+import java.util.Map;
+
+public class ExternalFrameworkReceiverService extends FirebaseMessagingService {
 
     protected ExternalFrameworkBridge bridge = null;
 
@@ -17,7 +20,14 @@ public class ExternalFrameworkReceiverService extends ReceiverService {
     }
 
     @Override
-    public void onMessageReceived(String from, Bundle data) {
+    public void onMessageReceived(RemoteMessage message) {
+        Map<String, String> data = message.getData();
+        Bundle bundle = new Bundle();
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            bundle.putString(entry.getKey(), entry.getValue());
+        }
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
         if (GrowthPush.getInstance().getReceiveHandler() != null
             && GrowthPush.getInstance().getReceiveHandler() instanceof DefaultReceiveHandler) {
             DefaultReceiveHandler receiveHandler = (DefaultReceiveHandler) GrowthPush.getInstance().getReceiveHandler();
@@ -31,7 +41,6 @@ public class ExternalFrameworkReceiverService extends ReceiverService {
                 }
             });
         }
-
-        super.onMessageReceived(from, data);
+        GrowthPush.getInstance().getReceiveHandler().onReceive(getApplicationContext(), intent);
     }
 }

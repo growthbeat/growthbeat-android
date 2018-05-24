@@ -4,8 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
@@ -44,7 +43,6 @@ public class GrowthPush {
 
     private String applicationId;
     private String credentialId;
-    private String senderId;
     private Environment environment = null;
     private String channelId = null;
 
@@ -139,36 +137,38 @@ public class GrowthPush {
 
     }
 
+    /**
+     * @deprecated Now, senderId doesn't need.
+     * {@link #requestRegistrationId()}
+     */
+    @Deprecated
     public void requestRegistrationId(final String senderId) {
+        this.requestRegistrationId();
+    }
 
+    public void requestRegistrationId() {
         if (!initialized) {
             logger.warning("Growth Push must be initialize.");
             return;
         }
 
-        this.senderId = senderId;
-
         pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                String token = registerGCM(Growthbeat.getInstance().getContext());
+                String token = registerFCM();
                 if (token != null) {
-                    logger.info("GCM registration token: " + token);
+                    logger.info("FCM registration token: " + token);
                     registerClient(token);
                 }
             }
         });
-
     }
 
-    public String registerGCM(final Context context) {
-        if (this.senderId == null)
-            return null;
-
+    public String registerFCM() {
         try {
-            InstanceID instanceID = InstanceID.getInstance(context);
-            return instanceID.getToken(this.senderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+            return FirebaseInstanceId.getInstance().getToken();
         } catch (Exception e) {
+            logger.info(e.getMessage());
             return null;
         }
     }

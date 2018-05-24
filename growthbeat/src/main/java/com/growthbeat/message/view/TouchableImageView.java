@@ -1,5 +1,6 @@
 package com.growthbeat.message.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -7,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+@SuppressLint("AppCompatCustomView")
 public class TouchableImageView extends ImageView {
 
     public TouchableImageView(Context context) {
