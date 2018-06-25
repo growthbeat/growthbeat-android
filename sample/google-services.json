@@ -1,0 +1,36 @@
+{
+  "project_info": {
+    "project_number": "186415479559",
+    "firebase_url": "com.growthbeat.mock",
+    "project_id": "growthbeatsample",
+    "storage_bucket": "com.growthbeat.mock"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186415479559:android:00510e241b7a1d41",
+        "android_client_info": {
+          "package_name": "com.growthbeat.sample"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "mock"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

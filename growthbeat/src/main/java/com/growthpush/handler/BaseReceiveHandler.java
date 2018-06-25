@@ -100,14 +100,12 @@ public class BaseReceiveHandler implements ReceiveHandler {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public NotificationCompat.Builder defaultNotificationBuilder(Context context, Bundle extras, PendingIntent contextIntent) {
-        NotificationCompat.Builder builder = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder = builderWithNotificationChannel(context);
-        } else {
-            builder = new NotificationCompat.Builder(context);
-        }
+        return defaultNotificationBuilder(getBuilder(context), context, extras, contextIntent);
+    }
+
+    @SuppressWarnings("deprecation")
+    public NotificationCompat.Builder defaultNotificationBuilder(NotificationCompat.Builder builder, Context context, Bundle extras, PendingIntent contextIntent) {
         PackageManager packageManager = context.getPackageManager();
 
         NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle();
@@ -165,8 +163,17 @@ public class BaseReceiveHandler implements ReceiveHandler {
         return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
+    @SuppressWarnings("deprecation")
+    public NotificationCompat.Builder getBuilder(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return builderWithNotificationChannel(context);
+        } else {
+            return new NotificationCompat.Builder(context);
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private NotificationCompat.Builder builderWithNotificationChannel(Context context) {
+    public NotificationCompat.Builder builderWithNotificationChannel(Context context) {
 
         if (GrowthPush.getInstance().getChannelId() != null) {
             return new NotificationCompat.Builder(context, GrowthPush.getInstance().getChannelId());
@@ -175,7 +182,15 @@ public class BaseReceiveHandler implements ReceiveHandler {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel defaultChannel = notificationManager.getNotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID);
         if (defaultChannel == null) {
-            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, "Notification", NotificationManager.IMPORTANCE_DEFAULT);
+            String channelName = "Notification";
+            try {
+                ApplicationInfo applicationInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                if (applicationInfo.metaData.containsKey(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_NAME)) {
+                    channelName = applicationInfo.metaData.getString(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_NAME);
+                }
+            } catch (NameNotFoundException e) {
+            }
+            defaultChannel = new NotificationChannel(GrowthPushConstants.DEFAULT_NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_DEFAULT);
             defaultChannel.enableLights(true);
             defaultChannel.enableVibration(true);
             defaultChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
