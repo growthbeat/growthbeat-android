@@ -27,8 +27,10 @@ public class TouchableImageView extends ImageView {
                         break;
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
-                        imageView.getDrawable().clearColorFilter();
-                        imageView.invalidate();
+                        if(imageView.getDrawable() != null){
+                            imageView.getDrawable().clearColorFilter();
+                            imageView.invalidate();
+                        }
                         break;
                 }
                 return false;
