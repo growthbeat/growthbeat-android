@@ -25,4 +25,9 @@ public class ReceiverService extends FirebaseMessagingService {
         GrowthPush.getInstance().getReceiveHandler().onReceive(getApplicationContext(), intent);
     }
 
+    @Override
+    public void onNewToken(String token) {
+        GrowthPush.getInstance().getLogger().info("FCM registration token was refresh");
+        GrowthPush.getInstance().registerClient(token);
+    }
 }
