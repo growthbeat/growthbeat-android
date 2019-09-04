@@ -31,7 +31,7 @@ See the [support page](http://support.growthbeat.com/).
 
 ## Supported Environment
 
-* Android 4.1.x and later.
+* Android 4.1 and later.
 
 ## License
 
