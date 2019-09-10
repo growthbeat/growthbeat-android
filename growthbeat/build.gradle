@@ -25,6 +25,7 @@ dependencies {
     implementation(group: "com.google.firebase", name: "firebase-messaging", version: "$FIREBASE_LIBRARY_VERSION") {
         exclude group: 'com.android.support'
     }
+    implementation group: "com.google.android.gms", name:"play-services-ads-identifier", version: "$PLAY_SERVICE_AD_ID_VERSION"
     testImplementation 'junit:junit:4.12'
 }
 
