@@ -64,14 +64,5 @@
             android:name="com.growthbeat.message.view.MessageActivity"
             android:theme="@android:style/Theme.Translucent" />
 
-        <!-- for Growth Link -->
-        <receiver
-            android:name="com.growthbeat.link.InstallReferrerReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.android.vending.INSTALL_REFERRER" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
