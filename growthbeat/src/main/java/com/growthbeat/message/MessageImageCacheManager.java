@@ -2,7 +2,7 @@ package com.growthbeat.message;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 
 /**
  * Created by mugi65 on 2016/06/29.
