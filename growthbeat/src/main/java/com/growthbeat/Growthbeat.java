@@ -6,7 +6,6 @@ import com.growthbeat.http.GrowthbeatHttpClient;
 import com.growthbeat.intenthandler.IntentHandler;
 import com.growthbeat.intenthandler.NoopIntentHandler;
 import com.growthbeat.intenthandler.UrlIntentHandler;
-import com.growthbeat.link.GrowthLink;
 import com.growthbeat.message.GrowthMessage;
 import com.growthbeat.model.Client;
 import com.growthbeat.model.GrowthPushClient;
@@ -168,7 +167,6 @@ public class Growthbeat {
         getLogger().setSilent(silent);
         GrowthPush.getInstance().getLogger().setSilent(silent);
         GrowthMessage.getInstance().getLogger().setSilent(silent);
-        GrowthLink.getInstance().getLogger().setSilent(silent);
     }
 
     public void setIntentHandlers(List<? extends IntentHandler> intentHandlers) {

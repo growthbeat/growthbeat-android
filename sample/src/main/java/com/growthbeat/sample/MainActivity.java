@@ -20,7 +20,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        GrowthPush.getInstance().initialize(this, "PIaD6TaVt7wvKwao", "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
+        GrowthPush.getInstance().initialize(this,
+            "PIaD6TaVt7wvKwao",
+            "FD2w93wXcWlb68ILOObsKz5P3af9oVMo",
             BuildConfig.DEBUG ? Environment.development : Environment.production);
         GrowthPush.getInstance().requestRegistrationId();
         GrowthPush.getInstance().trackEvent("Launch");
