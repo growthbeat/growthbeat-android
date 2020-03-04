@@ -14,13 +14,13 @@ repositories {
 }
 
 dependencies {
-    compile 'com.growthbeat:growthbeat-android:2.0.12@aar'
+    compile 'com.growthbeat:growthbeat-android:3.0.0@aar'
 }
 ```
 
 ## Dependencies
 
-- Android Support Library
+- AndroidX library
 - Google Play Services SDK
 
 See more in the [`growthbeat/build.gradle`](https://github.com/growthbeat/growthbeat-android/blob/master/growthbeat/build.gradle).
