@@ -18,4 +18,5 @@ public class GrowthPushConstants {
 
     public static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "com.growthpush.notification";
     public static final String DEFAULT_NOTIFICATION_CHANNEL_NAME = "com.growthpush.notification.channel_name";
+    public static final String DEFAULT_MESSAGING_SCOPE = "FCM";
 }

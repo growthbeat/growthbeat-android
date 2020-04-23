@@ -137,15 +137,30 @@ public class GrowthPush {
 
     }
 
-    /**
-     * @deprecated Now, senderId doesn't need.
-     * {@link #requestRegistrationId()}
-     */
-    @Deprecated
     public void requestRegistrationId(final String senderId) {
-        this.requestRegistrationId();
+        if (!initialized) {
+            logger.warning("Growth Push must be initialize.");
+            return;
+        }
+        this.pushExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    String token = FirebaseInstanceId.getInstance()
+                        .getToken(senderId, GrowthPushConstants.DEFAULT_MESSAGING_SCOPE);
+                    if (token != null) {
+                        logger.info("FCM registration token: " + token);
+                        registerClient(token);
+                    }
+                }catch (Exception e) {
+                    logger.error("getToken something wrong...");
+                    logger.error(e.getMessage());
+                }
+            }
+        } );
     }
 
+    @Deprecated
     public void requestRegistrationId() {
         if (!initialized) {
             logger.warning("Growth Push must be initialize.");
@@ -164,6 +179,7 @@ public class GrowthPush {
         });
     }
 
+    @Deprecated
     public String registerFCM() {
         try {
             return FirebaseInstanceId.getInstance().getToken();
