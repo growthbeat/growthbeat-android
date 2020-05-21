@@ -4,7 +4,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
@@ -152,18 +154,42 @@ public class GrowthPush {
             return;
         }
 
-        pushExecutor.execute(new Runnable() {
+        getClientToken(new Callback() {
             @Override
-            public void run() {
-                String token = registerFCM();
-                if (token != null) {
+            public void onClientToken(String token) {
+                if(token != null) {
                     logger.info("FCM registration token: " + token);
                     registerClient(token);
                 }
             }
         });
+
     }
 
+    /**
+     * getClientToken
+     * @param callback
+     */
+    public void getClientToken(final Callback callback){
+        if(callback == null){
+            return;
+        }
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                callback.onClientToken(instanceIdResult.getToken());
+            }
+        });
+    }
+
+    public interface Callback {
+        void onClientToken(String token);
+    }
+
+    /**
+     * @deprecated {@link #getClientToken(Callback)}
+      */
     public String registerFCM() {
         try {
             return FirebaseInstanceId.getInstance().getToken();

@@ -35,6 +35,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
 
+        GrowthPush.getInstance().getClientToken(new GrowthPush.Callback() {
+            @Override
+            public void onClientToken(String token) {
+                Log.i("GrowthbeatSample", String.format("onClientToken token is %s",token));
+            }
+        });
+
         GrowthPush.getInstance().trackEvent("AllowPushPermission", null, new ShowMessageHandler() {
             @Override
             public void complete(MessageRenderHandler renderHandler) {
