@@ -77,7 +77,6 @@ public class BitmapUtilis {
                 viewGroup.removeAllViews();
             }
         }
-        view.destroyDrawingCache();
         view = null;
     }
 
