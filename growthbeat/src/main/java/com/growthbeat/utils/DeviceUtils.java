@@ -5,6 +5,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.Display;
@@ -94,6 +96,24 @@ public final class DeviceUtils {
 
     @SuppressLint("MissingPermission")
     public static boolean connectedToWiFi(Context context) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network network = connectivityManager.getActiveNetwork();
+            if (network != null) {
+                NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return true;
+                }
+            }
+            return false;
+        }else{
+            return connectedToWiFiApiLevelLessThan23(context);
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    @SuppressWarnings("deprecation")
+    private static boolean connectedToWiFiApiLevelLessThan23(Context context){
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo != null && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
