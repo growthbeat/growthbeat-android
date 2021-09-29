@@ -4,7 +4,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
-import com.google.firebase.iid.FirebaseInstanceId;
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.growthbeat.Growthbeat;
 import com.growthbeat.GrowthbeatThreadExecutor;
 import com.growthbeat.Logger;
@@ -155,22 +159,26 @@ public class GrowthPush {
         pushExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                String token = registerFCM();
-                if (token != null) {
-                    logger.info("FCM registration token: " + token);
-                    registerClient(token);
-                }
+                FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            logger.error("Fetching FCM registration token failed" + task.getException());
+                            return;
+                        }
+                        String token = task.getResult();
+                        registerClient(token);
+                    }
+                });
             }
         });
     }
 
     public String registerFCM() {
-        try {
-            return FirebaseInstanceId.getInstance().getToken();
-        } catch (Exception e) {
-            logger.info(e.getMessage());
-            return null;
+        if(client != null){
+            return client.getToken();
         }
+        return "";
     }
 
     public void registerClient(final String registrationId) {
