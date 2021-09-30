@@ -175,10 +175,19 @@ public class GrowthPush {
     }
 
     public String registerFCM() {
-        if(client != null){
-            return client.getToken();
+        if (!initialized) {
+            logger.warning("registerFCM: Growth Push must be initialize.");
+            return null;
         }
-        return "";
+        if (!waitClientRegistration()) {
+            logger.error(String.format("registerClient initialize client timeout."));
+            return null;
+        }
+        if(client == null){
+            logger.info("registerFCM: client is null.");
+            return null;
+        }
+        return client.getToken();
     }
 
     public void registerClient(final String registrationId) {
