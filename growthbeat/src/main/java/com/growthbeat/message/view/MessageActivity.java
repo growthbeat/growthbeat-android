@@ -23,7 +23,6 @@ public class MessageActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setTheme(android.R.style.Theme_Translucent);
 
         Message message = (Message) getIntent().getExtras().get("message");
         Bundle bundle = new Bundle();

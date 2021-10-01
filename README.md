@@ -1,21 +1,15 @@
 Growthbeat SDK for Android
 ===
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Download](https://api.bintray.com/packages/growthbeat/maven/growthbeat-android/images/download.svg)](https://bintray.com/growthbeat/maven/growthbeat-android/_latestVersion)
 
 
 Growthbeat SDK for Android
 
 ## Install
+Download latest jar file and add build dependencies.
 
 ```groovy
-repositories {
-    jcenter()
-}
-
-dependencies {
-    compile 'com.growthbeat:growthbeat-android:3.0.0@aar'
-}
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 ```
 
 ## Dependencies

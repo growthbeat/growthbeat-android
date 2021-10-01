@@ -31,7 +31,6 @@ public class AlertActivity extends FragmentActivity implements DialogCallback {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setTheme(android.R.style.Theme_Translucent);
 
         if (getIntent().getExtras().containsKey("message")) {
             String message = getIntent().getExtras().getString("message");

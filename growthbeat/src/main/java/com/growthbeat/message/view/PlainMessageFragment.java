@@ -87,7 +87,6 @@ public class PlainMessageFragment extends DialogFragment {
         }
 
         AlertDialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         return dialog;
 

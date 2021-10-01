@@ -51,7 +51,7 @@
             android:name="com.growthpush.view.AlertActivity"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.Translucent" />
+            android:theme="@style/GrowthTheme" />
 
         <service android:name="com.growthpush.ReceiverService"
             android:exported="false">
@@ -63,7 +63,7 @@
         <!-- for Growth Message -->
         <activity
             android:name="com.growthbeat.message.view.MessageActivity"
-            android:theme="@android:style/Theme.Translucent" />
+            android:theme="@style/GrowthTheme" />
 
     </application>
 </manifest>
