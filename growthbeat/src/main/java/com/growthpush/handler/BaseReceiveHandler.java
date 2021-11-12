@@ -160,7 +160,11 @@ public class BaseReceiveHandler implements ReceiveHandler {
         intent.putExtras(extras);
         intent.putExtra("dialogType", DialogType.none.toString());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        return PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags = PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        }
+        return PendingIntent.getActivity(context, requestCode, intent, flags);
     }
 
     @SuppressWarnings("deprecation")
