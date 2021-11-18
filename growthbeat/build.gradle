@@ -43,4 +43,4 @@ task makeJar(type: Copy) {
 makeJar.dependsOn(clearJar, build);
 
 apply from: 'android-artifacts.gradle'
-apply from: 'bintray-publish.gradle'
+apply from: 'maven-publish.gradle'
