@@ -1,5 +1,5 @@
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'signing'
 
 publishing {
     publications {
@@ -33,27 +33,17 @@ publishing {
             }
         }
     }
-}
-
-Properties properties = new Properties()
-File file = project.rootProject.file('local.properties')
-if (file.exists()) properties.load(file.newDataInputStream())
-
-bintray {
-    user = properties.getProperty('bintray.user') ?: System.getenv()['BINTRAY_USER']
-    key = properties.getProperty('bintray.key') ?: System.getenv()['BINTRAY_KEY']
-    publications = ['mavenJava']
-
-    pkg {
-        repo = 'maven'
-        name = ARTIFACT_ID
-        userOrg = 'growthbeat'
-        licenses = ['Apache-2.0']
-        labels = ['android']
-
-        version {
-            name = VERSION_NAME
-            vcsTag = VERSION_NAME
+    repositories {
+        maven {
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username = "${sonatypeUsername}"
+                password = "${sonatypePassword}"
+            }
         }
     }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
