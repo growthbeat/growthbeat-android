@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import androidx.fragment.app.FragmentActivity;
@@ -59,7 +60,11 @@ public class MessageActivity extends FragmentActivity {
                 close();
             }
         };
-        this.registerReceiver(receiver, intentFilter);
+        if (Build.VERSION.SDK_INT >= 34 && this.getApplicationInfo().targetSdkVersion >= 34) {
+            this.registerReceiver(receiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            this.registerReceiver(receiver, intentFilter);
+        }
     }
 
     private void close() {
