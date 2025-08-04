@@ -74,4 +74,6 @@ mavenPublishing {
             developerConnection = POM_SCM_DEV_CONNECTION
         }
     }
+
+    signAllPublications()
 }
