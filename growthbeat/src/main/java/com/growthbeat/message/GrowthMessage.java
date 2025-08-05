@@ -49,6 +49,7 @@ public class GrowthMessage {
     private Semaphore messageSemaphore = new Semaphore(1);
     private long lastMessageOpenedTimeMills;
     private boolean showingMessage;
+    private boolean pauseMessageDisplay;
     private MessageImageCacheManager messageImageCacheManager = new MessageImageCacheManager();
     private ConcurrentLinkedQueue<MessageQueue> messageQueue = new ConcurrentLinkedQueue<>();
     private Map<String, ShowMessageHandler> showMessageHandlers = new HashMap<>();
@@ -77,6 +78,7 @@ public class GrowthMessage {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
         this.showingMessage = false;
+        this.pauseMessageDisplay = false;
         this.lastMessageOpenedTimeMills = System.currentTimeMillis();
 
         setMessageHandlers(
@@ -222,6 +224,11 @@ public class GrowthMessage {
                         return;
                     }
 
+                    if (pauseMessageDisplay) {
+                        logger.info("Message display is currently paused.");
+                        return;
+                    }
+
                     final MessageQueue messageJob = messageQueue.poll();
                     if (messageJob == null) {
                         logger.info("Empty message queue.");
@@ -246,6 +253,15 @@ public class GrowthMessage {
 
             }
         });
+    }
+
+    public void pauseMessageDisplay() {
+        pauseMessageDisplay = true;
+    }
+
+    public void resumeMessageDisplay() {
+        pauseMessageDisplay = false;
+        openMessageIfExists();
     }
 
     public void notifyPopNextMessage() {
